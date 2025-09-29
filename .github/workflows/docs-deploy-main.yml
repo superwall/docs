@@ -15,17 +15,11 @@ on:
 
 jobs:
   deploy_docs_prod:
-    # Temporarily disabled to prevent automatic production deploys
-    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       deployments: write
     env:
-      # Depot Turbo Cache Configuration
-      TURBO_API: https://cache.depot.dev
-      TURBO_TOKEN: ${{ secrets.DEPOT_TOKEN }}
-      TURBO_TEAM: ${{ secrets.DEPOT_ORG_ID }}
       # Cloudflare configuration
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
@@ -99,22 +93,6 @@ jobs:
             }
           }
           EOF
-
-      - name: Sync production Worker secrets
-        run: |
-          node <<'EOF'
-          const fs = require('fs');
-          const secrets = {
-            NEXT_PUBLIC_MESH_SDK_KEY: process.env.DOCS_NEXT_PUBLIC_MESH_SDK_KEY,
-            NEXT_PUBLIC_UNIFY_SCRIPT_SRC: process.env.DOCS_NEXT_PUBLIC_UNIFY_SCRIPT_SRC,
-            NEXT_PUBLIC_UNIFY_API_KEY: process.env.DOCS_NEXT_PUBLIC_UNIFY_API_KEY,
-            NEXT_PUBLIC_RB2B_KEY: process.env.DOCS_NEXT_PUBLIC_RB2B_KEY,
-            SLACK_FEEDBACK_WEBHOOK: process.env.DOCS_SLACK_FEEDBACK_WEBHOOK
-          };
-          fs.writeFileSync('worker-secrets.json', JSON.stringify(secrets));
-          EOF
-          yarn wrangler --config wrangler.ci.jsonc secret bulk worker-secrets.json
-          rm worker-secrets.json
 
       - name: Deploy to Cloudflare Workers (Production)
         env:
