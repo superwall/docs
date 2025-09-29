@@ -95,7 +95,5 @@ jobs:
           EOF
 
       - name: Deploy to Cloudflare Workers (Production)
-        env:
-          WRANGLER_CONFIG: wrangler.ci.jsonc
-        run: yarn deploy
+        run: yarn build:prep && opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --config wrangler.ci.jsonc
 
