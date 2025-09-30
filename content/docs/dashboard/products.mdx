@@ -32,7 +32,7 @@ From there, you have five fields to fill out:
 | Period     | The length of the subscription.                                                                            |
 | Entitlements     | The entitlements this product belongs to.                                                                          |
 
-When your done, click **Save**.
+When you're done, click **Save**.
 
 Note that the pricing information you enter here is **only** used in the Paywall Editor. On
 device, that information is pulled directly from the App Store or Google Play Store and will be
@@ -44,9 +44,19 @@ localized.
 </Warning>
 
 ### Entitlements 
-Entitlements represent the amount of access or features users are entitled to. They can be used to offer different tiers of service, or just represent a single "active" subscription if your app only has one level of service (i.e. "Pro" unlocks everything). All products are granted a default entitlement. 
+Entitlements represent the amount of access or features users are entitled to. They can be used to offer different tiers of service, or just represent a single "active" subscription if your app only has one level of service (i.e. "Pro" unlocks everything). All products are granted a default entitlement.
 
-**If you don't have multiple tiers of service, then you don't need to make any additional entitlements.**
+<Warning>
+  Subscription status is determined by entitlements. If a user has no active
+  entitlements (for example, if your products are not attached to any
+  entitlement), their subscription status will be <b>Inactive</b>. Ensure each
+  subscription product is linked to at least one entitlement. If you only have
+  one tier, using the default entitlement is sufficient.
+
+  See the SDK reference for details: [iOS `subscriptionStatus`](/ios/sdk-reference/subscriptionStatus), [Android `subscriptionStatus`](/android/sdk-reference/subscriptionStatus).
+</Warning>
+
+**If you don't have multiple tiers of service, you can use the default entitlement — you don't need to create any additional entitlements.**
 
 To add an entitlement, **click** on the **Entitlements** tab within the products page. Then click **Add Entitlement**:
 
@@ -59,7 +69,7 @@ From there, give it a name, and click **Create**:
 At this point, you can go back to your products and attach one or more entitlements to each one. 
 
 #### Editing entitlements
-To edit or delete and entitlement, click on the trailing pencil icon or the trash can icon to remove one. Note that if your entitlement is associated with any product, you'll need to remove it first before you can delete it.
+To edit or delete an entitlement, click on the trailing pencil icon or the trash can icon to remove one. Note that if your entitlement is associated with any product, you'll need to remove it first before you can delete it.
 
 <Frame>![](/images/editEntitlement.png)</Frame>
 
