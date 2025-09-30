@@ -146,7 +146,7 @@ jobs:
           if [ -z "$URL" ]; then
             URL="$DEPLOYMENT"
           fi
-          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "url=${URL}/docs/home" >> $GITHUB_OUTPUT
 
       - name: Update Deployment Status (success)
         if: success()
