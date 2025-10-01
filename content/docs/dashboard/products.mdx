@@ -47,16 +47,13 @@ localized.
 Entitlements represent the amount of access or features users are entitled to. They can be used to offer different tiers of service, or just represent a single "active" subscription if your app only has one level of service (i.e. "Pro" unlocks everything). All products are granted a default entitlement.
 
 <Warning>
-  Subscription status is determined by entitlements. If a user has no active
-  entitlements (for example, if your products are not attached to any
-  entitlement), their subscription status will be <b>Inactive</b>. Ensure each
-  subscription product is linked to at least one entitlement. If you only have
-  one tier, using the default entitlement is sufficient.
+  **Subscription status is determined by entitlements.**
 
-  See the SDK reference for details: [iOS `subscriptionStatus`](/ios/sdk-reference/subscriptionStatus), [Android `subscriptionStatus`](/android/sdk-reference/subscriptionStatus).
+  If a product has no entitlements then when a user purchases it their subscription status will be **Inactive**.
+  Ensure each subscription product is linked to at least one entitlement.
 </Warning>
 
-**If you don't have multiple tiers of service, you can use the default entitlement — you don't need to create any additional entitlements.**
+If you don't have multiple tiers of service, you can use only the default `pro` entitlement — you don't need to create any additional entitlements.
 
 To add an entitlement, **click** on the **Entitlements** tab within the products page. Then click **Add Entitlement**:
 
