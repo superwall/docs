@@ -11,7 +11,7 @@ Web checkout requires the Superwall iOS SDK 4.2.0 or later.
   Visual learner? Go watch our web checkout tour over on YouTube
   [here](https://youtu.be/eUSIySsN1ZU).
 </Tip>
-### How it works
+## How it works
 
 Superwall presents paywalls via the concept of [campaigns](/campaigns), and each campaign has one or more [placements](/campaigns-placements). A paywall is shown in a campaign when a placement is triggered after your [audience filters](/campaigns-audience) are evaluated. This setup is Superwall's foundation, and the web checkout flow works the exact same way.
 
@@ -19,7 +19,7 @@ The core difference? Each placement becomes a unique URL that you can share, sen
 
 <Frame>![](images/web2appflow.jpg)</Frame>
 
-### Overall flow
+## Overall flow
 
 Refer to the individual pages below to get started, but for a quick, high-level overview — here's how web checkout works from beginning to end:
 
@@ -35,10 +35,7 @@ Refer to the individual pages below to get started, but for a quick, high-level 
 10. In the `SuperwallDelegate`, `willRedeemLink()` is called, and then once it's fetched — `didRedeemLink(result:)` is called with the result of the redemption.
 11. Finally, this user's account and details are managed via a link they find in their [email receipt or by visiting a URL manually](/web-checkout-managing-memberships).
 
-### Troubleshooting
-If a user has issues accessing their subscription in your app after paying via web checkout, direct them to your plan management page to retrieve their subscription link or manage billing. For example: `http://yourapp.superwall.app/manage`
-
-### Getting setup
+## Getting setup
 
 Before you start, you'll need to have a Stripe account and a Superwall account. If you don't have a Stripe account, you can sign up for one [here](https://dashboard.stripe.com/register).
 
@@ -67,3 +64,7 @@ Before you start, you'll need to have a Stripe account and a Superwall account. 
 ### App to Web 
 
 8. **[App to Web Checkout](/web-checkout-direct-stripe-checkout):** For customers in the United States, you can offer Stripe products directly from your iOS paywalls. 
+
+
+## Troubleshooting
+If a user has issues accessing their subscription in your app after paying via web checkout, direct them to your plan management page to retrieve their subscription link or manage billing. For example: `http://yourapp.superwall.app/manage`
