@@ -1,21 +1,21 @@
 ---
 title: "Users"
-description: "Get a snapshot view of users who recently triggered a placement in your app."
+description: "Get a snapshot view of users who recently triggered a placement in your app, see their user journey, revenue events and more."
 ---
 
 To view information about users who've recently triggered a placement in your app, **click** on the **Users** button in the sidebar:
 
-<Frame>![](/images/overview-users-sidebar.png)</Frame>
+<Frame>![](/images/overview-users-sidebar.jpeg)</Frame>
 
 Once there, you'll see a list of users who've had a session within the last 24 hours by default (or you can filter them by a specific event):
 
-<Frame>![](/images/overview-users-toggle-by-event.png)</Frame>
+<Frame>![](/images/overview-users-toggle-by-event.jpeg)</Frame>
 
 ### Searching by user identifier
 
 If you need to find a specific user, use the search box at the top:
 
-<Frame>![](/images/overview-users-search.png)</Frame>
+<Frame>![](/images/overview-users-search.jpeg)</Frame>
 
 This will find users by their Superwall identifier (i.e. `$SuperwallAlias:44409AAF-244D-9F08-A18A-8F66B52FDZ01`). Hit **Enter** once you've copied or typed in an identifier, and the matched user's details will display.
 
@@ -23,11 +23,9 @@ This will find users by their Superwall identifier (i.e. `$SuperwallAlias:44409A
 
 Use the toggle at the right-hand side to toggle by a specific [placement](/campaigns-placements) or [standard placement](/campaigns-standard-placements) (such as session start, app close, app open, etc).
 
-Below, Superwall displays all of the users who declined a paywall within the last 24 hours:
+Below, Superwall displays all of the users who have opened a paywall the last 24 hours:
 
-<Frame>![](/images/overview-users-main-view.png)</Frame>
-
-Once you've chosen a placement, **click** the **refresh icon** to view the matched users.
+<Frame>![](/images/overview-users-main-view.jpeg)</Frame>
 
 Any placements that are specific to your own app (i.e. ones that you've manually added to a campaign) will show with your app's logo next to it. All of Superwall's standard placements will have a Superwall logo.
 
@@ -39,31 +37,32 @@ Any placements that are specific to your own app (i.e. ones that you've manually
 
 ### Viewing user profiles
 
-To see more details about a user, click anywhere on one of the rows. Then, the user profile will be presented:
+To see more details about a user, click anywhere on one of the rows. Then, the user profile will be presented where you can review revenue events, SDK events, and more:
 
-<Frame>![](/images/overview-users-profile.png)</Frame>
+<Frame>![](/images/overview-users-profile.jpeg)</Frame>
 
-It's divided into four main sections:
+It's divided into these sections:
 
-1. **Profile:** This houses basic information about the user, such as their install date, user seed and more.
-2. **Device:** Details about the device the user was on when the last placement was matched. View the version of the app they were on, the bundle id, install timestamps and more.
-3. **Aliases:** Any alias that Superwall has assigned the user will show here. Read more about how user aliases are created [here](/identity-management).
-4. **Event Browser:** Browse all of the recent placements the user has matched against. Search and filter by them, and click on any one of them to see more details about it.
+1. **Overview:** Displays key user information including App User ID, Country, Total Spent, SDK Version, and user registration/last seen dates.
+2. **Recent Events:** View revenue events and conversions, SDK events, and see the overall breadcrumb of actions the user has taken. You can filter or search by certain events as well.
+3. **Entitlements:** Displays any active entitlements the user has attached, how long they'll be active and their corresponding indentifiers.
+4. **Aliases:** Any alias that Superwall has assigned the user will show here. Read more about how user aliases are created [here](/identity-management).
+5. **Apple Search Ads:** If you have the [Apple Search Ads](/dashboard/dashboard-integrations/integrations-apple-search-ads) integration activated, you'll see any A.S.A. data that relates to the user (such as the keywords used which led to install, etc).
+6. **User:** This houses basic information about the user, such as their install date, user seed and more.
+7. **Device:** The user's device details. All device attributes are searchable here as well.
 
 The user profile contains a wealth of information. You can search events by name by using the **Search Events** textbox, and quickly filter by event domains using the toggle at the top-right of the event browser:
 
-<Frame>![](/images/overview-users-toggle.png)</Frame>
+<Frame>![](/images/overview-users-toggle.jpeg)</Frame>
 
 The domains of events you can search and filter by are:
 
 1. **Overview:** The default option, this shows all of the key events from today.
 2. **Superwall Events:** These are [events](/tracking-analytics) automatically tracked by Superwall.
 3. **App Events:** Placements that you've manually added to a campaign.
-4. **Integration Events:** If you've integrated any 3rd party services, such as Revenue Cat, those events will show here.
+4. **Subscriptions Events:** Any transactions, trial starts, and similar subscription events.
 5. **All Events:** Displays every single event that's occurred today.
 
-<Warning>Events from App Store Connect do not currently show here yet.</Warning>
+Click on any of them to see more information about the event:
 
-To learn more about any specific event, just click on it and you'll be presented with extra details:
-
-<Frame>![](/images/overview-users-drilldown-event.png)</Frame>
+<Frame>![](/images/overview-users-toggle-metadata.jpeg)</Frame>
