@@ -107,8 +107,9 @@ jobs:
       - name: Deploy to Cloudflare Workers (Production)
         id: deploy
         run: |
-          yarn build:prep && \
-          yarn opennextjs-cloudflare build --config wrangler.jsonc && \
+          set -e
+          yarn build:prep
+          yarn opennextjs-cloudflare build --config wrangler.jsonc
           OUTPUT=$(yarn opennextjs-cloudflare deploy --config wrangler.jsonc)
           echo "$OUTPUT"
           # Extract deployment URL if available
