@@ -49,6 +49,7 @@ DO NOT EVER DEPLOY WITHOUT CHECKING WITH THE USER
 - Navigation structure defined by `meta.json` files in content directories
 - Pages auto-generated based on file structure in `/content/docs/`
 - Custom components in `src/components/` for enhanced UI
+- `/docs/sdk/*` wildcard path renders the SDK selector page before redirecting to the chosen platform (e.g. `/docs/sdk/quickstart/tracking-subscription-state` → `/docs/ios/quickstart/tracking-subscription-state`).
 
 ### Content Processing Plugins
 - `remark-tabs-syntax` - Processes tab syntax
