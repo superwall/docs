@@ -87,3 +87,10 @@ You can have a paywall present under two different conditions when a [placement]
 
 1. **Check User Subscription:** Present the paywall only if the user's subscription is not active.
 2. **Always:** Present the paywall regardless of the user's subscription status.
+
+### Reroute back button
+
+If enabled, allows you to run custom logic on back button press and consuming the event.
+To use it, once the option has been enabled, use the `PaywallOptions.onBackPressed` and return true to consume the back press event or false to let the SDK handle it.
+
+<Note> Back button rerouting is currently only supported on Android SDK 2.5.6 or higher </Note>
