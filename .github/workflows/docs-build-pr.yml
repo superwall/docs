@@ -26,16 +26,19 @@ jobs:
         with:
           submodules: true
 
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Pin Yarn 4.9.1
+        run: corepack prepare yarn@4.9.1 --activate
+
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build
         run: yarn build
