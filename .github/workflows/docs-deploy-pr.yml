@@ -1,31 +1,36 @@
-# On open PR with docs content or app changes, deploy to docs staging
-
-name: Deploy Docs to Staging on PR
+# Manual-only staging deploy for PRs (admin-gated via Environment reviewers)
+name: Deploy Docs to Staging (manual)
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - "src/**"
-      - "content/**"
-      - "scripts/**"
-      - "package.json"
-      - "next.config.ts"
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to deploy to staging"
+        required: true
+        type: number
 
+# Ensure only one deploy per PR runs at a time
 concurrency:
-  group: docs-staging-${{ github.head_ref }}
+  group: docs-staging-${{ inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
   deploy_docs_staging:
+    name: Deploy PR #${{ inputs.pr_number }} to staging
     runs-on: ubuntu-latest
+
+    # THIS is the gate. In repo Settings → Environments → 'staging', require approval from Owners/Admins.
+    environment:
+      name: staging
+
     permissions:
       contents: read
       deployments: write
       issues: write
       pull-requests: write
+
     env:
-      # Cloudflare configuration
+      # Cloudflare configuration (recommend storing these as Environment secrets on 'staging')
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
       CF_STAGING_WORKER_NAME: ${{ secrets.CF_STAGING_WORKER_NAME }}
@@ -34,21 +39,48 @@ jobs:
       DOCS_NEXT_PUBLIC_UNIFY_SCRIPT_SRC: ${{ secrets.DOCS_NEXT_PUBLIC_UNIFY_SCRIPT_SRC }}
       DOCS_NEXT_PUBLIC_UNIFY_API_KEY: ${{ secrets.DOCS_NEXT_PUBLIC_UNIFY_API_KEY }}
       DOCS_NEXT_PUBLIC_RB2B_KEY: ${{ secrets.DOCS_NEXT_PUBLIC_RB2B_KEY }}
+
     steps:
+      - name: Resolve PR details
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNum = Number(`${{ inputs.pr_number }}`);
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNum,
+            });
+            core.setOutput('state', pr.state); // open/closed
+            core.setOutput('sha', pr.head.sha);
+            core.setOutput('ref', pr.head.ref);
+            core.setOutput('repo', pr.head.repo.full_name);
+
+      - name: Guard — PR must be open
+        if: steps.pr.outputs.state != 'open'
+        run: |
+          echo "PR #${{ inputs.pr_number }} is not open (state: ${{ steps.pr.outputs.state }}). Aborting."
+          exit 1
+
       - uses: actions/checkout@v4
         with:
+          # Support forks by checking out the PR's head repo/ref explicitly
+          repository: ${{ steps.pr.outputs.repo }}
+          ref: ${{ steps.pr.outputs.sha }}
           submodules: true
 
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
+          cache: yarn
 
       - name: Enable Corepack
         run: corepack enable
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Create GitHub Deployment
         id: create_deployment
@@ -56,7 +88,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           environment: staging
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ steps.pr.outputs.sha }}
 
       - name: Mark deployment in progress
         uses: chrnorm/deployment-status@v2
@@ -110,7 +142,7 @@ jobs:
       - name: Build and deploy with preview alias
         id: deploy
         env:
-          PR: ${{ github.event.pull_request.number }}
+          PR: ${{ inputs.pr_number }}
         run: |
           set -e
           yarn build:prep
