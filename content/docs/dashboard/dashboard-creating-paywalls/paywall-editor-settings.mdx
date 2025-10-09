@@ -16,7 +16,28 @@ Toggle the presentation style of your paywall. Available options are:
 2. **Push:** The paywall will push onto a hierarchy, such as a `UINavigationController` on iOS.
 3. **Modal:** The paywall presents with the platform's default modal API.
 4. **No Animation:** The paywall presents modally, but without any animation.
-5. **Drawer:** The paywall presents from a bottom drawer.
+5. **Drawer:** The paywall presents from a bottom drawer with customizable height and corner radius.
+6. **Popup:** The paywall presents as a modal popup with customizable width, height, and corner radius from the center of the screen.
+
+#### Drawer Configuration
+
+When using the **Drawer** presentation style, you can configure:
+
+- **Height:** Set the height of the drawer as a percentage of the screen (default: 70%).
+- **Corner Radius:** Set the corner radius for the drawer corners (default: 15px).
+- **Scrolling:** Enable or disable scrolling within the drawer.
+
+#### Popup Configuration
+
+When using the **Popup** presentation style, you can configure:
+
+- **Width:** Set the width of the popup as a percentage of the screen (default: 80%).
+- **Height:** Set the height of the popup as a percentage of the screen (default: 60%).
+- **Corner Radius:** Set the corner radius for the popup corners (default: 15px).
+
+<Note>
+Popup style requires iOS SDK v4.8.0+
+</Note>
 
 ### Scrolling 
 
