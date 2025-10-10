@@ -16,7 +16,7 @@
     "upload": "yarn build:prep && opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "dev": "yarn build:prep && run-p watch:images \"dev:next\"",
-    "dev:next": "next dev -p 8293",
+    "dev:next": "next dev --turbo -p 8293",
     "clear:cache": "tsx scripts/clear-cache.ts",
     "start": "next start"
   },
