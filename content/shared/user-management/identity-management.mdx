@@ -114,5 +114,18 @@ On iOS, Superwall always supplies an [`appAccountToken`](https://developer.apple
 | You’ve called `Superwall.shared.identify(userId:)` | The exact `userId` you passed |
 | You *haven’t* called `identify` yet | The UUID automatically generated for the anonymous user (the **alias ID**), **without** the `$SuperwallAlias:` prefix |
 
-Because the SDK falls back to the alias UUID, purchase notifications sent to your server always include a stable, unique identifier—even before the user signs in.  
-Make sure any `userId` you pass to `identify` is a valid UUID string, as Apple requires `appAccountToken` values to follow the UUID format.
+| You passed a non‑UUID `userId` to `identify` | StoreKit rejects it; Superwall falls back to the alias UUID |
+
+Because the SDK falls back to the alias UUID, purchase notifications sent to your server always include a stable, unique identifier—even before the user signs in.
+
+<Warning>
+  On iOS, `appAccountToken` must be a UUID. If the `userId` you pass to `identify` is not a valid UUID string, StoreKit will not accept it for `appAccountToken` and transactions will instead contain the anonymous alias UUID. This can make the identifier you see in App Store Server Notifications differ from the `userId` you passed to `identify`.
+
+  To avoid confusion, always use a v4 UUID for your `userId` on iOS.
+</Warning>
+
+```swift
+// Generate and use a UUID user ID in Swift
+let userId = UUID().uuidString
+Superwall.shared.identify(userId: userId)
+```
