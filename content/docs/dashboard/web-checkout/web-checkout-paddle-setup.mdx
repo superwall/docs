@@ -1,0 +1,64 @@
+---
+title: "Paddle Setup"
+description: "Connect Paddle to Superwall web checkout."
+---
+
+<Warning>
+  Paddle support is currently in private beta.
+</Warning>
+
+Once you've created a [Web Checkout app](/dashboard/web-checkout/web-checkout-creating-an-app), you'll need to configure it with your Paddle keys and fill in a few settings. This is a one-time setup that connects Superwall to Paddle. The easiest way to get started is to click on the link in your overview page, which will take you to your app's [Settings](/overview-settings) page:
+
+## Application settings
+Fill out the metadata about your iOS app just like you do for Stripe. These fields control the branding and support details that appear on the checkout and subscription management pages.
+
+1. **Icon:** Use the same marketing icon that appears in your Paddle checkout. Square PNG files work best.
+2. **Application Name:** We recommend matching the App Store name so customers recognize it instantly.
+3. **Support URL:** A URL where customers can self-serve billing questions. Paddle will link to this from receipts and the customer hub.
+4. **Support Email:** The inbox your support team monitors for billing issues.
+5. **Redeemable on Desktop:** Enable this if customers can redeem subscriptions on macOS via Catalyst or iPad on Mac. Otherwise leave it disabled so redemptions happen on iOS only.
+
+Once you've filled out this information, click **Update Application**.
+
+## Web Paywall Domain
+The domain you set when creating the Paddle app is used for every Paddle checkout flow. It cannot be changed once the app is created.
+
+## Live configuration
+
+### Step 1: API keys
+In your [Paddle dashboard](https://vendors.paddle.com/), go to **Developers → [API Keys](https://vendors.paddle.com/)**. Copy the values for:
+
+1. **Publishable Key**
+2. **API Key**
+
+Paste both keys into Superwall and click **Update Configuration**.
+
+### Step 2: Redirect URL
+Copy the **Paddle Redirect URL** shown in the Superwall dashboard and paste it into your Paddle webhook settings. This allows Superwall to receive post-checkout events.
+
+### Step 3: Hosted Checkout URL
+Enter the **Hosted Checkout URL** from **Checkout → Hosted Checkouts** in Paddle. This URL is required for processing Paddle payments, so double-check that you're using the correct environment (live vs sandbox).
+
+<Warning>
+  Hosted checkout URLs are environment-specific. Make sure you copy the live URL when configuring the live environment.
+</Warning>
+
+## Sandbox configuration
+Repeat the same steps for the sandbox environment using the [sandbox Paddle dashboard](https://sandbox-vendors.paddle.com/). Use the sandbox API keys, redirect URL, and hosted checkout URL, then click **Save** to finish the sandbox setup.
+
+## iOS configuration
+These settings control the deep link handoff back to your iOS app, and they are identical whether you use Stripe or Paddle.
+
+1. **Apple Custom URL Scheme:** Add the scheme you registered in Xcode. If you need help, review [Setting up deep links](/sdk/quickstart/in-app-paywall-previews).
+2. **Apple App ID:** Find this in [App Store Connect](https://appstoreconnect.apple.com) under **General → App Information**.
+3. **Bundle ID:** Located in Xcode under **Targets → General → Identity**.
+4. **Team ID:** Available in the [Apple Developer account portal](https://developer.apple.com/account/#/membership/).
+
+After saving, all configuration sections should display **Configured**. You're now ready to [create products](/dashboard/web-checkout/web-checkout-adding-a-stripe-product) in Paddle and import them into Superwall paywalls.
+
+## Next steps
+
+- **Add Paddle products:** Follow the combined [product guide](/dashboard/web-checkout/web-checkout-adding-a-stripe-product) for Stripe and Paddle.
+- **Build paywalls and campaigns:** Continue with [Creating campaigns to show paywalls](/dashboard/web-checkout/web-checkout-creating-campaigns-to-show-paywalls).
+- **Test purchases:** Use the Paddle sandbox credentials with [Testing purchases](/dashboard/web-checkout/web-checkout-testing-purchases).
+
