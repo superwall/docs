@@ -6,16 +6,16 @@
   "scripts": {
     "copy:docs-images": "node scripts/copy-docs-images.cjs",
     "watch:images": "tsx scripts/watch-docs-images.ts",
-    "build:prep": "tsx scripts/generate-llm-files.ts && tsx scripts/generate-md-files.ts && yarn copy:docs-images",
-    "build": "yarn build:prep && fumadocs-mdx && yarn build:next",
+    "build:prep": "tsx scripts/generate-llm-files.ts && tsx scripts/generate-md-files.ts && bun run copy:docs-images",
+    "build": "bun run build:prep && fumadocs-mdx && bun run build:next",
     "build:next": "next build",
-    "build:cf": "yarn build:prep && opennextjs-cloudflare build",
+    "build:cf": "bun run build:prep && opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "yarn build:prep && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "deploy:staging": "yarn build:prep && opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --env staging",
-    "upload": "yarn build:prep && opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "deploy": "bun run build:prep && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "deploy:staging": "bun run build:prep && opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --env staging",
+    "upload": "bun run build:prep && opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "dev": "yarn build:prep && run-p watch:images \"dev:next\"",
+    "dev": "bun run build:prep && run-p watch:images \"dev:next\"",
     "dev:next": "next dev --turbo -p 8293",
     "clear:cache": "tsx scripts/clear-cache.ts",
     "start": "next start"
@@ -75,5 +75,5 @@
       "unplugged": true
     }
   },
-  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+  "packageManager": "bun@1.1.30"
 }

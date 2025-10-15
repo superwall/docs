@@ -74,13 +74,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
-          cache: yarn
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: bun install
 
       - name: Create GitHub Deployment
         id: create_deployment
@@ -145,8 +144,8 @@ jobs:
           PR: ${{ inputs.pr_number }}
         run: |
           set -e
-          yarn build:prep
-          yarn opennextjs-cloudflare build --config wrangler.jsonc
+          bun run build:prep
+          bun run opennextjs-cloudflare build --config wrangler.jsonc
           OUTPUT=$(npx wrangler@4.34.0 --config wrangler.jsonc versions upload --name ${CF_STAGING_WORKER_NAME} --preview-alias pr-$PR)
           echo "$OUTPUT"
           # Extract deployment URL
