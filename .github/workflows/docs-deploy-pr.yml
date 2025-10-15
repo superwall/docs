@@ -79,7 +79,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Create GitHub Deployment
         id: create_deployment
@@ -145,7 +145,7 @@ jobs:
         run: |
           set -e
           bun run build:prep
-          bun run opennextjs-cloudflare build --config wrangler.jsonc
+          bunx opennextjs-cloudflare build --config wrangler.jsonc
           OUTPUT=$(npx wrangler@4.34.0 --config wrangler.jsonc versions upload --name ${CF_STAGING_WORKER_NAME} --preview-alias pr-$PR)
           echo "$OUTPUT"
           # Extract deployment URL
