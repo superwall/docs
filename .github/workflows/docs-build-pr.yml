@@ -26,11 +26,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.18.1
-
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
 
