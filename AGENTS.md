@@ -10,23 +10,23 @@ From the docs directory (`apps/docs`):
 
 ```bash
 # Generate documentation files
-yarn build
+bun run build
 
 # Start documentation development server
-yarn dev
+bun run dev
 
 # Generate AI-optimized documentation files
 tsx scripts/generate-llm-files.ts
 tsx scripts/generate-md-files.ts
 
 # Copy documentation images
-yarn copy:docs-images
+bun run copy:docs-images
 
 # Deploy to Cloudflare (staging)
-yarn deploy:staging
+bun run deploy:staging
 
 # Deploy to Cloudflare (production)
-yarn deploy
+bun run deploy
 ```
 DO NOT EVER DEPLOY WITHOUT CHECKING WITH THE USER
 
@@ -60,10 +60,10 @@ DO NOT EVER DEPLOY WITHOUT CHECKING WITH THE USER
 ## Development Workflow
 
 ### Local Development
-1. Start dev server: `yarn dev`
+1. Start dev server: `bun run dev`
 2. Edit content in `/content/docs/`
 3. Changes automatically rebuild and refresh
-4. Test build locally: `yarn build`
+4. Test build locally: `bun run build`
 
 ### Adding New Features
 - Custom components go in `src/components/`
@@ -71,8 +71,8 @@ DO NOT EVER DEPLOY WITHOUT CHECKING WITH THE USER
 - Layout changes in `src/app/layout.config.tsx`
 
 ### Build and Deploy
-- Staging: `yarn deploy:staging`
-- Production: `yarn deploy`
+- Staging: `bun run deploy:staging`
+- Production: `bun run deploy`
 - Uses Cloudflare Pages for hosting
 
 ## Site Configuration
@@ -98,7 +98,7 @@ DO NOT EVER DEPLOY WITHOUT CHECKING WITH THE USER
 ### Build Failures
 - Check for syntax errors in `.mdx` files
 - Verify `meta.json` files are valid JSON
-- Run `yarn build` to see detailed error messages
+- Run `bun run build` to see detailed error messages
 
 ### Development Server Issues
 - Clear cache: `rm -rf .next`

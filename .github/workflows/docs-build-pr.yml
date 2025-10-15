@@ -26,19 +26,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Pin Yarn 4.9.1
-        run: corepack prepare yarn@4.9.1 --activate
-
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.18.1
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: yarn build
+        run: bun run build

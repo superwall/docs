@@ -1,22 +1,266 @@
-# Manual-only staging deploy for PRs (admin-gated via Environment reviewers)
-name: Deploy Docs to Staging (manual)
+# Deploy docs preview to Cloudflare when PRs pass build and are labeled
+name: Deploy Docs Preview
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "PR number to deploy to staging"
-        required: true
-        type: number
+  pull_request_target:
+    types: [labeled, synchronize]
 
 # Ensure only one deploy per PR runs at a time
 concurrency:
-  group: docs-staging-${{ inputs.pr_number }}
+  group: docs-staging-${{ github.event.pull_request.number || 'manual' }}
   cancel-in-progress: true
 
+env:
+  PREVIEW_LABEL: preview
+
 jobs:
+  resolve_pr:
+    name: Resolve PR and preview label
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      should_deploy: ${{ steps.evaluate.outputs.should_deploy }}
+      pr_number: ${{ steps.evaluate.outputs.pr_number }}
+      pr_sha: ${{ steps.evaluate.outputs.pr_sha }}
+      pr_ref: ${{ steps.evaluate.outputs.pr_ref }}
+      pr_repo: ${{ steps.evaluate.outputs.pr_repo }}
+      skip_reason: ${{ steps.evaluate.outputs.skip_reason }}
+    env:
+      MANUAL_PR_NUMBER: ${{ inputs.pr_number || '' }}
+      PREVIEW_TEAM_SLUG: ${{ vars.DOCS_PREVIEW_TEAM_SLUG || '' }}
+      PREVIEW_ALLOWED_USERS: ${{ vars.DOCS_PREVIEW_ALLOWED_USERS || '' }}
+    steps:
+      - name: Evaluate deployment eligibility
+        id: evaluate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const core = require('@actions/core');
+
+            const previewLabel = process.env.PREVIEW_LABEL || 'preview';
+            const manualPr = process.env.MANUAL_PR_NUMBER;
+            const teamSlug = (process.env.PREVIEW_TEAM_SLUG || '').trim();
+            const allowedList = (process.env.PREVIEW_ALLOWED_USERS || '')
+              .split(',')
+              .map((value) => value.trim())
+              .filter(Boolean);
+            const eventName = context.eventName;
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const outputs = {
+              should_deploy: 'false',
+              pr_number: '',
+              pr_sha: '',
+              pr_ref: '',
+              pr_repo: '',
+              skip_reason: '',
+            };
+
+            const restrictionsEnabled = allowedList.length > 0 || !!teamSlug;
+
+            async function isActorAllowed(username) {
+              if (!username) {
+                return false;
+              }
+
+              if (!restrictionsEnabled) {
+                return true;
+              }
+
+              if (allowedList.includes(username)) {
+                return true;
+              }
+
+              if (!teamSlug) {
+                return false;
+              }
+
+              try {
+                const membership = await github.rest.teams.getMembershipForUserInOrg({
+                  org: owner,
+                  team_slug: teamSlug,
+                  username,
+                });
+
+                return membership?.data?.state === 'active';
+              } catch (error) {
+                if (error.status === 404) {
+                  return false;
+                }
+
+                core.warning(`Unable to verify team membership for ${username}: ${error.message}`);
+                return false;
+              }
+            }
+
+            function setOutputs(details) {
+              for (const [key, value] of Object.entries(details)) {
+                core.setOutput(key, value ?? '');
+              }
+            }
+
+            function complete(details) {
+              setOutputs(details);
+              return;
+            }
+
+            let prNumber;
+            let pr;
+
+            if (eventName === 'workflow_dispatch') {
+              if (!manualPr) {
+                return complete({
+                  ...outputs,
+                  skip_reason: 'Manual dispatch requires a PR number.',
+                });
+              }
+
+              prNumber = Number(manualPr);
+              try {
+                const { data } = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: prNumber,
+                });
+                pr = data;
+              } catch (error) {
+                return complete({
+                  ...outputs,
+                  skip_reason: `Unable to load PR #${manualPr}: ${error.message}`,
+                });
+              }
+
+              if (!pr || pr.state !== 'open') {
+                return complete({
+                  ...outputs,
+                  skip_reason: `PR #${prNumber} is not open.`,
+                  pr_number: prNumber?.toString() ?? '',
+                });
+              }
+
+              return complete({
+                should_deploy: 'true',
+                pr_number: pr.number.toString(),
+                pr_sha: pr.head.sha,
+                pr_ref: pr.head.ref,
+                pr_repo: pr.head.repo.full_name,
+                skip_reason: '',
+              });
+            }
+
+            if (eventName === 'pull_request_target') {
+              pr = context.payload.pull_request;
+              prNumber = pr?.number;
+            } else {
+              return complete({
+                ...outputs,
+                skip_reason: `Event ${eventName} is not supported.`,
+              });
+            }
+
+            if (!prNumber || !pr) {
+              return complete({
+                ...outputs,
+                skip_reason: 'Unable to resolve pull request context.',
+              });
+            }
+
+            const result = {
+              should_deploy: 'false',
+              pr_number: pr.number.toString(),
+              pr_sha: pr.head.sha,
+              pr_ref: pr.head.ref,
+              pr_repo: pr.head.repo.full_name,
+              skip_reason: '',
+            };
+
+            if (pr.state !== 'open') {
+              return complete({
+                ...result,
+                skip_reason: `PR #${pr.number} is not open.`,
+              });
+            }
+
+            const hasPreviewLabel = pr.labels.some((label) => label.name === previewLabel);
+            if (!hasPreviewLabel) {
+              return complete({
+                ...result,
+                skip_reason: `PR #${pr.number} does not have the '${previewLabel}' label.`,
+              });
+            }
+
+            let actor = null;
+            if (context.payload?.action === 'labeled' && context.payload?.label?.name === previewLabel) {
+              actor = context.payload?.sender?.login ?? null;
+            }
+
+            if (!actor) {
+              try {
+                const events = await github.paginate(github.rest.issues.listEvents, {
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  per_page: 100,
+                });
+
+                for (const event of events.reverse()) {
+                  if (!event.label || event.label.name !== previewLabel) {
+                    continue;
+                  }
+
+                  if (event.event === 'labeled') {
+                    actor = event.actor?.login ?? null;
+                    break;
+                  }
+
+                  if (event.event === 'unlabeled') {
+                    actor = null;
+                    break;
+                  }
+                }
+              } catch (error) {
+                core.warning(`Unable to inspect label history: ${error.message}`);
+              }
+            }
+
+            if (!actor) {
+              return complete({
+                ...result,
+                skip_reason: `Unable to determine who last applied the '${previewLabel}' label.`,
+              });
+            }
+
+            const actorAllowed = await isActorAllowed(actor);
+            if (!actorAllowed) {
+              return complete({
+                ...result,
+                skip_reason: `@${actor} is not allowed to apply the '${previewLabel}' label.`,
+              });
+            }
+
+            return complete({
+              ...result,
+              should_deploy: 'true',
+            });
+
+  skip_notice:
+    name: Preview deploy skipped
+    runs-on: ubuntu-latest
+    needs: resolve_pr
+    if: needs.resolve_pr.outputs.should_deploy != 'true'
+    steps:
+      - run: |
+          echo "Preview deploy skipped: ${{ needs.resolve_pr.outputs.skip_reason || 'No deployment conditions met.' }}"
+
   deploy_docs_staging:
-    name: Deploy PR #${{ inputs.pr_number }} to staging
+    name: Deploy PR #${{ needs.resolve_pr.outputs.pr_number }} to staging
+    needs: resolve_pr
+    if: needs.resolve_pr.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
 
     # THIS is the gate. In repo Settings → Environments → 'staging', require approval from Owners/Admins.
@@ -30,6 +274,10 @@ jobs:
       pull-requests: write
 
     env:
+      PR_NUMBER: ${{ needs.resolve_pr.outputs.pr_number }}
+      PR_SHA: ${{ needs.resolve_pr.outputs.pr_sha }}
+      PR_REF: ${{ needs.resolve_pr.outputs.pr_ref }}
+      PR_REPO: ${{ needs.resolve_pr.outputs.pr_repo }}
       # Cloudflare configuration (recommend storing these as Environment secrets on 'staging')
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
@@ -41,46 +289,23 @@ jobs:
       DOCS_NEXT_PUBLIC_RB2B_KEY: ${{ secrets.DOCS_NEXT_PUBLIC_RB2B_KEY }}
 
     steps:
-      - name: Resolve PR details
-        id: pr
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNum = Number(`${{ inputs.pr_number }}`);
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNum,
-            });
-            core.setOutput('state', pr.state); // open/closed
-            core.setOutput('sha', pr.head.sha);
-            core.setOutput('ref', pr.head.ref);
-            core.setOutput('repo', pr.head.repo.full_name);
-
-      - name: Guard — PR must be open
-        if: steps.pr.outputs.state != 'open'
-        run: |
-          echo "PR #${{ inputs.pr_number }} is not open (state: ${{ steps.pr.outputs.state }}). Aborting."
-          exit 1
-
       - uses: actions/checkout@v4
         with:
           # Support forks by checking out the PR's head repo/ref explicitly
-          repository: ${{ steps.pr.outputs.repo }}
-          ref: ${{ steps.pr.outputs.sha }}
+          repository: ${{ env.PR_REPO }}
+          ref: ${{ env.PR_SHA }}
           submodules: true
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.1
-          cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Create GitHub Deployment
         id: create_deployment
@@ -88,7 +313,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           environment: staging
-          ref: ${{ steps.pr.outputs.sha }}
+          ref: ${{ env.PR_SHA }}
 
       - name: Mark deployment in progress
         uses: chrnorm/deployment-status@v2
@@ -142,11 +367,11 @@ jobs:
       - name: Build and deploy with preview alias
         id: deploy
         env:
-          PR: ${{ inputs.pr_number }}
+          PR: ${{ env.PR_NUMBER }}
         run: |
           set -e
-          yarn build:prep
-          yarn opennextjs-cloudflare build --config wrangler.jsonc
+          bun run build:prep
+          bunx opennextjs-cloudflare build --config wrangler.jsonc
           OUTPUT=$(npx wrangler@4.34.0 --config wrangler.jsonc versions upload --name ${CF_STAGING_WORKER_NAME} --preview-alias pr-$PR)
           echo "$OUTPUT"
           # Extract deployment URL

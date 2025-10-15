@@ -3,12 +3,12 @@
 ## Run Locally
 First time you run the docs, you'll need to build the docs first
 ```
-yarn build
+bun run build
 ```
 
 Then can just run the dev server
 ```
-yarn dev
+bun run dev
 ```
 
 will run the docs at http://localhost:8293
@@ -18,16 +18,16 @@ Note that some changes need to re-run build/dev to take effect, like redirects o
 ### Run AI Search
 ```
 cd ../docs-ai-api
-yarn dev
+bun run dev
 ```
 
 ## Deploy
 ### Deploy Production
 ```
-yarn deploy
+bun run deploy
 ```
 
 ### Deploy Staging
 ```
-yarn deploy:staging
+bun run deploy:staging
 ```
