@@ -550,12 +550,22 @@ class RCPurchaseController extends PurchaseController {
   Future<PurchaseResult> _purchaseSubscriptionOption(
       SubscriptionOption subscriptionOption) async {
     // Define the async perform purchase function
-    Future<CustomerInfo> performPurchase() async {
+    // For versions of Flutter Purchases <9
+    /*Future<CustomerInfo> performPurchase() async {
       // Attempt to purchase product
       CustomerInfo customerInfo =
           await Purchases.purchaseSubscriptionOption(subscriptionOption);
       return customerInfo;
+    }*/
+    // Flutter Purchases version 9+
+    Future<CustomerInfo> performPurchase() async {
+      // Attempt to purchase product
+      final result = await Purchases.purchase(
+        PurchaseParams.storeProduct(storeProduct),
+      );
+      return result.customerInfo;
     }
+
 
     PurchaseResult purchaseResult =
         await _handleSharedPurchase(performPurchase);
@@ -565,12 +575,23 @@ class RCPurchaseController extends PurchaseController {
   Future<PurchaseResult> _purchaseStoreProduct(
       StoreProduct storeProduct) async {
     // Define the async perform purchase function
-    Future<CustomerInfo> performPurchase() async {
+    /* For Flutter Purchases <9
+        Future<CustomerInfo> performPurchase() async {
       // Attempt to purchase product
       CustomerInfo customerInfo =
           await Purchases.purchaseStoreProduct(storeProduct);
       return customerInfo;
     }
+    */
+
+    // For flutter purchases 9+
+    Future<CustomerInfo> performPurchase() async {
+      // flutter_purchases 9+ API: use purchase(PurchaseParams) instead
+      final result = await Purchases.purchase(
+        PurchaseParams.storeProduct(storeProduct),
+      );
+    return result.customerInfo;
+  }
 
     PurchaseResult purchaseResult =
         await _handleSharedPurchase(performPurchase);
