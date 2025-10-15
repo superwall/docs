@@ -1,17 +1,23 @@
 ---
-title: "Creating Stripe Products"
-description: "Create products in Stripe to show on your web paywalls."
+title: "Creating Products"
+description: "Create products in Stripe or Paddle (private beta) to show on your web paywalls."
 ---
+
+<Info>
+  Paddle support is currently in private beta. Contact your Superwall representative to enable it, then follow the [Paddle setup guide](/dashboard/web-checkout/web-checkout-paddle-setup).
+</Info>
 
 ### Adding products
 
-Once your app is configured with Stripe, you can create products in Stripe to show on your web paywalls. To get started, **click** on **Products** from the overview page:
+Once your app is configured with Stripe or Paddle, you can create products in your provider of choice to show on your web paywalls. To get started, **click** on **Products** from the overview page:
 
 <Frame>![](/images/web2app_create_product.png)</Frame>
 
 <Note>
-  You will need to complete Stripe configuration first. If you're seeing a message to finish this
-  step, follow the steps outlined [here](/web-checkout-configuring-stripe-keys-and-settings).
+  Complete your provider setup first:
+  
+  - **Stripe:** Follow the steps in [Configuring Stripe Keys and Settings](/dashboard/web-checkout/web-checkout-configuring-stripe-keys-and-settings).
+  - **Paddle (private beta):** Follow the steps in [Configuring Paddle Keys and Settings](/dashboard/web-checkout/web-checkout-paddle-setup).
 </Note>
 
 Next, **click** on the **+ Import Products** button in the top right corner:
@@ -30,14 +36,16 @@ You'll be given a choice to add either a:
   good overview from [Stripe's documentation](https://docs.stripe.com/test-mode).
 </Note>
 
-**Using products already created in Stripe**<br />
-If you've already created products in Stripe, you can import them into Superwall now. All you need to do is select the "Product" and the rest of the fields should automatically populate with its data when you select them. You will need to choose which entitlement or entitlements a product should grant a use access to:
+### Using Stripe products
+
+If you've already created products in Stripe, you can import them into Superwall now. All you need to do is select the "Product" and the rest of the fields should automatically populate with its data when you select them. You will need to choose which entitlement or entitlements a product should grant a user access to:
 
 <Frame>![](/images/web2app_entitlement.png)</Frame>
 
 Once you're done **click** on the **Save** button and your product is ready to be used in a paywall.
 
-**Creating new products in Stripe**<br />
+### Creating new products in Stripe
+
 To create new products, **click** on the **Create Product in Stripe** link:
 
 <Frame>![](/images/web2app_create_stripe_product.png)</Frame>{" "}
@@ -64,8 +72,15 @@ Now, when you return to Superwall, select your product from the **Products** dro
 
 Be sure to associate the correct entitlement to the product as well.
 
-**Adding products to paywalls**<br />
-Adding Stripe products to web paywalls works the exact same way as it does for mobile paywalls. Check out the docs [here](/paywall-editor-products). For a quick overview:
+### Using Paddle products (private beta)
+
+If you're part of the Paddle beta, the import flow mirrors Stripe. Choose **Paddle** as the provider when importing, then select the product to pull in its data. Paddle sandbox and live products are labeled so you can keep environments separate. For more specifics on Paddle credentials, see [Configuring Paddle Keys and Settings](/dashboard/web-checkout/web-checkout-paddle-setup).
+
+You can also create new products directly from Paddle by visiting the Paddle dashboard. Define subscription plans and prices there, then return to Superwall and import them into your paywall.
+
+### Adding products to paywalls
+
+Adding Stripe or Paddle products to web paywalls works the exact same way as it does for mobile paywalls. Check out the docs [here](/paywall-editor-products). For a quick overview:
 
 1. Open the paywall editor.
 2. On the left sidebar click on **Products**.
@@ -73,7 +88,7 @@ Adding Stripe products to web paywalls works the exact same way as it does for m
 
 <Frame>![](/images/web2app_add_product.png)</Frame>
 
-Keep in mind that to test products, it's as simple as adding a test product to a paywall and performing the checkout flow. For more information, please refer to [this doc](/web-checkout-testing-products).
+Keep in mind that to test products, it's as simple as adding a test product to a paywall and performing the checkout flow. For more information, please refer to [Testing purchases](/dashboard/web-checkout/web-checkout-testing-purchases).
 
 ### Sandbox products
 

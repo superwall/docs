@@ -1,9 +1,9 @@
 ---
 title: "Overview"
-description: "Let customers purchase products online via Stripe, and them link them to your iOS app with one seamless flow. No authentication required."
+description: "Let customers purchase products online via Stripe or Paddle (private beta), then link them to your iOS app with one seamless flow. No authentication required."
 ---
 
-Superwall's web checkout integration makes it easy to set up purchasing funnels for your app via the web. Web checkout is powered by Stripe and Stripe products. Once an online purchase is complete, the customer will be redirected back to your app with a deep link that can be used to unlock content or features in your app via any associated [entitlement](/products#entitlements).
+Superwall's web checkout integration makes it easy to set up purchasing funnels for your app via the web. Web checkout is powered by Stripe or Paddle (private beta). Once an online purchase is complete, the customer will be redirected back to your app with a deep link that can be used to unlock content or features in your app via any associated [entitlement](/products#entitlements).
 
 Web checkout requires the Superwall iOS SDK 4.2.0 or later.
 
@@ -23,10 +23,10 @@ The core difference? Each placement becomes a unique URL that you can share, sen
 
 Refer to the individual pages below to get started, but for a quick, high-level overview — here's how web checkout works from beginning to end:
 
-1. A Stripe app is added to an existing iOS project in Superwall.
-2. Stripe is configured with Superwall.
-3. iOS app details are configured in the Stripe app's settings page (within Superwall).
-4. Products are created _in_ Stripe, and imported into Superwall.
+1. A Web Checkout app is added to an existing iOS project in Superwall.
+2. Your checkout provider is configured with Superwall.
+3. iOS app details are configured in the provider's settings page (within Superwall).
+4. Products are created _in_ your payment provider, and imported into Superwall.
 5. Within a campaign (a default one is provided), you attach those products to a paywall.
 6. A user visits a placement URL, and performs the checkout flow.
 7. After a successful purchase, the user is redirected to download the app.
@@ -37,16 +37,13 @@ Refer to the individual pages below to get started, but for a quick, high-level 
 
 ## Getting setup
 
-Before you start, you'll need to have a Stripe account and a Superwall account. If you don't have a Stripe account, you can sign up for one [here](https://dashboard.stripe.com/register).
+Before you start, you'll need to have a Superwall account and an account with your chosen provider. You can create a Stripe account [here](https://dashboard.stripe.com/register) or a Paddle account [here](https://vendors.paddle.com/register).
 
-<Note>
-  To opt yourself into the beta, please visit ["Public Beta
-  Settings"](https://superwall.com/applications/:app/settings/experiments).
-</Note>
-
-1. **[Creating a Stripe App](/web-checkout-creating-an-app):** First, you'll add a Stripe app to an existing project within Superwall.
-2. **[Configuration](/web-checkout-configuring-stripe-keys-and-settings):** Next, you'll need to perform a one-time setup to connect Stripe with Superwall.
-3. **[Creating Stripe products](/web-checkout-configuring-stripe-keys-and-settings):** Create your products in Stripe to add to your web paywalls.
+1. **[Creating an app](/web-checkout-creating-an-app):** First, you'll add a Web Checkout app to an existing project within Superwall.
+2. Payment provider setup:
+    - **[Stripe setup](/web-checkout-configuring-stripe-keys-and-settings):**
+    - **[Paddle setup (private beta)](/web-checkout-paddle-setup):**
+4. **[Managing products](/web-checkout-adding-a-stripe-product):** Create or import products to add to your web paywalls.
 
 ### Creating paywalls and campaigns
 
@@ -55,7 +52,7 @@ Before you start, you'll need to have a Stripe account and a Superwall account. 
 ### Associating entitlements to your iOS apps
 
 5. **[Linking purchases to your iOS app](/web-checkout-linking-membership-to-iOS-app):** Once a purchase occurs, the user will be prompted to download your app and click on a redemption link.
-6. **[Managing memberships](/web-checkout-managing-memberships):** Users can cancel, update or manage their memberships via Stripe.
+6. **[Managing memberships](/web-checkout-managing-memberships):** Users can cancel, update or manage their memberships via Stripe or Paddle.
 
 ### Testing purchases
 
@@ -63,7 +60,7 @@ Before you start, you'll need to have a Stripe account and a Superwall account. 
 
 ### App to Web 
 
-8. **[App to Web Checkout](/web-checkout-direct-stripe-checkout):** For customers in the United States, you can offer Stripe products directly from your iOS paywalls. 
+8. **[App to Web Checkout](/web-checkout-direct-stripe-checkout):** For customers in the United States, you can offer Stripe products directly from your iOS paywalls.
 
 
 ## Troubleshooting
