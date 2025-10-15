@@ -116,7 +116,14 @@ will use the following logic to choose the best offer for the user:
 - Find the longest free trial the customer is eligible for
 - If there is no free trial, find the cheapest introductory period the customer is eligible for
 - If there is none, fall back to the base plan
-- If you have an offer on one of your products that you never want to automatically be selected by this logic (for example, because it is a discount only used for a specific customer group), you can add the tag sw-ignore-offer to that offer.
+- If you have an offer on one of your products that you never want to automatically be selected by this logic (for example, because it is a discount only used for a specific customer group), you can add the tag `sw-ignore-offer` to that offer.
+
+To add the `sw-ignore-offer` tag in **Google Play Console**:
+
+1. Open the subscription offer you want to exclude and choose **Advanced settings**.
+2. In **Tags**, add `sw-ignore-offer` (all lowercase) and click **Save**.
+
+Superwall will ignore any offer that includes this tag when selecting the best offer for the user.
 
 That means that if your eligiblitiy criteria is set so that someone can use an
 offer only once, we'll respect that and choose from the best remaining offers.
