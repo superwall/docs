@@ -25,12 +25,14 @@ Refer to the individual pages below to get started, but for a quick, high-level 
 
 1. A Web Checkout app is added to an existing iOS project in Superwall.
 2. Your checkout provider is configured with Superwall.
-3. iOS app details are configured in the provider's settings page (within Superwall).
+3. iOS app details and post-purchase behavior are configured in the provider's settings page (within Superwall).
 4. Products are created _in_ your payment provider, and imported into Superwall.
 5. Within a campaign (a default one is provided), you attach those products to a paywall.
 6. A user visits a placement URL, and performs the checkout flow.
-7. After a successful purchase, the user is redirected to download the app.
-8. _On the device that they downloaded the app_, they click the redemption link.
+7. After a successful purchase, the user is redirected based on your [post-purchase behavior setting](/web-checkout-configuring-stripe-keys-and-settings#post-purchase-behavior):
+   - **Redeem mode** (default): User is directed to download the app and click the redemption link
+   - **Redirect mode**: User is redirected to your custom URL with purchase data
+8. For Redeem mode: _On the device that they downloaded the app_, they click the redemption link.
 9. Your iOS app is opened via a deep link (which means it must be set up with Superwall deep links, [docs here](/in-app-paywall-previews)).
 10. In the `SuperwallDelegate`, `willRedeemLink()` is called, and then once it's fetched — `didRedeemLink(result:)` is called with the result of the redemption.
 11. Finally, this user's account and details are managed via a link they find in their [email receipt or by visiting a URL manually](/web-checkout-managing-memberships).

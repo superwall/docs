@@ -38,6 +38,43 @@ Superwall.shared.identify(userId: user.id)
 
 This will ensure that the user is associated with the web checkout purchase.
 
-### A user paid on the web and can’t access their subscription in the app. What should I do?
+### A user paid on the web and can't access their subscription in the app. What should I do?
 
-Direct them to your app’s plan management page so they can retrieve their redemption link or manage billing. For example: `http://yourapp.superwall.app/manage`
+Direct them to your app's plan management page so they can retrieve their redemption link or manage billing. For example: `http://yourapp.superwall.app/manage`
+
+### When should I use Redirect mode instead of Redeem mode?
+
+Use **Redirect mode** when you need to:
+- Show a custom success or onboarding page after purchase
+- Perform additional verification or collect more information before granting access
+- Integrate with your own deep linking or authentication infrastructure
+- Track conversions in your own analytics before redemption
+
+Use **Redeem mode** (the default) when:
+- You want Superwall to handle the entire redemption flow automatically
+- You don't need custom post-purchase logic
+- You want the simplest integration
+
+Most apps should use Redeem mode. You can always switch between modes in your [Application Settings](/web-checkout-configuring-stripe-keys-and-settings#post-purchase-behavior).
+
+### What data is passed to my redirect URL in Redirect mode?
+
+When using Redirect mode, the following query parameters are automatically appended to your custom URL:
+
+**Standard parameters**:
+- `app_user_id` - The user's identifier from your app (if you called `identify`)
+- `email` - The user's email address from checkout
+- `stripe_subscription_id` - The Stripe subscription ID
+
+**Custom parameters**: Any placement parameters you set when creating the web checkout link will also be included.
+
+**Example redirect**:
+```
+https://yourapp.com/success?
+  app_user_id=user_123&
+  email=user@example.com&
+  stripe_subscription_id=sub_1234567890&
+  campaign_id=summer_sale
+```
+
+You can use this data to verify the purchase, link it to your user account, or perform custom onboarding. Learn more about [post-checkout redirecting](/sdk/guides/web-checkout/post-checkout-redirecting).

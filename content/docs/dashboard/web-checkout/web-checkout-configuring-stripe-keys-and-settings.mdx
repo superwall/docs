@@ -22,7 +22,28 @@ Fill out metadata about your iOS app in this section.
 
 5. **Redeemable on Desktop:** If your app is an iPad app on Mac, enable this option so that users can redeem products on their Mac. If you aren't using iPads Apps on the Mac, you can disable this. If this is disabled, Superwall enforces redemption on an iOS device.
 
-Once you've filled out this information, **click** on the **Update Application** button. 
+Once you've filled out this information, **click** on the **Update Application** button.
+
+### Post-Purchase Behavior
+
+Configure what happens after a user completes a purchase on the web:
+
+<Frame>![](/images/web-checkout-post-purchase-behavior.png)</Frame>
+
+**Redeem (Default)**: Superwall manages the entire redemption flow. Users are automatically deep linked to your app with a redemption code, with fallback to the App Store/Play Store if the app isn't installed. This is recommended for most apps.
+
+**Redirect**: Redirect users to your own custom URL with purchase information passed as query parameters. Use this when you need to:
+- Show a custom success or onboarding page
+- Perform additional verification or actions before redemption
+- Integrate with your own deep linking infrastructure
+
+When using Redirect mode, you'll need to provide a **Redirect URL** (must start with `https://`). Purchase data will be appended as query parameters:
+- `app_user_id` - User's app identifier
+- `email` - User's email address
+- `stripe_subscription_id` - Stripe subscription ID
+- Any custom placement parameters you've set
+
+Learn more about [post-checkout redirecting](/sdk/guides/web-checkout/post-checkout-redirecting).
 
 ### Web Paywall Domain 
 

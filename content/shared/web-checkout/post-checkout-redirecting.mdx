@@ -3,13 +3,54 @@ title: "Post-Checkout Redirecting"
 description: "Learn how to handle users redirecting back to your app after a web purchase."
 ---
 
-Whether you’re showing a checkout page in Safari or using the In-App Browser, the Superwall SDK relies on deep links to redirect back to your app.
+After a user completes a web purchase, Superwall needs to redirect them back to your app. You can configure this behavior in two ways:
+
+## Post-Purchase Behavior Modes
+
+You can configure how users are redirected after checkout in your [Application Settings](/web-checkout-configuring-stripe-keys-and-settings#post-purchase-behavior):
+
+### Redeem Mode (Default)
+
+Superwall manages the entire redemption experience:
+- Users are automatically deep linked to your app with a redemption code
+- Fallback to App Store/Play Store if the app isn't installed
+- Redemption emails are sent automatically
+- The SDK handles redemption via delegate methods (detailed below)
+
+This is the recommended mode for most apps.
+
+### Redirect Mode
+
+Redirect users to your own custom URL with purchase information:
+- **When to use**: You want to show a custom success page, perform additional actions before redemption, or have your own deep linking infrastructure
+- **What you receive**: Purchase data is passed as query parameters to your URL
+
+**Query Parameters Included**:
+- `app_user_id` - The user's identifier from your app
+- `email` - User's email address
+- `stripe_subscription_id` - The Stripe subscription ID
+- Any custom placement parameters you set
+
+**Example**:
+```
+https://yourapp.com/success?
+  app_user_id=user_123&
+  email=user@example.com&
+  stripe_subscription_id=sub_1234567890&
+  campaign_id=summer_sale
+```
+
+You'll need to implement your own logic to handle the redirect and deep link users into your app.
+
+---
+
+## Setting Up Deep Links
+
+Whether you're showing a checkout page in Safari or using the In-App Browser, the Superwall SDK relies on deep links to redirect back to your app.
 
 #### Prerequisites
 1. [Configuring Stripe Keys and Settings](/web-checkout-configuring-stripe-keys-and-settings)
 2. [Deep Links](/in-app-paywall-previews)
-
-Here, we'll focus on how to handle the user experience when the user has been redirected back to your app after a web purchase, using `SuperwallDelegate` methods.
 
 <Warning>
   If you're not using Superwall to handle purchases, then you'll need to follow extra steps to redeem the web purchase in your app.
@@ -18,8 +59,13 @@ Here, we'll focus on how to handle the user experience when the user has been re
 - [Using RevenueCat](/web-checkout-using-revenuecat)
 - [Using a PurchaseController](/web-checkout-linking-membership-to-iOS-app#using-a-purchasecontroller)
 
+---
 
-## willRedeemLink
+## Handling Redemption (Redeem Mode)
+
+When using Redeem mode (the default), handle the user experience when they're redirected back to your app using `SuperwallDelegate` methods:
+
+### willRedeemLink
 
 When your app opens via the deep link, we will call the delegate method `willRedeemLink()` before making a network call to redeem the code.
 At this point, you might wish to display a loading indicator in your app so the user knows that the purchase is being redeemed.
@@ -32,7 +78,7 @@ func willRedeemLink() {
 
 To present your own loading UI on top of the paywall, you can access the view controller of the paywall via `Superwall.shared.presentedViewController`. You can manually dismiss the paywall here, but note that the completion block of the original `register` call won't be triggered. The paywall will be dismissed automatically when the `didRedeemLink` method is called.
 
-## didRedeemLink
+### didRedeemLink
 
 After receiving a response from the network, we will call `didRedeemLink(result:)` with the result of redeeming the code. This is an enum that has the following cases:
 
