@@ -8,9 +8,6 @@ const { folderRedirectsMap, fileRedirectsMap, externalRedirectsMap } = require(r
 const withMDX = createMDX()
 
 const config: NextConfig = {
-  experimental: {
-    turbopackFileSystemCacheForDev: true,
-  },
   // Aliases out the eval-based HideIfEmpty to our stub
   // as eval() is not allowed on cloudflare workers, so we need to replace it
   webpack(config) {
