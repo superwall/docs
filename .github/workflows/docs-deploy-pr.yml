@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-      issues: read
+      issues: write
     outputs:
       should_deploy: ${{ steps.evaluate.outputs.should_deploy }}
       pr_number: ${{ steps.evaluate.outputs.pr_number }}
@@ -185,6 +185,54 @@ jobs:
             }
 
             const hasPreviewLabel = pr.labels.some((label) => label.name === previewLabel);
+
+            if (context.payload?.action === 'synchronize') {
+              const syncActor = context.payload?.sender?.login ?? null;
+
+              if (!syncActor) {
+                return complete({
+                  ...result,
+                  skip_reason: 'Unable to determine the actor that pushed the latest commits.',
+                });
+              }
+
+              const syncActorAllowed = await isActorAllowed(syncActor);
+
+              if (!syncActorAllowed) {
+                if (hasPreviewLabel) {
+                  try {
+                    await github.rest.issues.removeLabel({
+                      owner,
+                      repo,
+                      issue_number: pr.number,
+                      name: previewLabel,
+                    });
+                    core.info(`Removed '${previewLabel}' label after unauthorized synchronize by @${syncActor}.`);
+                  } catch (error) {
+                    if (error.status !== 404) {
+                      core.warning(`Failed to remove '${previewLabel}' label: ${error.message}`);
+                    }
+                  }
+
+                  try {
+                    await github.rest.issues.createComment({
+                      owner,
+                      repo,
+                      issue_number: pr.number,
+                      body: `Preview label removed: new commits from @${syncActor} are not permitted to trigger docs preview deployments. A team member can re-apply the \`${previewLabel}\` label once the changes are ready.`,
+                    });
+                  } catch (error) {
+                    core.warning(`Failed to comment about preview label removal: ${error.message}`);
+                  }
+                }
+
+                return complete({
+                  ...result,
+                  skip_reason: `Preview deployment blocked: @${syncActor} is not authorized to trigger deployments.`,
+                });
+              }
+            }
+
             if (!hasPreviewLabel) {
               return complete({
                 ...result,
@@ -276,6 +324,7 @@ jobs:
       PR_SHA: ${{ needs.resolve_pr.outputs.pr_sha }}
       PR_REF: ${{ needs.resolve_pr.outputs.pr_ref }}
       PR_REPO: ${{ needs.resolve_pr.outputs.pr_repo }}
+      PREVIEW_DEPLOY_ENVIRONMENT: docs-preview-pr-${{ needs.resolve_pr.outputs.pr_number }}
       # Cloudflare configuration (recommend storing these as Environment secrets on 'staging')
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
@@ -310,7 +359,7 @@ jobs:
         uses: chrnorm/deployment-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          environment: staging
+          environment: ${{ env.PREVIEW_DEPLOY_ENVIRONMENT }}
           ref: ${{ env.PR_SHA }}
 
       - name: Mark deployment in progress
