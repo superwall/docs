@@ -27,9 +27,9 @@ public func identify(
 </ParamTable>
 
 <Warning>
-  iOS only: `appAccountToken` must be a UUID. If the `userId` you pass to `identify` is not a valid UUID string, StoreKit will not accept it for `appAccountToken` and the SDK will fall back to the anonymous alias UUID. This can cause the identifier in App Store Server Notifications to differ from the `userId` you passed.
-
-  For consistency, always use a v4 UUID for `userId` on iOS. See Apple's docs: [appAccountToken](https://developer.apple.com/documentation/appstoreserverapi/appaccounttoken).
+  `appAccountToken` must be a UUID to be accepted by StoreKit.
+  
+  If the `userId` you pass to `identify` is not a valid UUID string, StoreKit will not accept it for `appAccountToken` and the SDK will fall back to the anonymous alias UUID. This can cause the identifier in App Store Server Notifications to differ from the `userId` you passed. See Apple's docs: [appAccountToken](https://developer.apple.com/documentation/appstoreserverapi/appaccounttoken).
 </Warning>
 
 ## Returns / State
