@@ -20,6 +20,7 @@
     */
     --radius-lg: 0.75rem;
     --spacing: 0.3rem;
+    --sw-chat-width: 0px;
 }
 
 .dark {
@@ -53,6 +54,17 @@
     --tw-prose-body: var(--color-fd-muted-foreground);
     --tw-prose-bullets: var(--color-fd-muted-foreground);
     --tw-prose-counters: var(--color-fd-muted-foreground);
+}
+
+body {
+    padding-right: var(--sw-chat-width);
+    transition: padding-right 0.2s ease;
+}
+
+@media (max-width: 1023px) {
+    body {
+        padding-right: 0 !important;
+    }
 }
 
 /* colored pill on first column for <ParamTable> */

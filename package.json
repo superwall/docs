@@ -21,8 +21,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.53",
+    "@ai-sdk/react": "^2.0.76",
     "@radix-ui/react-dialog": "^1.1.11",
+    "ai": "^5.0.76",
     "class-variance-authority": "^0.7.1",
+    "cli-progress": "^3.12.0",
     "clsx": "^2.1.0",
     "fumadocs-core": "15.3.2",
     "fumadocs-mdx": "<12.0.0",

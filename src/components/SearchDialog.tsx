@@ -76,6 +76,8 @@ interface SearchDialogProps extends SharedProps {
   footer?: ReactNode;
 }
 
+import { useDialogState } from '@/hooks/useDialogState';
+
 const SDK_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'ios', label: 'iOS' },
@@ -93,6 +95,8 @@ export function SearchDialogWrapper(props: SharedProps) {
     type: 'fetch',
     api: '/docs/api/search'
   }, undefined, selectedSdk || undefined, SEARCH_DEBOUNCE_MS);
+
+  const { searchOpen, setSearchOpen } = useDialogState();
 
   // Track debouncing state in development
   useEffect(() => {
@@ -114,9 +118,17 @@ export function SearchDialogWrapper(props: SharedProps) {
     }
   }, [query.data, search]);
 
+  // Sync search dialog state with global dialog state
+  const handleOpenChange = (open: boolean) => {
+    setSearchOpen(open);
+    props.onOpenChange?.(open);
+  };
+
   return (
     <SearchDialogWrapperInner
       {...props}
+      open={searchOpen || props.open}
+      onOpenChange={handleOpenChange}
       search={search}
       onSearchChange={setSearch}
       results={query.data ?? 'empty'}

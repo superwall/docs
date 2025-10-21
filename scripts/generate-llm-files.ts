@@ -12,6 +12,7 @@ import remarkFollowExport from "../plugins/remark-follow-export"
 import remarkDirective from "remark-directive"
 import { remarkInclude } from 'fumadocs-mdx/config';
 import remarkSdkFilter from "../plugins/remark-sdk-filter"
+import { createProgressBar } from './utils/progress'
 
 // 1) Configure your plugins once
 const processor = remark()
@@ -54,6 +55,8 @@ const filters = [
 async function main() {
   await fs.mkdir(OUT, { recursive: true })
   const allFiles = await walk(CONTENT)
+  const interactive = Boolean(process.stdout.isTTY)
+  const summaries: Array<{ name: string; count: number }> = []
 
   for (const { name, suffix } of filters) {
     // apply your folder logic; e.g. filePath.includes('/ios/')
@@ -67,6 +70,8 @@ async function main() {
     // build full and index
     const fullDocs  = []
     const indexDocs = [`# ${name === 'all' ? 'Superwall' : `Superwall ${name.toUpperCase()}`} SDK\n\n## Docs\n`]
+    const progressLabel = name === 'all' ? 'LLM all' : `LLM ${name}`
+    const progress = createProgressBar(progressLabel, subset.length)
 
     for (const filePath of subset) {
       const raw    = await fs.readFile(filePath, 'utf8')
@@ -83,21 +88,29 @@ async function main() {
       indexDocs.push(
         `- [${data.title}](${url}): ${data.description}`
       )
+      progress?.increment()
     }
+
+    progress?.stop()
 
     // write out
     await fs.writeFile(path.join(OUT, `llms-full${suffix}.txt`), fullDocs.join('\n\n---\n\n'), 'utf8')
     await fs.writeFile(path.join(OUT, `llms${suffix}.txt`), indexDocs.join('\n') + '\n\n## Optional\n\n- [GitHub](https://github.com/superwall)\n- [Twitter](https://twitter.com/superwall)\n- [Blog](https://superwall.com/blog)\n', 'utf8')
-    console.log(`✓ Generated llms-full${suffix}.txt & llms${suffix}.txt`)
+    summaries.push({ name, count: subset.length })
+
+    if (!interactive) {
+      console.log(`✓ Generated llms-full${suffix}.txt & llms${suffix}.txt (${subset.length} files)`)
+    }
+  }
+
+  if (interactive) {
+    const totalDocs = allFiles.length
+    const variantCount = summaries.length
+    console.log(`✓ Generated LLM bundles (${variantCount} variants, ${totalDocs} docs)`)
   }
 }
 
-console.log('Starting LLM file generation...')
-
 main()
-  .then(() => {
-    console.log('✨ Successfully generated all LLM files')
-  })
   .catch(err => {
     console.error('❌ Error generating LLM files:')
     console.error(err.stack || err)
