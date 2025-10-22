@@ -1,6 +1,217 @@
 ---
 title: "Using RevenueCat"
-description: "Handle a deep link in your app and use the delegate methods to link web checkouts with RevenueCat."
+description: "Handle a deep link in your app and use the delegate methods to link web checkouts with RevenueCat in Flutter."
 ---
 
-<include>../../../../shared/web-checkout/using-revenuecat.mdx</include>
+After purchasing from a web paywall, the user will be redirected to your app by a deep link to redeem their purchase on device. Please follow our [Post-Checkout Redirecting](/web-checkout-post-checkout-redirecting) guide to handle this user experience.
+
+<Note>
+  If you're using Superwall to handle purchases, then you don't need to do anything here.
+</Note>
+
+<Warning>You only need to use a `PurchaseController` if you want end-to-end control of the purchasing pipeline. The recommended way to use RevenueCat with Superwall is by putting it in observer mode.</Warning>
+
+If you're using your own `PurchaseController`, you should follow our [Redeeming In-App](/web-checkout-linking-membership-to-iOS-app) guide.
+
+### Using a PurchaseController with RevenueCat
+
+If you're using RevenueCat, you'll need to follow [steps 1 to 4 in their guide](https://www.revenuecat.com/docs/web/integrations/stripe) to set up Stripe with RevenueCat. Then, you'll need to
+associate the RevenueCat customer with the Stripe subscription IDs returned from redeeming the code. You can do this by extracting the ids from the `RedemptionResult` and sending them to RevenueCat's API
+by using the `didRedeemLink()` delegate method:
+
+```dart
+import 'package:superwall_flutter/superwall_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class MySuperwallDelegate extends SuperwallDelegate {
+  // The user tapped on a deep link to redeem a code
+  @override
+  void willRedeemLink() {
+    print('[!] willRedeemLink');
+    // Optionally show a loading indicator here
+  }
+
+  // Superwall received a redemption result and validated the purchase with Stripe.
+  @override
+  void didRedeemLink(RedemptionResult result) async {
+    print('[!] didRedeemLink: $result');
+    // Send Stripe IDs to RevenueCat to link purchases to the customer
+
+    // Get a list of subscription ids tied to the customer
+    final stripeSubscriptionIds = result.stripeSubscriptionIds;
+    if (stripeSubscriptionIds == null || stripeSubscriptionIds.isEmpty) {
+      return;
+    }
+
+    const revenueCatStripePublicAPIKey = 'strp.....'; // replace with your RevenueCat Stripe Public API Key
+    final appUserId = await Purchases.appUserID;
+
+    // In the background, send requests to RevenueCat
+    for (final stripeSubscriptionId in stripeSubscriptionIds) {
+      try {
+        final url = Uri.parse('https://api.revenuecat.com/v1/receipts');
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Platform': 'stripe',
+            'Authorization': 'Bearer $revenueCatStripePublicAPIKey',
+          },
+          body: jsonEncode({
+            'app_user_id': appUserId,
+            'fetch_token': stripeSubscriptionId,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final json = jsonDecode(response.body);
+          print('[!] Success: linked $stripeSubscriptionId to user $appUserId: $json');
+        } else {
+          print('[!] Error: unable to link $stripeSubscriptionId to user $appUserId. Status: ${response.statusCode}');
+        }
+      } catch (error) {
+        print('[!] Error: unable to link $stripeSubscriptionId to user $appUserId: $error');
+      }
+    }
+
+    // After all network calls complete, invalidate the cache
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      
+      /// If you're using Purchases.customerInfoStream, or keeping Superwall Entitlements in sync
+      /// via RevenueCat's PurchasesDelegate methods, you don't need to do anything here. Those methods will be
+      /// called automatically when this call fetches the most up to date customer info, ignoring any local caches.
+      
+      /// Otherwise, if you're manually calling Purchases.getCustomerInfo to keep Superwall's entitlements
+      /// in sync, you should use the newly updated customer info here to do so.
+      
+      /// You could always access web entitlements here as well
+      /// final webEntitlements = Superwall.shared.entitlements?.web;
+      
+      // Perform UI updates, like letting the user know their subscription was redeemed
+      print('[!] Customer info updated after redemption');
+    } catch (error) {
+      print('[!] Error fetching customer info: $error');
+    }
+  }
+}
+```
+
+Set up the delegate when configuring Superwall:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Superwall.configure('pk_your_api_key');
+  
+  // Set the delegate
+  Superwall.shared.setDelegate(MySuperwallDelegate());
+  
+  runApp(MyApp());
+}
+```
+
+<Warning>
+  If you call `logIn` from RevenueCat's SDK, then you need to call the logic you've implemented
+  inside `didRedeemLink()` again. For example, that means if `logIn` was invoked from
+  RevenueCat, you'd either abstract out this logic above into a function to call again, or simply
+  call this function directly.
+</Warning>
+
+The web entitlements will be returned along with other existing entitlements in the `CustomerInfo` object accessible via RevenueCat's SDK.
+
+If you're logging in and out of RevenueCat, make sure to resend the Stripe subscription IDs to RevenueCat's endpoint after logging in.
+
+### Alternative implementation using async/await properly
+
+Here's a cleaner implementation that properly handles async operations:
+
+```dart
+class MySuperwallDelegate extends SuperwallDelegate {
+  @override
+  void willRedeemLink() {
+    print('[!] willRedeemLink');
+    // Show loading indicator
+  }
+
+  @override
+  void didRedeemLink(RedemptionResult result) {
+    // Don't use async here directly, spawn a separate task
+    _handleRedemption(result);
+  }
+  
+  Future<void> _handleRedemption(RedemptionResult result) async {
+    final stripeSubscriptionIds = result.stripeSubscriptionIds;
+    if (stripeSubscriptionIds == null || stripeSubscriptionIds.isEmpty) {
+      print('[!] No Stripe subscription IDs found');
+      return;
+    }
+
+    const revenueCatStripePublicAPIKey = 'strp.....';
+    final appUserId = await Purchases.appUserID;
+
+    // Link each subscription to RevenueCat
+    await Future.wait(
+      stripeSubscriptionIds.map((stripeSubscriptionId) async {
+        try {
+          await _linkSubscriptionToRevenueCat(
+            stripeSubscriptionId,
+            appUserId,
+            revenueCatStripePublicAPIKey,
+          );
+        } catch (e) {
+          print('[!] Failed to link $stripeSubscriptionId: $e');
+        }
+      }),
+    );
+
+    // Refresh customer info
+    try {
+      await Purchases.getCustomerInfo();
+      print('[!] Successfully refreshed customer info');
+    } catch (e) {
+      print('[!] Failed to refresh customer info: $e');
+    }
+  }
+  
+  Future<void> _linkSubscriptionToRevenueCat(
+    String stripeSubscriptionId,
+    String appUserId,
+    String apiKey,
+  ) async {
+    final url = Uri.parse('https://api.revenuecat.com/v1/receipts');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Platform': 'stripe',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: jsonEncode({
+        'app_user_id': appUserId,
+        'fetch_token': stripeSubscriptionId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('[!] Successfully linked $stripeSubscriptionId to $appUserId');
+    } else {
+      throw Exception('Failed to link subscription: ${response.statusCode}');
+    }
+  }
+}
+```
+
+Remember to add the `http` package to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  http: ^1.1.0
+  purchases_flutter: ^6.0.0
+  superwall_flutter: ^1.0.0
+```
