@@ -64,10 +64,6 @@ export function GlobalScripts({ location }: GlobalScriptsProps) {
 
   const scriptContent = `
           (async function () {
-            // Skip on localhost (handled by separate local dev script)
-            var isLocalhost = typeof window !== 'undefined' &&
-              (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-            if (isLocalhost) return;
 
             try {
               var response = await fetch('/api/auth/session', { credentials: 'include' });
@@ -160,7 +156,6 @@ export function GlobalScripts({ location }: GlobalScriptsProps) {
                 })();
 
               }
-              // Production Pylon integration disabled - only enabled in dev
             } catch (_err) {
               // On error, assume logged in (do nothing)
             }
