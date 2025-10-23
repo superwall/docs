@@ -1,29 +1,41 @@
 'use client';
 
-import AskAI from "@/components/AskAI";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+import { ChatView } from '@/components/ChatView';
 
 export default function AIPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [initialQuery, setInitialQuery] = useState<string | null>(null);
+  const [initialQuery, setInitialQuery] = useState<{ id: number; value: string } | null>(null);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
-    if (searchQuery) {
-      try {
-        const decoded = decodeURIComponent(searchQuery);
-        setInitialQuery(decoded);
-        // Clear the URL parameter
-        const url = new URL(window.location.href);
-        url.searchParams.delete('search');
-        router.replace(url.pathname + url.search, { scroll: false });
-      } catch {
-        // Fail silently if malformed
+    if (!searchQuery) return;
+
+    try {
+      const decoded = decodeURIComponent(searchQuery);
+      if (decoded.trim().length > 0) {
+        setInitialQuery({ id: Date.now(), value: decoded });
       }
+    } catch {
+      // ignore malformed queries
     }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('search');
+    router.replace(url.pathname + url.search, { scroll: false });
   }, [searchParams, router]);
 
-  return <AskAI initialQuery={initialQuery} />;
+  return (
+    <div className="flex flex-1">
+      <ChatView
+        className="min-h-screen w-full"
+        autoFocus
+        initialQuery={initialQuery?.value}
+        initialQueryKey={initialQuery?.id ?? null}
+      />
+    </div>
+  );
 }

@@ -1,12 +1,19 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ChatFAB } from './ChatFAB';
 import { ChatSidebar } from './ChatSidebar';
 import { useDialogState } from '@/hooks/useDialogState';
 
 export function ChatWidget() {
+  const pathname = usePathname();
   const { chatOpen, setChatOpen } = useDialogState();
+  const [isPylonOpen, setIsPylonOpen] = useState(false);
+
+  if (pathname?.startsWith('/ai') || pathname?.startsWith('/docs/ai')) {
+    return null;
+  }
 
   // Handle Cmd+I / Ctrl+I to toggle chat
   useEffect(() => {
@@ -28,9 +35,69 @@ export function ChatWidget() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [chatOpen, setChatOpen]);
 
+  // Toggle global layout state for chat-open styling
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const root = document.documentElement;
+    if (chatOpen) {
+      root.classList.add('chat-open');
+    } else {
+      root.classList.remove('chat-open');
+    }
+
+    return () => {
+      root.classList.remove('chat-open');
+    };
+  }, [chatOpen]);
+
+  // Track Pylon open/closed state and manage bubble visibility
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Wait for Pylon to load
+    const checkPylon = setInterval(() => {
+      if (typeof window.Pylon === 'function') {
+        clearInterval(checkPylon);
+        try {
+          // Always hide the chat bubble initially
+          window.Pylon('hideChatBubble');
+
+          // Set up callbacks to track Pylon state
+          window.Pylon('onShow', () => {
+            setIsPylonOpen(true);
+          });
+
+          window.Pylon('onHide', () => {
+            setIsPylonOpen(false);
+            // Hide bubble again when Pylon closes
+            window.Pylon('hideChatBubble');
+          });
+        } catch (error) {
+          console.error('Error setting up Pylon callbacks:', error);
+        }
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(checkPylon);
+      if (typeof window.Pylon === 'function') {
+        try {
+          // Remove callbacks
+          window.Pylon('onShow', null);
+          window.Pylon('onHide', null);
+        } catch (error) {
+          console.error('Error cleaning up Pylon callbacks:', error);
+        }
+      }
+    };
+  }, []);
+
   return (
     <>
-      <ChatFAB onClick={() => setChatOpen(true)} isOpen={chatOpen} />
+      {!isPylonOpen && <ChatFAB onClick={() => setChatOpen(true)} isOpen={chatOpen} />}
       <ChatSidebar isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </>
   );

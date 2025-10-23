@@ -28,7 +28,7 @@ export function DocsLayoutWithDiscord({ children, pageTree, tabs }: DocsLayoutWi
             <div className="flex-1" />
             {/* Mobile Ask AI button */}
             <Link 
-              href="/ai" 
+              href="/docs/ai" 
               className="inline-flex items-center justify-center rounded-lg p-2 hover:bg-fd-accent hover:text-fd-accent-foreground md:hidden"
               aria-label="Ask AI"
             >

@@ -15,8 +15,8 @@ export function ChatFAB({ onClick, isOpen }: ChatFABProps) {
     <button
       onClick={onClick}
       className={cn(
-        'fixed bottom-6 right-6 z-50',
-        'size-12 rounded-full',
+        'fixed bottom-4 right-4 z-50',
+        'h-[45px] w-[45px] rounded-full',
         'bg-fd-primary text-fd-primary-foreground',
         'shadow-lg hover:shadow-xl',
         'flex items-center justify-center',

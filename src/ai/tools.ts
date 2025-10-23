@@ -20,15 +20,21 @@ export const pageContextTool = tool({
         // Extract path from URL
         const urlObj = new URL(docId);
         const pathname = urlObj.pathname;
-        mdPath = pathname.endsWith('/') ? `${pathname}index.md` : `${pathname}.md`;
+        // Remove /docs prefix if present and add .md extension
+        const cleanPath = pathname.replace(/^\/docs/, '');
+        mdPath = cleanPath.endsWith('/') ? `${cleanPath}index.md` : `${cleanPath}.md`;
       } else {
+        // docId like "ios/quickstart" -> "/docs/ios/quickstart.md"
         mdPath = `/docs/${docId}.md`;
       }
 
+      const fullUrl = `https://superwall.com${mdPath}`;
+
       // Fetch the markdown content
-      const response = await fetch(`https://docs.superwall.com${mdPath}`);
+      const response = await fetch(fullUrl);
 
       if (!response.ok) {
+        console.error(`[page_context] Failed to fetch ${fullUrl}: ${response.status} ${response.statusText}`);
         return { error: `Failed to fetch page: ${response.status}` };
       }
 
@@ -37,11 +43,12 @@ export const pageContextTool = tool({
       // For now, return the full content
       // TODO: Implement chunking, ranking, and token budgeting
       return {
-        url: isUrl ? docId : `https://docs.superwall.com/docs/${docId}`,
+        url: isUrl ? docId : `https://superwall.com/docs/${docId}`,
         docId: isUrl ? 'unknown' : docId,
         content,
       };
     } catch (error) {
+      console.error(`[page_context] Error fetching page for docId "${docId}":`, error);
       return { error: `Failed to fetch page content: ${error}` };
     }
   },
@@ -49,7 +56,7 @@ export const pageContextTool = tool({
 
 /**
  * Tool: mcp.search
- * Search documentation via MCP endpoint
+ * Search documentation via MCP endpoint (semantic search powered by embeddings)
  */
 export const mcpSearchTool = tool({
   description: 'Search the Superwall documentation using semantic search. Returns relevant documentation pages with snippets.',
@@ -58,68 +65,29 @@ export const mcpSearchTool = tool({
   }),
   execute: async ({ query }) => {
     try {
-      // Call MCP SSE endpoint
-      const mcpUrl = 'https://mcp.superwall.com/sse';
+      // Call MCP docs-search endpoint
+      const mcpUrl = 'https://mcp.superwall.com/docs-search';
 
       const response = await fetch(mcpUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          method: 'tools/call',
-          params: {
-            name: 'search_docs',
-            arguments: {
-              query,
-            },
-          },
-        }),
+        body: JSON.stringify({ query }),
       });
 
       if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error(`[mcp_search] Failed to call ${mcpUrl}: ${response.status} ${response.statusText}`, errorText);
         return { error: `MCP search failed: ${response.status}` };
       }
 
       const data = await response.json();
 
-      // Return results in compact format
-      return {
-        results: data.content?.[0]?.text || [],
-        query,
-      };
-    } catch (error) {
-      return { error: `MCP search error: ${error}` };
-    }
-  },
-});
-
-/**
- * Tool: docs.search
- * Search using the existing docs search API (non-MCP)
- */
-export const docsSearchTool = tool({
-  description: 'Search the documentation using the built-in search API. Alternative to MCP search.',
-  inputSchema: z.object({
-    query: z.string().describe('The search query'),
-  }),
-  execute: async ({ query }) => {
-    try {
-      // Call the existing search API
-      const response = await fetch(`https://docs.superwall.com/api/search?q=${encodeURIComponent(query)}`);
-
-      if (!response.ok) {
-        return { error: `Search failed: ${response.status}` };
-      }
-
-      const data = await response.json();
-
-      // Transform to match MCP search format
-      const results = data.map((item: any) => ({
-        title: item.title,
-        url: item.url,
-        snippet: item.content || item.description,
-        score: item.score,
+      // Extract text results from the content array
+      const results = (data.content || []).map((item: any) => ({
+        text: item.text,
+        type: item.type,
       }));
 
       return {
@@ -127,7 +95,9 @@ export const docsSearchTool = tool({
         query,
       };
     } catch (error) {
-      return { error: `Search error: ${error}` };
+      console.error(`[mcp_search] Error searching for "${query}":`, error);
+      return { error: `MCP search error: ${error}` };
     }
   },
 });
+

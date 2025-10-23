@@ -3,12 +3,32 @@ import { DocsPage, DocsBody, DocsDescription, DocsTitle } from "fumadocs-ui/page
 import { notFound } from "next/navigation"
 // import { createRelativeLink } from "fumadocs-ui/mdx"
 import { getMDXComponents } from "@/mdx-components"
-import { createElement } from "react"
+import { createElement, Suspense } from "react"
 import { Rate } from "@/components/rate"
 import { CopyPageButton } from "@/components/CopyPageButton"
+import AIPageContent from "@/app/ai/AIPageContent"
+
+const ASK_AI_SLUG = 'ai';
+
+function isAskAISlug(slug?: string[]) {
+  return Array.isArray(slug) && slug.length === 1 && slug[0] === ASK_AI_SLUG;
+}
 
 export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params
+
+  if (isAskAISlug(params.slug)) {
+    return (
+      <DocsPage toc={[]} full>
+        <DocsBody className="px-0">
+          <Suspense fallback={null}>
+            <AIPageContent />
+          </Suspense>
+        </DocsBody>
+      </DocsPage>
+    )
+  }
+
   const page = source.getPage(params.slug)
   if (!page) notFound()
 
@@ -52,6 +72,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params
+  if (isAskAISlug(params.slug)) {
+    return {
+      title: 'Ask AI',
+      description: 'Get instant answers to your questions about Superwall.',
+    }
+  }
   const page = source.getPage(params.slug)
   if (!page) notFound()
 
