@@ -16,6 +16,10 @@
         "quickstart/setting-user-properties",
         "quickstart/in-app-paywall-previews",
 
+        "---Common Use Cases---",
+        "guides/web-checkout",
+        "guides/3rd-party-analytics",
+
         "---SDK Reference---",
         "sdk-reference/index",
         "sdk-reference/components",
@@ -30,7 +34,6 @@
         "guides/experimental-flags",
         "guides/advanced",
         "guides/migrations",
-        "guides/3rd-party-analytics",
         "[Troubleshooting](https://support.superwall.com/articles/4780985851-troubleshooting-expo-sdk)",
         "[Example App](https://github.com/superwall/expo-superwall/tree/main/example)"
     ]
