@@ -12,12 +12,12 @@ export function ChatWidget() {
   const { chatOpen, setChatOpen } = useDialogState();
   const [isPylonOpen, setIsPylonOpen] = useState(false);
 
-  if (pathname?.startsWith('/ai') || pathname?.startsWith('/docs/ai')) {
-    return null;
-  }
+  // Don't show chat widget on /ai or /docs/ai pages
+  const isAiPage = pathname?.startsWith('/ai') || pathname?.startsWith('/docs/ai');
 
   // Open chat if ?ai=true is in the URL (only once on mount)
   useEffect(() => {
+    if (isAiPage) return;
     const aiParam = searchParams?.get('ai');
     if (aiParam === 'true' && !chatOpen) {
       setChatOpen(true);
@@ -27,6 +27,7 @@ export function ChatWidget() {
 
   // Handle Cmd+I / Ctrl+I to toggle chat
   useEffect(() => {
+    if (isAiPage) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd+I (Mac) or Ctrl+I (Windows/Linux)
       if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
@@ -43,7 +44,7 @@ export function ChatWidget() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [chatOpen, setChatOpen]);
+  }, [chatOpen, setChatOpen, isAiPage]);
 
   // Toggle global layout state for chat-open styling
   useEffect(() => {
@@ -52,7 +53,7 @@ export function ChatWidget() {
     }
 
     const root = document.documentElement;
-    if (chatOpen) {
+    if (chatOpen && !isAiPage) {
       root.classList.add('chat-open');
     } else {
       root.classList.remove('chat-open');
@@ -61,7 +62,7 @@ export function ChatWidget() {
     return () => {
       root.classList.remove('chat-open');
     };
-  }, [chatOpen]);
+  }, [chatOpen, isAiPage]);
 
   // Track Pylon open/closed state and manage bubble visibility
   useEffect(() => {
@@ -104,6 +105,10 @@ export function ChatWidget() {
       }
     };
   }, []);
+
+  if (isAiPage) {
+    return null;
+  }
 
   return (
     <>

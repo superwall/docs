@@ -29,8 +29,13 @@ export function ChatFAB({ onClick, isOpen }: ChatFABProps) {
       >
         <MessageCircle className="size-5" fill="currentColor" />
       </button>
-      <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap rounded-md border border-fd-border bg-fd-popover px-2 py-1 text-xs text-fd-popover-foreground shadow-md">
-        ⌘I
+      <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity whitespace-nowrap flex items-center gap-1">
+        <div className="rounded-md border border-fd-border bg-fd-popover px-2 py-1 text-xs text-fd-popover-foreground shadow-md">
+          ⌘
+        </div>
+        <div className="rounded-md border border-fd-border bg-fd-popover px-2 py-1 text-xs text-fd-popover-foreground shadow-md">
+          I
+        </div>
       </div>
     </div>
   );

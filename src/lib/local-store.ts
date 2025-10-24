@@ -2,7 +2,57 @@ import type { UIMessage } from 'ai';
 
 const CHAT_KEY = 'chat:sidebar';
 const ERROR_KEY = 'chat:error';
+const CONVERSATION_ID_KEY = 'chat:conversation-id';
 const MAX_SIZE_KB = 200; // Cap at ~200KB
+
+/**
+ * Generate a UUID v4
+ */
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/**
+ * Get or create conversation ID
+ */
+export function getConversationId(): string {
+  if (typeof window === 'undefined') {
+    return generateUUID();
+  }
+
+  try {
+    const stored = localStorage.getItem(CONVERSATION_ID_KEY);
+    if (stored) {
+      return stored;
+    }
+
+    const newId = generateUUID();
+    localStorage.setItem(CONVERSATION_ID_KEY, newId);
+    return newId;
+  } catch (error) {
+    console.error('Failed to get/create conversation ID:', error);
+    return generateUUID();
+  }
+}
+
+/**
+ * Clear conversation ID (creates a new conversation)
+ */
+export function clearConversationId(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    localStorage.removeItem(CONVERSATION_ID_KEY);
+  } catch (error) {
+    console.error('Failed to clear conversation ID:', error);
+  }
+}
 
 /**
  * Load chat messages from localStorage
@@ -84,7 +134,7 @@ function pruneMessages(messages: UIMessage[]): UIMessage[] {
 }
 
 /**
- * Clear all stored messages
+ * Clear all stored messages and create new conversation
  */
 export function clearMessages(): void {
   if (typeof window === 'undefined') {
@@ -94,6 +144,7 @@ export function clearMessages(): void {
   try {
     localStorage.removeItem(CHAT_KEY);
     localStorage.removeItem(ERROR_KEY); // Also clear errors
+    clearConversationId(); // Create new conversation
   } catch (error) {
     console.error('Failed to clear messages from localStorage:', error);
   }

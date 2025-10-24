@@ -304,12 +304,13 @@ export function SearchDialog({
   const { push } = useRouter();
   const { setChatOpen } = useDialogState();
   const handleAiSearch = () => {
-    if (!search.trim()) return;
-
-    const encodedQuery = encodeURIComponent(search.trim());
     onOpenChange(false); // Close search dialog
     setChatOpen(true); // Open AI sidebar (will also close search via mutual exclusivity)
-    push(`/ai?search=${encodedQuery}`);
+
+    if (search.trim()) {
+      const encodedQuery = encodeURIComponent(search.trim());
+      push(`/ai?search=${encodedQuery}`);
+    }
   };
 
   return (

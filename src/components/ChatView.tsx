@@ -9,6 +9,7 @@ import {
   RotateCcw,
   MessageCircle,
   X,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from 'fumadocs-ui/utils/cn';
 import {
@@ -23,7 +24,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChatMessage } from './ChatMessage';
 import { useCurrentPageMd } from '@/hooks/useCurrentPageMd';
-import { clearMessages, loadMessages, saveMessages, loadError, saveError } from '@/lib/local-store';
+import { clearMessages, loadMessages, saveMessages, loadError, saveError, getConversationId } from '@/lib/local-store';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type ChatViewProps = {
   showCloseButton?: boolean;
@@ -63,13 +65,40 @@ export function ChatView({
     initialQuery?.trim() ? initialQuery.trim() : null
   );
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [selectedSdk, setSelectedSdk] = useState<string>('all');
+  const [selectedSdk, setSelectedSdk] = useLocalStorage<string>('superwall-ai-selected-sdk', '');
+  const [showSdkDropdown, setShowSdkDropdown] = useState(false);
+  const sdkDropdownRef = useRef<HTMLDivElement>(null);
+
+  const SDK_OPTIONS = [
+    { value: '', label: 'None' },
+    { value: 'ios', label: 'iOS' },
+    { value: 'android', label: 'Android' },
+    { value: 'flutter', label: 'Flutter' },
+    { value: 'expo', label: 'Expo' },
+  ] as const;
+
+  const getSelectedSdk = () => {
+    const found = SDK_OPTIONS.find(opt => opt.value === selectedSdk);
+    return found || SDK_OPTIONS[0];
+  };
 
   const latestSdkRef = useRef(selectedSdk);
 
   useEffect(() => {
     latestSdkRef.current = selectedSdk;
   }, [selectedSdk]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sdkDropdownRef.current && !sdkDropdownRef.current.contains(event.target as Node)) {
+        setShowSdkDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const transport = useMemo(
     () =>
@@ -94,7 +123,7 @@ export function ChatView({
             currentPagePath: currentPath ?? undefined,
             currentPageUrl: href,
             debug: debug || undefined,
-            sdks: latestSdkRef.current !== 'all' ? [latestSdkRef.current] : undefined,
+            sdks: latestSdkRef.current ? [latestSdkRef.current] : undefined,
           };
         },
       }),
@@ -241,6 +270,7 @@ export function ChatView({
           msg.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
         const prevMessage = messages.find((m, i) => messages[i + 1]?.id === messageId);
+        const conversationId = getConversationId();
 
         await fetch('/docs/api/feedback', {
           method: 'POST',
@@ -251,6 +281,7 @@ export function ChatView({
             answer: extractText(message),
             rating,
             comment,
+            conversationId,
           }),
         });
       } catch (error) {
@@ -305,17 +336,50 @@ export function ChatView({
               <MessageCircle className="size-5 text-fd-primary" fill="currentColor" />
               <h2 className="text-lg font-semibold">Ask AI</h2>
             </a>
-            <select
-              value={selectedSdk}
-              onChange={(e) => setSelectedSdk(e.target.value)}
-              className="rounded-md border border-fd-border bg-fd-background px-2 py-1 text-xs text-fd-foreground focus:outline-none focus:ring-2 focus:ring-fd-primary"
-            >
-              <option value="all">All Docs</option>
-              <option value="ios">iOS</option>
-              <option value="android">Android</option>
-              <option value="flutter">Flutter</option>
-              <option value="expo">Expo</option>
-            </select>
+            <div className="relative" ref={sdkDropdownRef}>
+              <button
+                onClick={() => setShowSdkDropdown(!showSdkDropdown)}
+                disabled={isLoading}
+                className={cn(
+                  'flex items-center gap-1.5 px-2 py-1.5 text-xs border rounded bg-fd-background whitespace-nowrap cursor-pointer',
+                  'hover:bg-fd-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary',
+                  isLoading && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                <span className="text-xs text-fd-muted-foreground">SDK:</span>
+                <span className="text-xs">{getSelectedSdk()?.label || 'None'}</span>
+                <ChevronDown className={cn(
+                  "size-2.5 transition-transform",
+                  showSdkDropdown && "transform rotate-180"
+                )} />
+              </button>
+
+              {showSdkDropdown && (
+                <div className="absolute top-full left-0 mt-1 w-32 bg-fd-popover border border-fd-border rounded shadow-lg z-50">
+                  {SDK_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSelectedSdk(option.value);
+                        setShowSdkDropdown(false);
+                      }}
+                      className={cn(
+                        "flex items-center w-full px-2 py-1.5 text-left text-xs hover:bg-fd-accent cursor-pointer",
+                        selectedSdk === option.value && "bg-fd-accent"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-1.5 h-1.5 rounded-full border mr-2",
+                        selectedSdk === option.value
+                          ? "bg-fd-primary border-fd-primary"
+                          : "border-fd-border"
+                      )} />
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {messages.length > 0 && (
@@ -325,6 +389,7 @@ export function ChatView({
                 size="icon"
                 onClick={clearChat}
                 aria-label="Reset conversation"
+                className="cursor-pointer"
               >
                 <RotateCcw className="size-4" />
               </Button>
@@ -336,6 +401,7 @@ export function ChatView({
                 size="icon"
                 onClick={onClose}
                 aria-label="Close chat"
+                className="cursor-pointer"
               >
                 <X className="size-4" />
               </Button>
@@ -346,15 +412,6 @@ export function ChatView({
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex h-full w-full max-w-[960px] flex-col space-y-4 px-4 py-6">
-          {messages.length === 0 && !error && (
-            <div className="py-12 text-center text-fd-muted-foreground">
-              <p className="text-sm">Ask me anything about Superwall.</p>
-              {pageContent && (
-                <p className="mt-2 text-xs">I have the context of your current page.</p>
-              )}
-            </div>
-          )}
-
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -388,6 +445,17 @@ export function ChatView({
               <p className="mt-1 text-sm text-red-700 dark:text-red-300">
                 {error.message || 'An error occurred while processing your request.'}
               </p>
+            </div>
+          )}
+
+          {messages.length === 0 && !error && (
+            <div className="flex-1 flex items-end justify-center pb-4">
+              <div className="text-center text-fd-muted-foreground">
+                <p className="text-sm">Ask me anything about Superwall.</p>
+                {pageContent && (
+                  <p className="mt-2 text-xs">I have the context of your current page.</p>
+                )}
+              </div>
             </div>
           )}
 
@@ -428,7 +496,7 @@ export function ChatView({
               disabled={isLoading || !input.trim()}
               aria-label="Send message"
               className={cn(
-                'flex h-[45px] w-[45px] shrink-0 items-center justify-center rounded-full transition-colors',
+                'flex h-[45px] w-[45px] shrink-0 items-center justify-center rounded-full transition-colors cursor-pointer',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 input.trim() && !isLoading
                   ? 'bg-fd-primary text-fd-primary-foreground hover:opacity-90'
@@ -445,7 +513,7 @@ export function ChatView({
               type="button"
               onClick={handleSupportClick}
               aria-label={isLoggedIn ? 'Contact support' : 'Log in'}
-              className="flex h-[45px] w-[45px] shrink-0 items-center justify-center rounded-full bg-fd-secondary text-fd-secondary-foreground transition-colors hover:opacity-90"
+              className="flex h-[45px] w-[45px] shrink-0 items-center justify-center rounded-full bg-fd-secondary text-fd-secondary-foreground transition-colors hover:opacity-90 cursor-pointer"
             >
               <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />

@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
 import { ChatView } from './ChatView';
 import { useDialogState } from '@/hooks/useDialogState';
@@ -30,6 +31,8 @@ const clampWidth = (value: number, viewportWidth: number) => {
 
 export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const { chatWiggle } = useDialogState();
+  const router = useRouter();
+  const pathname = usePathname();
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window === 'undefined' ? MIN_WIDTH : window.innerWidth
   );
@@ -141,15 +144,23 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
     const viewport = window.innerWidth;
     if (isFullscreen) {
+      // Exiting fullscreen
       setIsFullscreen(false);
       const fallbackWidth = previousWidthRef.current ?? clampWidth(DEFAULT_WIDTH, viewport);
       setWidth(clampWidth(fallbackWidth, viewport));
     } else {
+      // Entering fullscreen
       previousWidthRef.current = widthRef.current;
       setIsFullscreen(true);
       setWidth(viewport);
+
+      // Clear saved width and redirect to /docs/ai
+      window.localStorage.removeItem(WIDTH_STORAGE_KEY);
+      if (pathname !== '/docs/ai') {
+        router.push('/docs/ai');
+      }
     }
-  }, [isFullscreen]);
+  }, [isFullscreen, pathname, router]);
 
   const startResize = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (!isDesktop) return;
@@ -196,9 +207,24 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     window.addEventListener('mouseup', stopResize);
   };
 
+  // Calculate fullscreen width accounting for left sidebar
+  const getFullscreenWidth = () => {
+    if (typeof window === 'undefined') return '100vw';
+
+    // Check if left sidebar exists and get its width
+    const leftSidebar = document.querySelector('#nd-sidebar');
+    if (leftSidebar instanceof HTMLElement) {
+      const sidebarWidth = leftSidebar.offsetWidth;
+      if (sidebarWidth > 0) {
+        return `calc(100vw - ${sidebarWidth}px)`;
+      }
+    }
+    return '100vw';
+  };
+
   const sidebarStyle = isDesktop
     ? isFullscreen
-      ? { width: '100vw', minWidth: '100vw', maxWidth: '100vw' }
+      ? { width: getFullscreenWidth(), minWidth: getFullscreenWidth(), maxWidth: getFullscreenWidth() }
       : { width: `${width}px`, minWidth: `${MIN_WIDTH}px`, maxWidth: `${viewportWidth}px` }
     : undefined;
 

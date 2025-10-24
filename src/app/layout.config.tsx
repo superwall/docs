@@ -33,7 +33,7 @@ export const baseOptions: BaseLayoutProps = {
       text: 'Ask AI',
       url: '/docs/ai',
       active: 'none',
-      icon: <MessageCircle fill="currentColor" />,
+      icon: <MessageCircle />,
     },
     {
       text: 'Help Center',
@@ -43,7 +43,7 @@ export const baseOptions: BaseLayoutProps = {
     },
     {
       text: 'Support',
-      url: '/support',
+      url: '/docs/support',
       active: 'none',
       icon: <HelpCircle />,
     },
