@@ -1,12 +1,10 @@
 import { source } from "@/lib/source"
 import { DocsPage, DocsBody, DocsDescription, DocsTitle } from "fumadocs-ui/page"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 // import { createRelativeLink } from "fumadocs-ui/mdx"
 import { getMDXComponents } from "@/mdx-components"
-import { createElement, Suspense } from "react"
 import { Rate } from "@/components/rate"
 import { CopyPageButton } from "@/components/CopyPageButton"
-import AIPageContent from "@/app/ai/AIPageContent"
 
 const ASK_AI_SLUG = 'ai';
 
@@ -18,15 +16,7 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
   const params = await props.params
 
   if (isAskAISlug(params.slug)) {
-    return (
-      <DocsPage toc={[]} full>
-        <DocsBody className="px-0">
-          <Suspense fallback={null}>
-            <AIPageContent />
-          </Suspense>
-        </DocsBody>
-      </DocsPage>
-    )
+    redirect('/?ai=fullscreen')
   }
 
   const page = source.getPage(params.slug)
@@ -40,7 +30,7 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
   // Get current path for copy button
   const currentPath = params.slug ? `/${params.slug.join('/')}` : '/';
 
-  const disabledPages = ['/home', '/support', '/ios', '/android', '/flutter', '/expo', '/dashboard'];
+  const disabledPages = ['/home', '/docs/support', '/ios', '/android', '/flutter', '/expo', '/dashboard'];
   const shouldDisableButton = disabledPages.includes(currentPath);
 
   return (

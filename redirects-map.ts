@@ -400,7 +400,9 @@ export const fileRedirectsMap = {
   "expo/quickstart/installation": "expo/quickstart/install",
   "expo/quickstart/configuring": "expo/quickstart/configure",
   "installation-via-rn-legacy": "expo/quickstart/install",
-  "using-the-superwall-delegate": "sdk/guides/using-the-superwall-delegate"
+  "using-the-superwall-delegate": "sdk/guides/using-the-superwall-delegate",
+
+  "ai": "home?ai=fullscreen",
 }
 
 export const externalRedirectsMap = {

@@ -19,7 +19,7 @@ export function ChatWidget() {
   useEffect(() => {
     if (isAiPage) return;
     const aiParam = searchParams?.get('ai');
-    if (aiParam === 'true' && !chatOpen) {
+    if ((aiParam === 'true' || aiParam === 'fullscreen') && !chatOpen) {
       setChatOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

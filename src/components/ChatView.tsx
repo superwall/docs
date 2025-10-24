@@ -448,17 +448,6 @@ export function ChatView({
             </div>
           )}
 
-          {messages.length === 0 && !error && (
-            <div className="flex-1 flex items-end justify-center pb-4">
-              <div className="text-center text-fd-muted-foreground">
-                <p className="text-sm">Ask me anything about Superwall.</p>
-                {pageContent && (
-                  <p className="mt-2 text-xs">I have the context of your current page.</p>
-                )}
-              </div>
-            </div>
-          )}
-
           <div ref={messagesEndRef} />
         </div>
       </div>

@@ -8,10 +8,11 @@ import {
   useState,
 } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 import { ChatView } from './ChatView';
 import { useDialogState } from '@/hooks/useDialogState';
+import { useFumadocsSidebarWidth } from '@/hooks/useFumadocsSidebarWidth';
 
 interface ChatSidebarProps {
   isOpen: boolean;
@@ -22,7 +23,6 @@ const WIDTH_STORAGE_KEY = 'chat:sidebar-width';
 const DEFAULT_WIDTH = 420;
 const MIN_WIDTH = 320;
 const COLLAPSE_THRESHOLD = 180;
-const FULLSCREEN_MARGIN = 40;
 
 const clampWidth = (value: number, viewportWidth: number) => {
   const maxWidth = Math.max(MIN_WIDTH, viewportWidth);
@@ -30,9 +30,10 @@ const clampWidth = (value: number, viewportWidth: number) => {
 };
 
 export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
-  const { chatWiggle } = useDialogState();
+  const { chatWiggle, setChatOpen } = useDialogState();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window === 'undefined' ? MIN_WIDTH : window.innerWidth
   );
@@ -42,6 +43,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isWiggling, setIsWiggling] = useState(false);
+  const leftSidebarWidth = useFumadocsSidebarWidth();
   const [width, setWidth] = useState(() => {
     if (typeof window === 'undefined') {
       return DEFAULT_WIDTH;
@@ -75,12 +77,55 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     window.localStorage.setItem(WIDTH_STORAGE_KEY, String(width));
   }, [width, isFullscreen]);
 
+  const fullscreenWidth = isDesktop && leftSidebarWidth > 0
+    ? `calc(100vw - ${leftSidebarWidth}px)`
+    : '100vw';
+
+  const leftSidebarWidthRef = useRef(leftSidebarWidth);
+  useEffect(() => {
+    leftSidebarWidthRef.current = leftSidebarWidth;
+  }, [leftSidebarWidth]);
+
+  const setAiParam = useCallback(
+    (mode: 'fullscreen' | null) => {
+      if (!searchParams) return;
+      const params = new URLSearchParams(searchParams.toString());
+      const current = params.get('ai');
+      if (mode) {
+        if (current === mode) {
+          return;
+        }
+        params.set('ai', mode);
+      } else {
+        if (!params.has('ai')) {
+          return;
+        }
+        params.delete('ai');
+      }
+
+      const query = params.toString();
+      const target = query ? `${pathname}?${query}` : pathname;
+      router.replace(target, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
+
+  useEffect(() => {
+    if (!isDesktop || isFullscreen) return;
+    if (leftSidebarWidth <= 0) return;
+    if (typeof window === 'undefined') return;
+
+    const navLimit = Math.max(MIN_WIDTH, window.innerWidth - leftSidebarWidth - 16);
+    setWidth((prev) => (prev > navLimit ? navLimit : prev));
+  }, [leftSidebarWidth, isDesktop, isFullscreen]);
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
     const root = document.documentElement;
-    if (isOpen && isDesktop && !isFullscreen) {
-      root.style.setProperty('--sw-chat-width', `${width}px`);
+    if (isOpen && isDesktop) {
+      const widthValue = isFullscreen ? fullscreenWidth : `${width}px`;
+      root.style.setProperty('--sw-chat-width', widthValue);
     } else {
       root.style.setProperty('--sw-chat-width', '0px');
     }
@@ -88,7 +133,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     return () => {
       root.style.setProperty('--sw-chat-width', '0px');
     };
-  }, [isOpen, isDesktop, isFullscreen, width]);
+  }, [isOpen, isDesktop, isFullscreen, width, fullscreenWidth]);
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -98,11 +143,20 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     };
   }, [isResizing]);
 
+  const wasOpenRef = useRef(isOpen);
+
   useEffect(() => {
-    if (!isOpen) {
-      setIsFullscreen(false);
+    if (!isOpen && wasOpenRef.current) {
+      if (isFullscreen) {
+        setIsFullscreen(false);
+      }
+      if (searchParams?.has('ai')) {
+        setAiParam(null);
+      }
     }
-  }, [isOpen]);
+
+    wasOpenRef.current = isOpen;
+  }, [isOpen, isFullscreen, searchParams, setAiParam]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -131,6 +185,31 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, [isFullscreen]);
 
+  useEffect(() => {
+    if (searchParams?.get('ai') !== 'fullscreen') {
+      return;
+    }
+
+    if (!isOpen) {
+      setChatOpen(true);
+    }
+
+    if (!isDesktop) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!isFullscreen) {
+      previousWidthRef.current = widthRef.current;
+      setIsFullscreen(true);
+      setWidth(window.innerWidth);
+      window.localStorage.removeItem(WIDTH_STORAGE_KEY);
+    }
+  }, [isDesktop, isFullscreen, isOpen, searchParams, setChatOpen]);
+
   const resetWidth = useCallback(() => {
     if (typeof window === 'undefined') return;
     const viewport = window.innerWidth;
@@ -148,6 +227,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
       setIsFullscreen(false);
       const fallbackWidth = previousWidthRef.current ?? clampWidth(DEFAULT_WIDTH, viewport);
       setWidth(clampWidth(fallbackWidth, viewport));
+      setAiParam(null);
     } else {
       // Entering fullscreen
       previousWidthRef.current = widthRef.current;
@@ -156,11 +236,14 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
       // Clear saved width and redirect to /docs/ai
       window.localStorage.removeItem(WIDTH_STORAGE_KEY);
-      if (pathname !== '/docs/ai') {
-        router.push('/docs/ai');
-      }
+      setAiParam('fullscreen');
     }
-  }, [isFullscreen, pathname, router]);
+  }, [isFullscreen, setAiParam]);
+
+  const handleClose = useCallback(() => {
+    setAiParam(null);
+    onClose();
+  }, [onClose, setAiParam]);
 
   const startResize = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (!isDesktop) return;
@@ -190,15 +273,32 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         return;
       }
 
-      if (proposedWidth >= viewport - FULLSCREEN_MARGIN) {
+      const navWidth = leftSidebarWidthRef.current;
+      const halfViewport = viewport / 2;
+      const baseThreshold = Math.max(MIN_WIDTH, halfViewport);
+
+      let takeoverThreshold: number;
+      if (navWidth > 0) {
+        const navLimit = Math.max(MIN_WIDTH, viewport - navWidth);
+        const navThreshold = Math.max(MIN_WIDTH, navLimit - 16);
+        takeoverThreshold = Math.min(baseThreshold, navThreshold);
+      } else {
+        takeoverThreshold = baseThreshold;
+      }
+
+      if (proposedWidth >= takeoverThreshold) {
         if (!isFullscreen) {
           previousWidthRef.current = startWidth;
+          setIsFullscreen(true);
+          setWidth(viewport);
+          setAiParam('fullscreen');
         }
-        setIsFullscreen(true);
-        setWidth(viewport);
         return;
       }
 
+      if (isFullscreen) {
+        setAiParam(null);
+      }
       setIsFullscreen(false);
       setWidth(clampWidth(proposedWidth, viewport));
     }
@@ -207,24 +307,9 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
     window.addEventListener('mouseup', stopResize);
   };
 
-  // Calculate fullscreen width accounting for left sidebar
-  const getFullscreenWidth = () => {
-    if (typeof window === 'undefined') return '100vw';
-
-    // Check if left sidebar exists and get its width
-    const leftSidebar = document.querySelector('#nd-sidebar');
-    if (leftSidebar instanceof HTMLElement) {
-      const sidebarWidth = leftSidebar.offsetWidth;
-      if (sidebarWidth > 0) {
-        return `calc(100vw - ${sidebarWidth}px)`;
-      }
-    }
-    return '100vw';
-  };
-
   const sidebarStyle = isDesktop
     ? isFullscreen
-      ? { width: getFullscreenWidth(), minWidth: getFullscreenWidth(), maxWidth: getFullscreenWidth() }
+      ? { width: fullscreenWidth, minWidth: fullscreenWidth, maxWidth: fullscreenWidth }
       : { width: `${width}px`, minWidth: `${MIN_WIDTH}px`, maxWidth: `${viewportWidth}px` }
     : undefined;
 
@@ -233,18 +318,21 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
       {isOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/20 lg:hidden"
-          onClick={onClose}
+          onClick={handleClose}
         />
       )}
 
       <div
         className={cn(
-          'fixed top-0 right-0 z-50 flex h-full w-full flex-col bg-fd-background transition-transform duration-300 ease-in-out',
+          'fixed top-0 right-0 flex h-full w-full flex-col bg-fd-background transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : 'translate-x-full',
           isDesktop && !isFullscreen ? 'border-l border-fd-border' : 'border-none',
           isWiggling && 'animate-wiggle'
         )}
-        style={sidebarStyle}
+        style={{
+          ...sidebarStyle,
+          zIndex: isFullscreen ? 5 : 40,
+        }}
       >
         <div
           className={cn(
@@ -260,7 +348,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         <ChatView
           className="h-full"
           showCloseButton
-          onClose={onClose}
+          onClose={handleClose}
           allowFullscreenToggle={isDesktop}
           isFullscreen={isFullscreen}
           onToggleFullscreen={isDesktop ? toggleFullscreen : undefined}
