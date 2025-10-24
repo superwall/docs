@@ -3,4 +3,82 @@ title: "Redeeming In-App"
 description: "Handle a deep link in your app and use the delegate methods."
 ---
 
-<include>../../../../shared/web-checkout/linking-membership-to-iOS-app.mdx</include>
+After purchasing from a web paywall, the user will be redirected to your app by a deep link to redeem their purchase on device.
+Please follow our [Post-Checkout Redirecting](/web-checkout-post-checkout-redirecting) guide to handle this user experience.
+
+<Note>
+  If you're using Superwall to handle purchases, then you don't need to do anything here.
+</Note>
+
+If you're using your own `PurchaseController`, you will need to update the subscription status with the redeemed web entitlements. If you're using RevenueCat, you should follow our [Using RevenueCat](/web-checkout-using-revenuecat) guide.
+
+### Using a PurchaseController
+
+If you're using a custom PurchaseController (with either iOS StoreKit or Android Play Billing), you'll need to merge the web entitlements with the device entitlements before setting the subscription status.
+Here's an example of how you might do this:
+
+```typescript
+import Superwall, { SubscriptionStatus, Entitlement } from 'expo-superwall/compat';
+
+async function syncSubscriptionStatus(): Promise<void> {
+  // Get the device entitlements from your purchase controller
+  // This will vary based on whether you're using RevenueCat, StoreKit, or Play Billing
+  const deviceEntitlements = await getDeviceEntitlements();
+
+  // Get the web entitlements from Superwall
+  const webEntitlements = await Superwall.shared.getWebEntitlements();
+
+  // Merge the two sets of entitlements
+  const allEntitlementIds = new Set([
+    ...deviceEntitlements,
+    ...webEntitlements.map(e => e.id)
+  ]);
+
+  // Update subscription status
+  if (allEntitlementIds.size > 0) {
+    const entitlements = Array.from(allEntitlementIds).map(id => 
+      new Entitlement(id)
+    );
+    Superwall.shared.setSubscriptionStatus(
+      SubscriptionStatus.Active(entitlements)
+    );
+  } else {
+    Superwall.shared.setSubscriptionStatus(SubscriptionStatus.Inactive());
+  }
+}
+
+// Helper function to get device entitlements
+// This is a simplified example - your implementation will depend on your purchase system
+async function getDeviceEntitlements(): Promise<string[]> {
+  // For RevenueCat:
+  // const customerInfo = await Purchases.getCustomerInfo();
+  // return Object.keys(customerInfo.entitlements.active);
+
+  // For custom StoreKit/Play Billing:
+  // Query your store's API for current purchases
+  // Extract entitlement IDs from those purchases
+  // Return array of entitlement IDs
+  
+  return []; // Replace with your actual implementation
+}
+```
+
+In addition to syncing the subscription status when purchasing and restoring, you'll need to sync it whenever `didRedeemLink(result)` is called:
+
+```typescript
+import { SuperwallDelegate, RedemptionResult } from 'expo-superwall/compat';
+
+export class SWDelegate extends SuperwallDelegate {
+  async didRedeemLink(result: RedemptionResult): Promise<void> {
+    await syncSubscriptionStatus();
+  }
+}
+```
+
+### Refreshing of web entitlements
+
+If you aren't using a Purchase Controller, the SDK will refresh the web entitlements every 24 hours.
+
+### Redeeming while a paywall is open
+
+If a redeem event occurs when a paywall is open, the SDK will track that as a restore event and the paywall will close.
