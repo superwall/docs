@@ -6,10 +6,10 @@ import { baseOptions } from '@/app/layout.config';
 import { SmartRootToggle } from '@/components/SmartRootToggle';
 import { SearchToggle } from 'fumadocs-ui/components/layout/search-toggle';
 import { LargeSearchToggle } from 'fumadocs-ui/components/layout/search-toggle';
-import { Sparkles } from 'lucide-react';
-import Link from 'next/link';
+import { MessageCircle } from 'lucide-react';
 import { CustomSidebarFooter } from '@/components/CustomSidebarFooter';
-import { useMemo } from 'react';
+import { useDialogState } from '@/hooks/useDialogState';
+
 interface DocsLayoutWithDiscordProps {
   children: ReactNode;
   pageTree: any;
@@ -17,9 +17,21 @@ interface DocsLayoutWithDiscordProps {
 }
 
 export function DocsLayoutWithDiscord({ children, pageTree, tabs }: DocsLayoutWithDiscordProps) {
+  const { chatOpen, setChatOpen, triggerChatWiggle } = useDialogState();
+
+  const handleAIClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (chatOpen) {
+      // Trigger wiggle animation
+      triggerChatWiggle();
+    } else {
+      setChatOpen(true);
+    }
+  };
+
   return (
-    <DocsLayout 
-      tree={pageTree} 
+    <DocsLayout
+      tree={pageTree}
       {...baseOptions}
       nav={{
         ...baseOptions.nav,
@@ -27,13 +39,13 @@ export function DocsLayoutWithDiscord({ children, pageTree, tabs }: DocsLayoutWi
           <>
             <div className="flex-1" />
             {/* Mobile Ask AI button */}
-            <Link 
-              href="/docs/ai" 
+            <button
+              onClick={handleAIClick}
               className="inline-flex items-center justify-center rounded-lg p-2 hover:bg-fd-accent hover:text-fd-accent-foreground md:hidden"
               aria-label="Ask AI"
             >
-              <Sparkles className="size-5" />
-            </Link>
+              <MessageCircle className="size-5" />
+            </button>
             {/* Mobile search button in nav bar */}
             <SearchToggle className="md:hidden" />
             {/* Add more mobile nav buttons here if needed */}
@@ -46,7 +58,7 @@ export function DocsLayoutWithDiscord({ children, pageTree, tabs }: DocsLayoutWi
           <>
             {tabs.length > 0 && <SmartRootToggle options={tabs} />}
             {/* Desktop search in sidebar */}
-            <LargeSearchToggle hideIfDisabled className="rounded-lg max-md:hidden" />
+            <LargeSearchToggle hideIfDisabled className="max-md:hidden rounded-lg" />
           </>
         ),
         footer: (

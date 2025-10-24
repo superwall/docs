@@ -8,12 +8,14 @@ type DialogStateListener = (state: DialogState) => void;
 interface DialogState {
   searchOpen: boolean;
   chatOpen: boolean;
+  chatWiggle: number; // Incrementing counter to trigger wiggle
 }
 
 class DialogStateManager {
   private state: DialogState = {
     searchOpen: false,
     chatOpen: false,
+    chatWiggle: 0,
   };
 
   private listeners = new Set<DialogStateListener>();
@@ -43,6 +45,15 @@ class DialogStateManager {
       chatOpen: open,
       // Close search when opening chat
       searchOpen: open ? false : this.state.searchOpen,
+      chatWiggle: this.state.chatWiggle,
+    };
+    this.notifyListeners();
+  }
+
+  triggerChatWiggle() {
+    this.state = {
+      ...this.state,
+      chatWiggle: this.state.chatWiggle + 1,
     };
     this.notifyListeners();
   }
@@ -69,5 +80,6 @@ export function useDialogState() {
     ...state,
     setSearchOpen: dialogStateManager.setSearchOpen.bind(dialogStateManager),
     setChatOpen: dialogStateManager.setChatOpen.bind(dialogStateManager),
+    triggerChatWiggle: dialogStateManager.triggerChatWiggle.bind(dialogStateManager),
   };
 }

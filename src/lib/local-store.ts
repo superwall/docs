@@ -1,6 +1,7 @@
 import type { UIMessage } from 'ai';
 
 const CHAT_KEY = 'chat:sidebar';
+const ERROR_KEY = 'chat:error';
 const MAX_SIZE_KB = 200; // Cap at ~200KB
 
 /**
@@ -92,7 +93,58 @@ export function clearMessages(): void {
 
   try {
     localStorage.removeItem(CHAT_KEY);
+    localStorage.removeItem(ERROR_KEY); // Also clear errors
   } catch (error) {
     console.error('Failed to clear messages from localStorage:', error);
+  }
+}
+
+/**
+ * Load error from localStorage
+ */
+export function loadError(): Error | undefined {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  try {
+    const stored = localStorage.getItem(ERROR_KEY);
+    if (!stored) {
+      return undefined;
+    }
+
+    const errorData = JSON.parse(stored);
+    const error = new Error(errorData.message);
+    if (errorData.stack) {
+      error.stack = errorData.stack;
+    }
+    return error;
+  } catch (error) {
+    console.error('Failed to load error from localStorage:', error);
+    return undefined;
+  }
+}
+
+/**
+ * Save error to localStorage
+ */
+export function saveError(error: Error | undefined): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    if (!error) {
+      localStorage.removeItem(ERROR_KEY);
+      return;
+    }
+
+    const errorData = {
+      message: error.message,
+      stack: error.stack,
+    };
+    localStorage.setItem(ERROR_KEY, JSON.stringify(errorData));
+  } catch (err) {
+    console.error('Failed to save error to localStorage:', err);
   }
 }

@@ -131,3 +131,15 @@ html.chat-open #nd-toc > div {
 svg[data-icon="true"] {      /* ← arrow in current Fumadocs build */
   pointer-events: none;
 }
+
+/* Wiggle animation for chat sidebar */
+@keyframes wiggle {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(-4px); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}

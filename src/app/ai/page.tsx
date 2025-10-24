@@ -1,36 +1,29 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-type SearchParams = Record<string, string | string[] | undefined>;
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ChatView } from '@/components/ChatView';
 
-export const metadata = {
-  title: 'Ask AI',
-  description: 'Get instant answers to your questions about Superwall.',
-};
+export default function AIPage() {
+  // const router = useRouter();
 
-function buildQueryString(searchParams: SearchParams) {
-  const params = new URLSearchParams();
+  // Check if we're at /docs/ai and redirect to /docs/home?ai=true
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined' && window.location.pathname === '/docs/ai') {
+  //     router.replace('/docs/home?ai=true');
+  //   }
+  // }, [router]);
 
-  Object.entries(searchParams ?? {}).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      params.append(key, value);
-    } else if (Array.isArray(value)) {
-      value.forEach((entry) => {
-        if (typeof entry === 'string') {
-          params.append(key, entry);
-        }
-      });
-    }
-  });
-
-  const query = params.toString();
-  return query ? `?${query}` : '';
-}
-
-export default async function AIPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const resolved = await searchParams;
-  redirect(`/docs/ai${buildQueryString(resolved)}`);
+  // If we're at /ai, show fullscreen chat
+  return (
+    <div className="fixed inset-0 flex">
+      {/* Fullscreen chat view - goes up to the left sidebar */}
+      <ChatView
+        className="flex-1"
+        showCloseButton={false}
+        allowFullscreenToggle={false}
+        autoFocus
+      />
+    </div>
+  );
 }

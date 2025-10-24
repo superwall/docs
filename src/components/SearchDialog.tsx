@@ -7,7 +7,7 @@ import {
   Hash,
   Loader2 as LoaderCircle,
   Search as SearchIcon,
-  Sparkles,
+  MessageCircle,
   CornerDownLeft,
   Text,
   ChevronDown,
@@ -302,11 +302,13 @@ export function SearchDialog({
 
   // Handle AI redirect to AI page
   const { push } = useRouter();
+  const { setChatOpen } = useDialogState();
   const handleAiSearch = () => {
     if (!search.trim()) return;
 
     const encodedQuery = encodeURIComponent(search.trim());
     onOpenChange(false); // Close search dialog
+    setChatOpen(true); // Open AI sidebar (will also close search via mutual exclusivity)
     push(`/ai?search=${encodedQuery}`);
   };
 
@@ -462,12 +464,13 @@ function SearchResults({
               onPointerMove={() => onActiveChange(item.id)}
               onClick={() => onAiSearch()}
             >
-              <Sparkles
+              <MessageCircle
                 className={
                   active === item.id
                     ? 'size-4 text-[#74F8F0]'
                     : 'size-4 text-fd-muted-foreground'
                 }
+                fill="currentColor"
               />
               <p className="font-medium">Ask AI</p>
               {active === item.id && (

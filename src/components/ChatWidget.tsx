@@ -1,19 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ChatFAB } from './ChatFAB';
 import { ChatSidebar } from './ChatSidebar';
 import { useDialogState } from '@/hooks/useDialogState';
 
 export function ChatWidget() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { chatOpen, setChatOpen } = useDialogState();
   const [isPylonOpen, setIsPylonOpen] = useState(false);
 
   if (pathname?.startsWith('/ai') || pathname?.startsWith('/docs/ai')) {
     return null;
   }
+
+  // Open chat if ?ai=true is in the URL (only once on mount)
+  useEffect(() => {
+    const aiParam = searchParams?.get('ai');
+    if (aiParam === 'true' && !chatOpen) {
+      setChatOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   // Handle Cmd+I / Ctrl+I to toggle chat
   useEffect(() => {

@@ -16,6 +16,7 @@ import {
   Search,
   FileText,
   Server,
+  RotateCcw,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -176,9 +177,10 @@ const summariseOutput = (output: unknown) => {
 interface ChatMessageProps {
   message: UIMessage;
   onFeedback?: (rating: 'positive' | 'negative', comment?: string) => void;
+  onRetry?: () => void;
 }
 
-export function ChatMessage({ message, onFeedback }: ChatMessageProps) {
+export function ChatMessage({ message, onFeedback, onRetry }: ChatMessageProps) {
   const role = message.role;
 
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
@@ -248,11 +250,48 @@ export function ChatMessage({ message, onFeedback }: ChatMessageProps) {
 
   if (role === 'user') {
     const userText = textContent || '…';
+    const [userCopied, setUserCopied] = useState(false);
+
+    const handleUserCopy = useCallback(async () => {
+      if (!userText) return;
+
+      try {
+        await navigator.clipboard.writeText(userText);
+        setUserCopied(true);
+        setTimeout(() => setUserCopied(false), 2000);
+      } catch (error) {
+        console.error('Failed to copy message', error);
+      }
+    }, [userText]);
 
     return (
-      <div className="mb-4 flex justify-end">
+      <div className="group mb-4 flex flex-col items-end gap-1">
         <div className="max-w-[80%] rounded-lg bg-fd-accent/30 px-4 py-3">
           <p className="text-sm whitespace-pre-wrap">{userText}</p>
+        </div>
+        <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            aria-label="Copy message"
+            onClick={handleUserCopy}
+          >
+            {userCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
+          </Button>
+          {onRetry && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              aria-label="Retry message"
+              onClick={onRetry}
+            >
+              <RotateCcw className="size-3" />
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -333,48 +372,51 @@ export function ChatMessage({ message, onFeedback }: ChatMessageProps) {
       )}
 
       {(onFeedback && isMessageComplete || textContent) && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-fd-muted-foreground">
+        <div className="group/actions mt-1 flex flex-wrap items-center gap-1 opacity-0 transition-opacity hover:opacity-100">
           {textContent && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
+              className="h-6 w-6"
               aria-label="Copy answer"
               onClick={handleCopy}
             >
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+              {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
             </Button>
           )}
 
           {onFeedback && (
-            <div className="flex items-center gap-2">
+            <>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label={feedback === 'positive' ? 'Remove positive feedback' : 'Mark as helpful'}
-                onClick={() => handleFeedback('positive')}
                 className={cn(
+                  'h-6 w-6',
                   feedback === 'positive' &&
                     'bg-green-100/80 text-green-600 dark:bg-green-900/40 dark:text-green-300'
                 )}
+                aria-label={feedback === 'positive' ? 'Remove positive feedback' : 'Mark as helpful'}
+                onClick={() => handleFeedback('positive')}
               >
-                <ThumbsUp className="size-4" />
+                <ThumbsUp className="size-3" />
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label={feedback === 'negative' ? 'Remove negative feedback' : 'Mark as unhelpful'}
-                onClick={() => handleFeedback('negative')}
                 className={cn(
+                  'h-6 w-6',
                   feedback === 'negative' &&
                     'bg-red-100/80 text-red-600 dark:bg-red-900/40 dark:text-red-300'
                 )}
+                aria-label={feedback === 'negative' ? 'Remove negative feedback' : 'Mark as unhelpful'}
+                onClick={() => handleFeedback('negative')}
               >
-                <ThumbsDown className="size-4" />
+                <ThumbsDown className="size-3" />
               </Button>
-            </div>
+            </>
           )}
 
           {showCommentInput && (

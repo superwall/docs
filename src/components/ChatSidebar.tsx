@@ -10,6 +10,7 @@ import {
 import type { MouseEvent as ReactMouseEvent } from 'react';
 
 import { ChatView } from './ChatView';
+import { useDialogState } from '@/hooks/useDialogState';
 
 interface ChatSidebarProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ const clampWidth = (value: number, viewportWidth: number) => {
 };
 
 export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
+  const { chatWiggle } = useDialogState();
   const [viewportWidth, setViewportWidth] = useState(() =>
     typeof window === 'undefined' ? MIN_WIDTH : window.innerWidth
   );
@@ -36,6 +38,7 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
   );
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isWiggling, setIsWiggling] = useState(false);
   const [width, setWidth] = useState(() => {
     if (typeof window === 'undefined') {
       return DEFAULT_WIDTH;
@@ -49,6 +52,14 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
 
   const widthRef = useRef(width);
   const previousWidthRef = useRef<number | null>(null);
+
+  // Handle wiggle trigger
+  useEffect(() => {
+    if (chatWiggle > 0 && isOpen) {
+      setIsWiggling(true);
+      setTimeout(() => setIsWiggling(false), 500);
+    }
+  }, [chatWiggle, isOpen]);
 
   useEffect(() => {
     widthRef.current = width;
@@ -204,7 +215,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         className={cn(
           'fixed top-0 right-0 z-50 flex h-full w-full flex-col bg-fd-background transition-transform duration-300 ease-in-out',
           isOpen ? 'translate-x-0' : 'translate-x-full',
-          isDesktop && !isFullscreen ? 'border-l border-fd-border' : 'border-none'
+          isDesktop && !isFullscreen ? 'border-l border-fd-border' : 'border-none',
+          isWiggling && 'animate-wiggle'
         )}
         style={sidebarStyle}
       >

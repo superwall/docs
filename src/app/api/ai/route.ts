@@ -1,121 +1,148 @@
-import { streamText, convertToModelMessages } from 'ai';
+import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { pageContextTool, mcpSearchTool } from '@/ai/tools';
-import type { AppMessage } from '@/ai/message-types';
 
 export const runtime = 'edge';
 
-const systemPrompt = `You are an AI assistant for the Superwall documentation.
+const systemPrompt = `Act as a Superwall expert with comprehensive knowledge of the SDK, dashboard, and product. Provide concise and accurate answers based on the markdown-formatted documentation and help center knowledge base. Use the provided documentation as your ONLY source as it could change frequently. If uncertain about an answer, state that clearly. Always include a link to the source file used to find the information at the end of your response.
 
-**Response Format:**
-- Keep answers concise: you live in a chat sidebar, so you need to be concise and to the point
-- Use markdown formatting when appropriate: lists, code blocks, and headings
-- Include direct links to docs pages when helpful (always in markdown format: [link text](https://superwall.com/docs/path), never just the raw URL)
-- Always lead with the answer, no preamble. Users can ask follow-up questions if they need more information.
+# Steps
 
-**Context & Tools:**
-- User's current page is primary context
-- Use mcp_search to search documentation when needed (semantic search powered by embeddings)
-- Use page_context for specific page details
-- Cite sources by linking to doc pages with markdown formatting
-- **Important**: If a tool fails, only retry it ONCE with a modified approach. If it fails again, move on and work with available information.
+1. **Analyze the Question**: Understand what specific information or clarification the question seeks about Superwall.
+2. **Locate Information**: Refer to the markdown-formatted documentation to find relevant details.
+3. **Craft a Response**: Provide a concise and precise answer to the question.
+4. **Cite Source**: On a new line, append a link to the specific file or section of the documentation that supports your answer, markdown formatted as \`[link text](url)\`.
 
-**Code Examples:**
-- Include when helpful, keep concise
-- Note platform differences when relevant
-- Prefer inline code for small snippets`;
+# Input Format
+The documentation and help center knowledge base are markdown-formatted, and are contained by the following tags: \`{{BEGIN DOCS CONTEXT}}\` and \`{{END DOCS CONTEXT}}\`. The knowledge base section (if present) contains additional help center articles that may provide supplementary information.
+
+# Output Format
+
+- Provide the answer as a short paragraph for clarity.
+- If unsure, write: "I'm not sure about this. Please check with further resources."
+- Include a link to the documentation file used for the answer at the end of the response.
+
+# Examples
+
+**Example 1**
+
+**Input**: can superwall tell me if a user has cancelled a subscription or their subscription has run out?
+
+**Response**: Yes, Superwall can track a user's subscription status. According to the docs, Superwall exposes a published property \`Superwall.shared.subscriptionStatus\` that tracks whether a subscription is active or expired.
+By default, Superwall handles all subscription-related logic including:
+- Tracking when subscriptions become active
+- Tracking when subscriptions expire
+- Checking the local receipt for verification
+
+You can access this information through the \`subscriptionStatus\` property to determine if a user's subscription has ended or been cancelled.
+
+[Tracking Subscription State](https://superwall.com/docs/tracking-subscription-state)
+
+{{BEGIN DOCS CONTEXT}}
+{{docs}}
+{{END DOCS CONTEXT}}`;
+
+const defaultOpenAIModel = 'gpt-4o-mini';
+const MAX_CONVERSATION_EXCHANGES = 3; // Number of user/assistant exchanges to include
+
+// Helper function to load text file from public docs directory
+async function loadTextFile(fileName: string): Promise<string | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://superwall.com';
+    const url = `${baseUrl}/docs/${fileName}`;
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Superwall-Docs-AI/1.0',
+        Accept: 'text/plain',
+      },
+    });
+
+    if (!response.ok) {
+      console.warn(`Failed to load ${fileName}: HTTP ${response.status} from ${url}`);
+      return null;
+    }
+
+    const content = await response.text();
+    return content;
+  } catch (error) {
+    console.error(`Error loading ${fileName}:`, error);
+    return null;
+  }
+}
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { messages, currentPageContent, currentPagePath, currentPageUrl, debug: debugFromBody } = body as {
-      messages: AppMessage[];
-      currentPageContent?: string;
-      currentPagePath?: string;
-      currentPageUrl?: string;
-      debug?: boolean;
+    const { messages, sdks } = body as {
+      messages: Array<any>;
+      sdks?: string[];
     };
-
-    let debug = Boolean(debugFromBody);
-    if (!debug && currentPageUrl) {
-      try {
-        const url = new URL(currentPageUrl);
-        const debugParam = url.searchParams.get('ai-debug');
-        if (debugParam === '' || debugParam === '1' || debugParam === 'true') {
-          debug = true;
-        }
-      } catch (error) {
-        console.warn('Failed to parse current page URL for debug flag', error);
-      }
-    }
-
-    if (!debug && process.env.AI_DEBUG?.toLowerCase() === 'true') {
-      debug = true;
-    }
-
-    const getNow = () =>
-      typeof performance !== 'undefined' && typeof performance.now === 'function'
-        ? performance.now()
-        : Date.now();
-    const startTime = getNow();
-    const elapsed = () => `${Math.round(getNow() - startTime)}ms`;
-    const debugLog = (...args: unknown[]) => {
-      if (!debug) return;
-      const timestamp = new Date().toISOString();
-      console.log(`[AI debug ${timestamp} +${elapsed()}]`, ...args);
-    };
-    // Track tool execution times and tokens
-    const toolMetrics = new Map<string, { startTime: number; tokens?: number }>();
-    const stepMetrics: Array<{ type: string; duration: number; tokens: number }> = [];
-
-    if (debug) {
-      debugLog('Debug mode enabled');
-      debugLog('Request metadata', {
-        messageCount: messages?.length ?? 0,
-        lastMessageRole: messages?.[messages.length - 1]?.role,
-        currentPagePath,
-      });
-    }
 
     // Basic validation
-    if (!messages || !Array.isArray(messages)) {
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response('Invalid messages format', { status: 400 });
     }
 
-    // Limit message count (simple rate limiting)
-    if (messages.length > 100) {
-      return new Response('Too many messages', { status: 400 });
+    // Get the last user message to ensure it's valid
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== 'user') {
+      return new Response('Last message must be from user', { status: 400 });
     }
 
-    // Build light context from current page
-    let contextPrefix = '';
-    if (currentPagePath) {
-      contextPrefix = `\n\n# Current Page Context\n\nThe user is currently viewing: ${currentPageUrl || currentPagePath}\n`;
+    // Extract text from a message (handle UIMessage format with parts array)
+    const extractMessageText = (message: any): string => {
+      let text = '';
 
-      // If we have content, extract light metadata (title, headings)
-      if (currentPageContent) {
-        const titleMatch = currentPageContent.match(/^#\s+(.+)$/m);
-        const title = titleMatch?.[1];
-
-        const headingMatches = currentPageContent.matchAll(/^#{2,}\s+(.+)$/gm);
-        const headings = Array.from(headingMatches)
-          .map(match => match[1])
-          .slice(0, 6);
-
-        if (title) {
-          contextPrefix += `Page title: ${title}\n`;
-        }
-
-        if (headings.length > 0) {
-          contextPrefix += `Page sections: ${headings.join(', ')}\n`;
+      // Try parts array first (UIMessage format from AI SDK)
+      if (message.parts && Array.isArray(message.parts)) {
+        text = message.parts
+          .map((part: any) => (part.type === 'text' ? part.text : ''))
+          .join('');
+      }
+      // Fall back to content field
+      else if (message.content) {
+        if (typeof message.content === 'string') {
+          text = message.content;
+        } else if (Array.isArray(message.content)) {
+          text = message.content
+            .map((part: any) => (part.type === 'text' ? part.text : ''))
+            .join('');
         }
       }
 
-      contextPrefix += '\n---\n';
+      return text.trim();
+    };
+
+    // Validate last message has content
+    const lastUserMessageText = extractMessageText(lastMessage);
+    if (!lastUserMessageText) {
+      return new Response('Message cannot be empty', { status: 400 });
     }
 
-    // Inject context into system prompt
-    const enhancedSystemPrompt = systemPrompt + contextPrefix;
+    // Get the last N exchanges (user + assistant pairs) for context
+    // We want to include up to MAX_CONVERSATION_EXCHANGES exchanges
+    const conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+
+    // Work backwards through messages to collect exchanges
+    let exchangeCount = 0;
+    for (let i = messages.length - 1; i >= 0 && exchangeCount < MAX_CONVERSATION_EXCHANGES; i--) {
+      const msg = messages[i];
+      const text = extractMessageText(msg);
+
+      if (!text) continue; // Skip empty messages
+
+      if (msg.role === 'user' || msg.role === 'assistant') {
+        conversationHistory.unshift({
+          role: msg.role,
+          content: text,
+        });
+
+        // Count exchanges (user message = start of exchange)
+        if (msg.role === 'user') {
+          exchangeCount++;
+        }
+      }
+    }
 
     // Get OpenAI API key from env
     const apiKey = process.env.OPENAI_API_KEY;
@@ -123,94 +150,49 @@ export async function POST(req: Request) {
       return new Response('OpenAI API key not configured', { status: 500 });
     }
 
+    // Load documentation files
+    let filesToLoad = ['llms-full-dashboard.txt'];
+
+    // Add SDK-specific files if SDKs are specified
+    if (sdks && sdks.length > 0) {
+      for (const sdk of sdks) {
+        if (['ios', 'android', 'flutter', 'expo'].includes(sdk.toLowerCase())) {
+          filesToLoad.push(`llms-full-${sdk.toLowerCase()}.txt`);
+        }
+      }
+    }
+
+    const docsSections = [];
+    for (const fileName of filesToLoad) {
+      const sectionContent = await loadTextFile(fileName);
+      if (sectionContent) {
+        docsSections.push(sectionContent);
+      }
+    }
+
+    if (docsSections.length === 0) {
+      console.error('No docs sections found');
+      return new Response('Documentation not available', { status: 500 });
+    }
+
+    const docsContent = docsSections.join('\n\n---\n\n');
+    const enhancedSystemPrompt = systemPrompt.replace('{{docs}}', docsContent);
+
     // Stream the response using AI SDK
     const openai = createOpenAI({ apiKey });
 
-    const streamOptions: Parameters<typeof streamText>[0] = {
-      model: openai('gpt-5'),
+    const result = streamText({
+      model: openai(defaultOpenAIModel),
       system: enhancedSystemPrompt,
-      messages: convertToModelMessages(messages),
-      tools: {
-        page_context: pageContextTool,
-        mcp_search: mcpSearchTool,
-      },
-      stopWhen: [],
-    };
-
-    if (debug) {
-      streamOptions.onChunk = async ({ chunk }) => {
-        switch (chunk.type) {
-          case 'tool-input-start':
-            {
-              const toolCallId = (chunk as { toolCallId?: string }).toolCallId ?? chunk.id;
-              toolMetrics.set(toolCallId, { startTime: getNow() });
-            }
-            break;
-          case 'tool-result':
-            {
-              const toolCallId = chunk.toolCallId;
-              const metric = toolMetrics.get(toolCallId);
-              if (metric) {
-                const duration = getNow() - metric.startTime;
-                toolMetrics.delete(toolCallId);
-
-                // Extract result info
-                let resultInfo = '';
-                const output = chunk.output;
-                if (output && typeof output === 'object') {
-                  if ('error' in output) {
-                    resultInfo = ` error: ${output.error}`;
-                  } else if ('results' in output && Array.isArray(output.results)) {
-                    resultInfo = ` ${output.results.length} results`;
-                  } else if ('content' in output) {
-                    resultInfo = ' page loaded';
-                  }
-                }
-
-                console.log(`called ${chunk.toolName}, ${(duration / 1000).toFixed(1)}s${resultInfo}`);
-              }
-            }
-            break;
-        }
-      };
-
-      streamOptions.onStepFinish = async step => {
-        const usage = step.usage;
-        const totalTokens = usage?.totalTokens ?? 0;
-        const stepDuration = getNow() - (stepMetrics.length > 0
-          ? stepMetrics.reduce((sum, s) => sum + s.duration, 0)
-          : 0);
-
-        if (step.toolCalls.length > 0) {
-          // This was a tool-calling step
-          stepMetrics.push({ type: 'tool-calls', duration: stepDuration, tokens: totalTokens });
-        } else if (step.text) {
-          // This was a thinking/response step
-          const stepType = step.reasoning ? 'thinking' : 'response';
-          console.log(`${stepType}, ${(stepDuration / 1000).toFixed(1)}s, ${totalTokens} tokens`);
-          stepMetrics.push({ type: stepType, duration: stepDuration, tokens: totalTokens });
-        }
-      };
-
-      streamOptions.onFinish = async event => {
-        const totalDuration = getNow() - startTime;
-        const totalTokens = event.totalUsage?.totalTokens ?? 0;
-        console.log(`\ntotal: ${(totalDuration / 1000).toFixed(1)}s, ${totalTokens} tokens`);
-      };
-
-      streamOptions.onError = async ({ error }) => {
-        debugLog('Stream error', error);
-      };
-    }
-
-    const result = streamText(streamOptions);
+      messages: conversationHistory,
+    });
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error('AI route error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

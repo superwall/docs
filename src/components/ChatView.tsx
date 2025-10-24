@@ -4,13 +4,10 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import {
   ArrowUp,
-  HelpCircle,
+  CircleHelp,
   Loader2,
-  LogIn,
-  Maximize2,
-  Minimize2,
   RotateCcw,
-  Sparkles,
+  MessageCircle,
   X,
 } from 'lucide-react';
 import { cn } from 'fumadocs-ui/utils/cn';
@@ -26,7 +23,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChatMessage } from './ChatMessage';
 import { useCurrentPageMd } from '@/hooks/useCurrentPageMd';
-import { clearMessages, loadMessages, saveMessages } from '@/lib/local-store';
+import { clearMessages, loadMessages, saveMessages, loadError, saveError } from '@/lib/local-store';
 
 type ChatViewProps = {
   showCloseButton?: boolean;
@@ -61,10 +58,18 @@ export function ChatView({
 
   const [input, setInput] = useState('');
   const [initialMessages] = useState(() => loadMessages());
+  const [initialError] = useState(() => loadError());
   const [pendingInitialQuery, setPendingInitialQuery] = useState<string | null>(() =>
     initialQuery?.trim() ? initialQuery.trim() : null
   );
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [selectedSdk, setSelectedSdk] = useState<string>('all');
+
+  const latestSdkRef = useRef(selectedSdk);
+
+  useEffect(() => {
+    latestSdkRef.current = selectedSdk;
+  }, [selectedSdk]);
 
   const transport = useMemo(
     () =>
@@ -89,6 +94,7 @@ export function ChatView({
             currentPagePath: currentPath ?? undefined,
             currentPageUrl: href,
             debug: debug || undefined,
+            sdks: latestSdkRef.current !== 'all' ? [latestSdkRef.current] : undefined,
           };
         },
       }),
@@ -100,16 +106,21 @@ export function ChatView({
     sendMessage,
     status,
     setMessages,
+    error,
+    setError,
   } = useChat({
     transport,
     id: 'superwall-ai-chat-v2',
     messages: initialMessages,
+    initialError,
     onError: (error) => {
       console.error('Chat error:', error);
+      saveError(error);
     },
     onFinish: ({ messages: finishedMessages, isError }) => {
       if (!isError) {
         saveMessages(finishedMessages);
+        saveError(undefined); // Clear error on success
       }
     },
   });
@@ -194,6 +205,11 @@ export function ChatView({
 
     sendMessage({ text: input.trim() });
     setInput('');
+
+    // Reset textarea height
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -202,6 +218,11 @@ export function ChatView({
       if (input.trim() && status === 'ready') {
         sendMessage({ text: input.trim() });
         setInput('');
+
+        // Reset textarea height
+        if (inputRef.current) {
+          inputRef.current.style.height = 'auto';
+        }
       }
     }
   };
@@ -257,12 +278,7 @@ export function ChatView({
       return;
     }
 
-    // Close AI sidebar
-    if (onClose) {
-      onClose();
-    }
-
-    // Open Pylon chat
+    // Open Pylon chat (don't close AI sidebar)
     if (typeof window !== 'undefined' && typeof window.Pylon === 'function') {
       try {
         window.Pylon('show');
@@ -272,7 +288,7 @@ export function ChatView({
     } else {
       console.warn('Pylon is not loaded');
     }
-  }, [onClose, isLoggedIn]);
+  }, [isLoggedIn]);
 
   return (
     <div
@@ -280,41 +296,28 @@ export function ChatView({
       {...props}
     >
       <div className="border-b border-fd-border">
-        <div className="mx-auto flex w-full max-w-[960px] items-center justify-between gap-3 px-4 py-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-5 text-fd-primary" />
-            <h2 className="text-lg font-semibold">Ask AI</h2>
-            {pageContent && (
-              <span className="rounded bg-fd-accent px-2 py-1 text-xs text-fd-muted-foreground">
-                Page context
-              </span>
-            )}
+        <div className="mx-auto flex w-full max-w-[960px] items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <a
+              href="/docs/ai"
+              className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
+            >
+              <MessageCircle className="size-5 text-fd-primary" fill="currentColor" />
+              <h2 className="text-lg font-semibold">Ask AI</h2>
+            </a>
+            <select
+              value={selectedSdk}
+              onChange={(e) => setSelectedSdk(e.target.value)}
+              className="rounded-md border border-fd-border bg-fd-background px-2 py-1 text-xs text-fd-foreground focus:outline-none focus:ring-2 focus:ring-fd-primary"
+            >
+              <option value="all">All Docs</option>
+              <option value="ios">iOS</option>
+              <option value="android">Android</option>
+              <option value="flutter">Flutter</option>
+              <option value="expo">Expo</option>
+            </select>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleSupportClick}
-              aria-label="Contact support"
-            >
-              <HelpCircle className="size-4" />
-            </Button>
-            {allowFullscreenToggle && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={onToggleFullscreen}
-                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="size-4" />
-                ) : (
-                  <Maximize2 className="size-4" />
-                )}
-              </Button>
-            )}
             {messages.length > 0 && (
               <Button
                 type="button"
@@ -343,7 +346,7 @@ export function ChatView({
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex h-full w-full max-w-[960px] flex-col space-y-4 px-4 py-6">
-          {messages.length === 0 && (
+          {messages.length === 0 && !error && (
             <div className="py-12 text-center text-fd-muted-foreground">
               <p className="text-sm">Ask me anything about Superwall.</p>
               {pageContent && (
@@ -361,8 +364,32 @@ export function ChatView({
                   ? (rating, comment) => handleFeedback(message.id, rating, comment)
                   : undefined
               }
+              onRetry={
+                message.role === 'user'
+                  ? () => {
+                      const text = message.parts
+                        .filter((p) => p.type === 'text')
+                        .map((p) => ('text' in p ? p.text : ''))
+                        .join('');
+                      if (text) {
+                        sendMessage({ text });
+                      }
+                    }
+                  : undefined
+              }
             />
           ))}
+
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
+              <h3 className="text-sm font-semibold text-red-900 dark:text-red-100">
+                Error
+              </h3>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                {error.message || 'An error occurred while processing your request.'}
+              </p>
+            </div>
+          )}
 
           <div ref={messagesEndRef} />
         </div>
@@ -401,7 +428,7 @@ export function ChatView({
               disabled={isLoading || !input.trim()}
               aria-label="Send message"
               className={cn(
-                'flex size-8 items-center justify-center rounded-full transition-colors',
+                'flex h-[45px] w-[45px] shrink-0 items-center justify-center rounded-full transition-colors',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 input.trim() && !isLoading
                   ? 'bg-fd-primary text-fd-primary-foreground hover:opacity-90'
@@ -409,10 +436,21 @@ export function ChatView({
               )}
             >
               {isLoading ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="size-5 animate-spin" />
               ) : (
-                <ArrowUp className="size-4" />
+                <ArrowUp className="size-5" />
               )}
+            </button>
+            <button
+              type="button"
+              onClick={handleSupportClick}
+              aria-label={isLoggedIn ? 'Contact support' : 'Log in'}
+              className="flex h-[45px] w-[45px] shrink-0 items-center justify-center rounded-full bg-fd-secondary text-fd-secondary-foreground transition-colors hover:opacity-90"
+            >
+              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <circle cx="12" cy="17" r="0.5" fill="currentColor" />
+              </svg>
             </button>
           </form>
         </div>
