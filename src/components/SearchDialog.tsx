@@ -10,8 +10,7 @@ import {
   Sparkles,
   CornerDownLeft,
   Text,
-  Filter,
-  RotateCcw,
+  ChevronDown,
 } from 'lucide-react';
 import {
   type ComponentProps,
@@ -20,6 +19,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useI18n } from 'fumadocs-ui/contexts/i18n';
@@ -36,8 +36,11 @@ import type { SortedResult } from 'fumadocs-core/server';
 import { cva } from 'class-variance-authority';
 import { useEffectEvent } from 'fumadocs-core/utils/use-effect-event';
 import { createContext } from 'fumadocs-core/framework';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useDocsSearch } from 'fumadocs-core/search/client';
+
+// Search debounce delay in milliseconds - increase to reduce API calls
+const SEARCH_DEBOUNCE_MS = 500;
 
 export type SearchLink = [name: string, href: string];
 
@@ -66,28 +69,148 @@ interface SearchDialogProps extends SharedProps {
   search: string;
   onSearchChange: (v: string) => void;
   isLoading?: boolean;
+  isDebouncing?: boolean;
   hideResults?: boolean;
   results: ReactSortedResult[] | 'empty';
-  enabledTags?: string[];
-  availableTags?: { id: string; label: string }[];
-  onToggleTag?: (tagId: string) => void;
 
   footer?: ReactNode;
 }
 
+const SDK_OPTIONS = [
+  { value: '', label: 'None' },
+  { value: 'ios', label: 'iOS' },
+  { value: 'android', label: 'Android' },
+  { value: 'flutter', label: 'Flutter' },
+  { value: 'expo', label: 'Expo' },
+] as const;
+
 export function SearchDialogWrapper(props: SharedProps) {
-  const { search, setSearch, query } = useDocsSearch({ 
-    type: 'fetch', 
+  // Use same localStorage key as AskAI
+  const [selectedSdk, setSelectedSdk] = useLocalStorage<string>('superwall-ai-selected-sdk', '');
+  const [isDebouncing, setIsDebouncing] = useState(false);
+
+  const { search, setSearch, query } = useDocsSearch({
+    type: 'fetch',
     api: '/docs/api/search'
-  });
-  
+  }, undefined, selectedSdk || undefined, SEARCH_DEBOUNCE_MS);
+
+  // Track debouncing state in development
+  useEffect(() => {
+    if (search.length > 0) {
+      setIsDebouncing(true);
+      const timer = setTimeout(() => {
+        setIsDebouncing(false);
+      }, SEARCH_DEBOUNCE_MS);
+      return () => clearTimeout(timer);
+    } else {
+      setIsDebouncing(false);
+    }
+  }, [search]);
+
+  // Debug logging in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && query.data && query.data !== 'empty') {
+      console.log(`[SearchDialog] Received ${Array.isArray(query.data) ? query.data.length : 0} results for query: "${search}"`);
+    }
+  }, [query.data, search]);
+
   return (
-    <SearchDialog
+    <SearchDialogWrapperInner
       {...props}
       search={search}
       onSearchChange={setSearch}
       results={query.data ?? 'empty'}
       isLoading={query.isLoading}
+      isDebouncing={isDebouncing}
+      selectedSdk={selectedSdk}
+      onSdkChange={setSelectedSdk}
+    />
+  );
+}
+
+interface SearchDialogWrapperInnerProps extends SharedProps {
+  search: string;
+  onSearchChange: (v: string) => void;
+  results: ReactSortedResult[] | 'empty';
+  isLoading: boolean;
+  isDebouncing: boolean;
+  selectedSdk: string;
+  onSdkChange: (sdk: string) => void;
+}
+
+function SearchDialogWrapperInner(props: SearchDialogWrapperInnerProps) {
+  const { selectedSdk, onSdkChange, ...dialogProps } = props;
+  const [showSdkDropdown, setShowSdkDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectSdk = (sdkValue: string) => {
+    onSdkChange(sdkValue);
+    setShowSdkDropdown(false);
+  };
+
+  const getSelectedSdk = () => {
+    const found = SDK_OPTIONS.find(opt => opt.value === selectedSdk);
+    return found || SDK_OPTIONS[0]; // Default to "None"
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowSdkDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <SearchDialog
+      {...dialogProps}
+      sdkSelector={
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowSdkDropdown(!showSdkDropdown)}
+            disabled={props.isLoading}
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1.5 text-xs border rounded bg-fd-background whitespace-nowrap cursor-pointer',
+              'hover:bg-fd-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary',
+              props.isLoading && 'opacity-50 cursor-not-allowed'
+            )}
+          >
+            <span className="text-xs text-fd-muted-foreground">SDK:</span>
+            <span className="text-xs">{getSelectedSdk()?.label || 'None'}</span>
+            <ChevronDown className={cn(
+              "size-2.5 transition-transform",
+              showSdkDropdown && "transform rotate-180"
+            )} />
+          </button>
+
+          {showSdkDropdown && (
+            <div className="absolute top-full right-0 mt-1 w-32 bg-fd-popover border border-fd-border rounded shadow-lg z-50">
+              {SDK_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => selectSdk(option.value)}
+                  className={cn(
+                    "flex items-center w-full px-2 py-1.5 text-left text-xs hover:bg-fd-accent",
+                    selectedSdk === option.value && "bg-fd-accent"
+                  )}
+                >
+                  <div className={cn(
+                    "w-1.5 h-1.5 rounded-full border mr-2",
+                    selectedSdk === option.value
+                      ? "bg-fd-primary border-fd-primary"
+                      : "border-fd-border"
+                  )} />
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      }
     />
   );
 }
@@ -99,7 +222,6 @@ interface AIPrompt {
   content: string;
 }
 
-
 export function SearchDialog({
   open,
   onOpenChange,
@@ -108,88 +230,21 @@ export function SearchDialog({
   search: propSearch,
   onSearchChange: propOnSearchChange,
   isLoading: propIsLoading,
+  isDebouncing: propIsDebouncing,
   results: propResults,
-}: SearchDialogProps) {
+  sdkSelector,
+}: SearchDialogProps & { sdkSelector?: ReactNode }) {
   const { text } = useI18n();
   const [active, setActive] = useState<string>();
-  const [showFilters, setShowFilters] = useLocalStorage('search-show-filters', false);
-  const pathname = usePathname();
-  
-  // Tag filter state with local storage (excluding 'general')
-  const [enabledTags, setEnabledTags] = useLocalStorage<string[]>('search-enabled-tags', ['ios', 'android', 'flutter', 'expo', 'dashboard']);
-  
-  // Track explicitly active tags (vs implicitly active = all enabled)
-  const [explicitlyActiveTags, setExplicitlyActiveTags] = useLocalStorage<string[]>('search-explicitly-active-tags', []);
-  
-  // Available tags (excluding 'general')
-  const availableTags = [
-    { id: 'ios', label: 'iOS' },
-    { id: 'android', label: 'Android' },
-    { id: 'flutter', label: 'Flutter' },
-    { id: 'expo', label: 'Expo' },
-    { id: 'dashboard', label: 'Dashboard' },
-  ];
-  
-  // Toggle tag filter with explicit/implicit state tracking
-  const toggleTag = (tagId: string) => {
-    setEnabledTags(prev => {
-      // If all tags are enabled (implicitly active), select only this tag
-      if (prev.length === availableTags.length && explicitlyActiveTags.length === 0) {
-        setExplicitlyActiveTags([tagId]);
-        return [tagId];
-      }
-      // If this tag is explicitly active and it's the only one, reset to all
-      if (prev.length === 1 && prev.includes(tagId) && explicitlyActiveTags.includes(tagId)) {
-        setExplicitlyActiveTags([]);
-        return availableTags.map(tag => tag.id);
-      }
-      // Otherwise toggle normally and update explicit state
-      const newEnabled = prev.includes(tagId) 
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId];
-      
-      // Update explicitly active tags
-      if (newEnabled.includes(tagId)) {
-        setExplicitlyActiveTags(prevExplicit => 
-          prevExplicit.includes(tagId) ? prevExplicit : [...prevExplicit, tagId]
-        );
-      } else {
-        setExplicitlyActiveTags(prevExplicit => prevExplicit.filter(id => id !== tagId));
-      }
-      
-      return newEnabled;
-    });
-  };
-  
-  // Reset all filters
-  const resetFilters = () => {
-    setEnabledTags(availableTags.map(tag => tag.id));
-    setExplicitlyActiveTags([]);
-  };
-  
-  // Check if any filters are explicitly active
-  const hasExplicitlyActiveFilters = explicitlyActiveTags.length > 0;
-  
-  // Check if any filters are active (not all enabled or has explicit filters)
-  const hasActiveFilters = enabledTags.length < availableTags.length || hasExplicitlyActiveFilters;
-  
-  // Extract current SDK root from pathname - recalculate when dialog opens
-  const currentRoot = useMemo(() => {
-    if (!open) return 'general'; // Don't calculate when closed
-    const parts = pathname.split('/').filter(Boolean);
-    const knownRoots = ['dashboard', 'ios', 'android', 'expo', 'flutter'];
-    const firstPart = parts[0] || 'general';
-    const root = knownRoots.includes(firstPart) ? firstPart : 'general';
-    return root;
-  }, [pathname, open]);
 
   // Add default search functionality
   const { search: defaultSearch, setSearch: defaultSetSearch, query } = useDocsSearch({ type: 'fetch', api: '/docs/api/search' });
-  
+
   // Use provided values or defaults
   const search = propSearch ?? defaultSearch;
   const onSearchChange = propOnSearchChange ?? defaultSetSearch;
   const isLoading = propIsLoading ?? query.isLoading;
+  const isDebouncing = propIsDebouncing ?? false;
   const results = propResults ?? (query.data ?? 'empty');
 
   // Debounced search loading indicator
@@ -213,67 +268,16 @@ export function SearchDialog({
 
   const displayLinks = links.length > 0 ? links : defaultLinks;
 
-  // Client-side tagging and filtering
-  const taggedAndFilteredResults = useMemo(() => {
-    if (!results || results === 'empty') return results;
-    
-    // Add tags to results based on URL
-    const taggedResults = results.map(item => {
-      const url = (item as ReactSortedResult).url || '';
-      const urlParts = url.split('/').filter(Boolean);
-      const knownRoots = ['dashboard', 'ios', 'android', 'expo', 'flutter'];
-      const firstPart = urlParts[0] || 'general';
-      const tag = knownRoots.includes(firstPart) ? firstPart : 'general';
-      
-      return {
-        ...item,
-        tag
-      } as ReactSortedResult;
-    });
-    
-    // Filter by enabled tags - include general when all tags are enabled
-    const filteredResults = taggedResults.filter(item => {
-      const itemTag = item.tag || 'general';
-      if (itemTag === 'general') {
-        // Include general only when all non-general tags are enabled (reset state)
-        return enabledTags.length === availableTags.length && explicitlyActiveTags.length === 0;
-      }
-      return enabledTags.includes(itemTag);
-    });
-    
-    // Sort by priority
-    const sdkRoots = ['ios', 'android', 'flutter', 'expo'];
-    
-    return filteredResults.sort((a, b) => {
-      const aTag = a.tag || 'general';
-      const bTag = b.tag || 'general';
-      
-      // Priority 1: Current root folder
-      if (aTag === currentRoot && bTag !== currentRoot) return -1;
-      if (bTag === currentRoot && aTag !== currentRoot) return 1;
-      
-      // Priority 2: Other root folders (non-SDK)
-      const aIsSDK = sdkRoots.includes(aTag);
-      const bIsSDK = sdkRoots.includes(bTag);
-      
-      if (!aIsSDK && bIsSDK) return -1;
-      if (!bIsSDK && aIsSDK) return 1;
-      
-      // Priority 3: Other SDK root folders
-      return 0;
-    });
-  }, [results, enabledTags, currentRoot]);
-
   // Add AI prompt to the items list
   const allItems = useMemo(() => {
-    const items = taggedAndFilteredResults === 'empty' 
+    const items = results === 'empty'
       ? displayLinks.map(([name, link]) => ({
           type: 'page' as const,
           id: name,
           content: name,
           url: link,
         }))
-      : taggedAndFilteredResults;
+      : results;
 
     // Show the AI prompt at the top
     const aiPrompt: AIPrompt = {
@@ -288,7 +292,7 @@ export function SearchDialog({
   const { push } = useRouter();
   const handleAiSearch = () => {
     if (!search.trim()) return;
-    
+
     const encodedQuery = encodeURIComponent(search.trim());
     onOpenChange(false); // Close search dialog
     push(`/ai?search=${encodedQuery}`);
@@ -303,7 +307,7 @@ export function SearchDialog({
       >
         <DialogTitle className="hidden">{text.search}</DialogTitle>
         <div className="flex flex-row items-center gap-2 px-3">
-          <LoadingIndicator isLoading={showSearchLoading} />
+          <LoadingIndicator isLoading={showSearchLoading} isDebouncing={isDebouncing && !isLoading} />
           <input
             value={search}
             onChange={(e) => {
@@ -321,20 +325,7 @@ export function SearchDialog({
             placeholder={text.search}
             className="w-0 flex-1 bg-transparent py-3 text-base placeholder:text-fd-muted-foreground focus-visible:outline-none"
           />
-          <button
-            type="button"
-            aria-label="Toggle Filters"
-            onClick={() => setShowFilters(!showFilters)}
-            className={`p-1.5 border border-fd-border rounded transition-colors cursor-pointer ${
-              hasActiveFilters
-                ? 'bg-[#74F8F0]/20 text-[#74F8F0] border-[#74F8F0]/30'
-                : showFilters
-                ? 'bg-fd-accent text-fd-accent-foreground'
-                : 'bg-fd-background hover:bg-fd-accent'
-            }`}
-          >
-            <Filter className="size-3" />
-          </button>
+          {sdkSelector}
           <button
             type="button"
             aria-label="Close Search"
@@ -344,54 +335,7 @@ export function SearchDialog({
             Esc
           </button>
         </div>
-        
-        {/* Tag Filters */}
-        {showFilters && (
-          <>
-            <div className="border-t" />
-            <div className="px-3 py-2">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-1">
-                  {availableTags.map(tag => {
-                    const isEnabled = enabledTags.includes(tag.id);
-                    const isExplicitlyActive = explicitlyActiveTags.includes(tag.id);
-                    const isImplicitlyActive = isEnabled && !hasExplicitlyActiveFilters;
-                    
-                    return (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => toggleTag(tag.id)}
-                        className={`px-2 py-1 text-xs rounded transition-colors cursor-pointer border ${
-                          isExplicitlyActive
-                            ? 'bg-[#74F8F0]/20 text-[#74F8F0] border-[#74F8F0]/30'
-                            : isImplicitlyActive
-                            ? 'bg-fd-accent text-fd-accent-foreground border-transparent'
-                            : 'bg-fd-muted text-fd-muted-foreground hover:bg-fd-accent/50 border-transparent'
-                        }`}
-                      >
-                        {tag.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  disabled={!hasExplicitlyActiveFilters}
-                  className={`p-1 rounded transition-colors ${
-                    hasExplicitlyActiveFilters
-                      ? 'text-fd-muted-foreground hover:text-fd-foreground cursor-pointer'
-                      : 'text-fd-muted-foreground/50 cursor-not-allowed'
-                  }`}
-                  aria-label="Reset filters"
-                >
-                  <RotateCcw className="size-3" />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
+
         {allItems.length > 0 ? (
           <SearchResults
             active={active}
@@ -409,10 +353,19 @@ export function SearchDialog({
   );
 }
 
-const icons = {
-  text: <Text className="size-4 text-fd-muted-foreground" />,
-  heading: <Hash className="size-4 text-fd-muted-foreground" />,
-  page: <FileText className="size-4 text-fd-muted-foreground" />,
+const getIcon = (type: 'text' | 'heading' | 'page', isActive: boolean) => {
+  const iconClass = type === 'page' && isActive
+    ? 'size-4 text-[#74F8F0]'
+    : 'size-4 text-fd-muted-foreground';
+
+  switch (type) {
+    case 'text':
+      return <Text className={iconClass} />;
+    case 'heading':
+      return <Hash className={iconClass} />;
+    case 'page':
+      return <FileText className={iconClass} />;
+  }
 };
 
 function SearchResults({
@@ -457,7 +410,7 @@ function SearchResults({
 
     if (e.key === 'Enter') {
       const selected = items.find((item) => item.id === active);
-      
+
       if (selected) {
         if (selected.type === 'ai-prompt') {
           onAiSearch();
@@ -480,7 +433,7 @@ function SearchResults({
     <div
       {...props}
       className={cn(
-        'flex flex-1 overflow-y-auto flex-col border-t p-2',
+        'flex flex-1 overflow-y-auto flex-col border-t p-2 min-h-[220px]',
         props.className,
       )}
     >
@@ -513,8 +466,8 @@ function SearchResults({
         }
 
         const resultItem = item as ReactSortedResult;
-        const rootFolder = resultItem.tag || 'general';
-        
+        const rootFolder = resultItem.tag || '';
+
         // Format root folder name for display
         const formatRootFolder = (folder: string) => {
           switch (folder) {
@@ -523,8 +476,7 @@ function SearchResults({
             case 'flutter': return 'Flutter';
             case 'expo': return 'Expo';
             case 'dashboard': return 'Dashboard';
-            case 'general': return 'General';
-            default: return folder.charAt(0).toUpperCase() + folder.slice(1);
+            default: return folder ? folder.charAt(0).toUpperCase() + folder.slice(1) : '';
           }
         };
 
@@ -541,18 +493,23 @@ function SearchResults({
                 className="ms-2 h-full min-h-10 w-px bg-fd-border"
               />
             ) : null}
-            {icons[item.type]}
-            <div className="flex-1 min-w-0">
-              <p className="truncate">{item.content}</p>
-            </div>
-            {/* Only show tag on page results, not headers or content, and not for general */}
-            {item.type === 'page' && rootFolder !== 'general' && (
+            {getIcon(item.type, active === item.id)}
+            {/* Show tag badge for SDK results - moved to left */}
+            {item.type === 'page' && rootFolder && (
               <div className="flex items-center gap-1 shrink-0">
-                <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-fd-accent text-fd-accent-foreground">
+                <span className={cn(
+                  "px-1.5 py-0.5 text-xs font-medium rounded",
+                  active === item.id
+                    ? "bg-white dark:bg-white/70 text-fd-accent dark:text-fd-accent border border-fd-border"
+                    : "bg-fd-accent text-fd-accent-foreground"
+                )}>
                   {formatRootFolder(rootFolder)}
                 </span>
               </div>
             )}
+            <div className="flex-1 min-w-0">
+              <p className="truncate">{item.content}</p>
+            </div>
             {active === item.id && (
               <CornerDownLeft className="size-3 text-fd-muted-foreground ml-1" />
             )}
@@ -563,21 +520,31 @@ function SearchResults({
   );
 }
 
-function LoadingIndicator({ isLoading }: { isLoading: boolean }) {
+function LoadingIndicator({ isLoading, isDebouncing }: { isLoading: boolean; isDebouncing?: boolean }) {
+  const isDev = process.env.NODE_ENV === 'development';
+  const showDebugState = isDev && (isLoading || isDebouncing);
+
   return (
-    <div className="relative size-4">
-      <LoaderCircle
-        className={cn(
-          'absolute size-full animate-spin text-fd-primary transition-opacity',
-          !isLoading && 'opacity-0',
-        )}
-      />
-      <SearchIcon
-        className={cn(
-          'absolute size-full text-fd-muted-foreground transition-opacity',
-          isLoading && 'opacity-0',
-        )}
-      />
+    <div className="flex items-center gap-2">
+      <div className="relative size-4">
+        <LoaderCircle
+          className={cn(
+            'absolute size-full animate-spin text-fd-primary transition-opacity',
+            !isLoading && 'opacity-0',
+          )}
+        />
+        <SearchIcon
+          className={cn(
+            'absolute size-full text-fd-muted-foreground transition-opacity',
+            isLoading && 'opacity-0',
+          )}
+        />
+      </div>
+      {showDebugState && (
+        <span className="text-[10px] text-fd-muted-foreground">
+          {isLoading ? 'Searching...' : isDebouncing ? 'Debouncing...' : ''}
+        </span>
+      )}
     </div>
   );
 }

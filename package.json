@@ -6,7 +6,7 @@
   "scripts": {
     "copy:docs-images": "node scripts/copy-docs-images.cjs",
     "watch:images": "tsx scripts/watch-docs-images.ts",
-    "build:prep": "tsx scripts/generate-llm-files.ts && tsx scripts/generate-md-files.ts && bun run copy:docs-images",
+    "build:prep": "tsx scripts/generate-title-map.ts && tsx scripts/generate-llm-files.ts && tsx scripts/generate-md-files.ts && bun run copy:docs-images",
     "build": "bun run build:prep && fumadocs-mdx && bun run build:next",
     "build:next": "next build",
     "build:cf": "bun run build:prep && opennextjs-cloudflare build",
