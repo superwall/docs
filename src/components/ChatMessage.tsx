@@ -21,6 +21,9 @@ import {
 
 import { Button } from '@/components/ui/button';
 
+// Flag to control thinking duration display
+const SHOW_THINKING_DURATION = false;
+
 type ToolLikePart = {
   type: string;
   state?: string;
@@ -299,8 +302,8 @@ export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkin
     );
   }
 
-  // Show thinking state
-  const showThinking = role === 'assistant' && (isStreaming || !textContent || thinkingDuration !== undefined);
+  // Show thinking state (only if flag is enabled)
+  const showThinking = SHOW_THINKING_DURATION && role === 'assistant' && (isStreaming || !textContent || thinkingDuration !== undefined);
   const isCurrentlyThinking = isStreaming && !textContent;
 
   return (

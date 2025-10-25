@@ -126,7 +126,7 @@ export function ChatView({
             currentPagePath: currentPath ?? undefined,
             currentPageUrl: href,
             debug: debug || undefined,
-            sdks: latestSdkRef.current ? [latestSdkRef.current] : undefined,
+            sdk: latestSdkRef.current || undefined,
           };
         },
       }),
