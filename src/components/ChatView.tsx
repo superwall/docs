@@ -104,6 +104,10 @@ export function ChatView({
     () =>
       new DefaultChatTransport({
         api: '/docs/api/ai',
+        fetch: async (url, options) => {
+          const response = await fetch(url, options);
+          return response;
+        },
         body: () => {
           const { content, pathname: currentPath } = latestContextRef.current;
           const href = typeof window !== 'undefined' ? window.location.href : undefined;
@@ -152,6 +156,7 @@ export function ChatView({
         saveError(undefined); // Clear error on success
       }
     },
+    streamProtocol: 'data',
   });
 
   const isLoading = status === 'submitted' || status === 'streaming';

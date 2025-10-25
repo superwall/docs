@@ -41,7 +41,7 @@ You can access this information through the \`subscriptionStatus\` property to d
 {{docs}}
 {{END DOCS CONTEXT}}`;
 
-const defaultOpenAIModel = 'gpt-4o-mini';
+const defaultOpenAIModel = 'gpt-5-mini';
 const MAX_CONVERSATION_EXCHANGES = 3; // Number of user/assistant exchanges to include
 
 // Helper function to load text file from public docs directory
