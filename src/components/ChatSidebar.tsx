@@ -1,12 +1,7 @@
 'use client';
 
 import { cn } from 'fumadocs-ui/utils/cn';
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -29,7 +24,7 @@ const clampWidth = (value: number, viewportWidth: number) => {
   return Math.min(Math.max(value, MIN_WIDTH), maxWidth);
 };
 
-export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
+function ChatSidebarInner({ isOpen, onClose }: ChatSidebarProps) {
   const { chatWiggle, setChatOpen } = useDialogState();
   const router = useRouter();
   const pathname = usePathname();
@@ -356,5 +351,13 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
         />
       </div>
     </>
+  );
+}
+
+export function ChatSidebar(props: ChatSidebarProps) {
+  return (
+    <Suspense fallback={null}>
+      <ChatSidebarInner {...props} />
+    </Suspense>
   );
 }

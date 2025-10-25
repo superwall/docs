@@ -1,7 +1,7 @@
 import './global.css';
 import { RootProvider } from 'fumadocs-ui/provider';
 import { Inter } from 'next/font/google';
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { SearchDialogWrapper as SearchDialog } from '../components/SearchDialog';
 import { GlobalScripts } from '../components/GlobalScripts';
 import { ChatWidget } from '../components/ChatWidget';
@@ -26,7 +26,9 @@ export default function Layout({ children }: { children: ReactNode }) {
           }}
         >
           {children}
-          <ChatWidget />
+          <Suspense fallback={null}>
+            <ChatWidget />
+          </Suspense>
         </RootProvider>
       </body>
     </html>

@@ -36,6 +36,7 @@ class DialogStateManager {
       searchOpen: open,
       // Close chat when opening search
       chatOpen: open ? false : this.state.chatOpen,
+      chatWiggle: this.state.chatWiggle,
     };
     this.notifyListeners();
   }

@@ -54,6 +54,7 @@ export function useFumadocsSidebarWidth() {
     let domObserver: MutationObserver | null = null;
     let intervalId: number | null = null;
     let resizeListenerAttached = false;
+    let windowResizeHandler: ((this: Window, ev: UIEvent) => any) | null = null;
     let transitionHandler: (() => void) | null = null;
     let animationHandler: (() => void) | null = null;
 
@@ -84,7 +85,10 @@ export function useFumadocsSidebarWidth() {
       attributeObserver = null;
 
       if (resizeListenerAttached) {
-        window.removeEventListener('resize', scheduleUpdate);
+        if (windowResizeHandler) {
+          window.removeEventListener('resize', windowResizeHandler);
+          windowResizeHandler = null;
+        }
         resizeListenerAttached = false;
       }
 
@@ -120,7 +124,8 @@ export function useFumadocsSidebarWidth() {
         resizeObserver = new ResizeObserver(() => scheduleUpdate(sidebar));
         resizeObserver.observe(sidebar);
       } else if (!resizeListenerAttached) {
-        window.addEventListener('resize', scheduleUpdate);
+        windowResizeHandler = () => scheduleUpdate();
+        window.addEventListener('resize', windowResizeHandler);
         resizeListenerAttached = true;
       }
 

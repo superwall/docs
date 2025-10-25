@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { ChatView } from '@/components/ChatView';
 import { useFumadocsSidebarWidth } from '@/hooks/useFumadocsSidebarWidth';
 
-export default function AIPageContent() {
+function AIPageContentInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [initialQuery, setInitialQuery] = useState<{ id: number; value: string } | null>(null);
@@ -46,5 +47,13 @@ export default function AIPageContent() {
         />
       </div>
     </div>
+  );
+}
+
+export default function AIPageContent() {
+  return (
+    <Suspense fallback={null}>
+      <AIPageContentInner />
+    </Suspense>
   );
 }

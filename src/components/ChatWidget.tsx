@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ChatFAB } from './ChatFAB';
 import { ChatSidebar } from './ChatSidebar';
 import { useDialogState } from '@/hooks/useDialogState';
 
-export function ChatWidget() {
+function ChatWidgetInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { chatOpen, setChatOpen } = useDialogState();
@@ -115,5 +115,13 @@ export function ChatWidget() {
       {!isPylonOpen && <ChatFAB onClick={() => setChatOpen(true)} isOpen={chatOpen} />}
       <ChatSidebar isOpen={chatOpen} onClose={() => setChatOpen(false)} />
     </>
+  );
+}
+
+export function ChatWidget() {
+  return (
+    <Suspense fallback={null}>
+      <ChatWidgetInner />
+    </Suspense>
   );
 }
