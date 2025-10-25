@@ -182,16 +182,20 @@ interface ChatMessageProps {
   onFeedback?: (rating: 'positive' | 'negative', comment?: string) => void;
   onRetry?: () => void;
   isStreaming?: boolean;
-  thinkingDuration?: number;
+  timeToFirstToken?: number;
+  timeToLastToken?: number;
 }
 
-export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkingDuration }: ChatMessageProps) {
+export function ChatMessage({ message, onFeedback, onRetry, isStreaming, timeToFirstToken, timeToLastToken }: ChatMessageProps) {
   const role = message.role;
 
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [comment, setComment] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // Check if in dev mode
+  const isDev = typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENV === 'development');
 
   const textContent = useMemo(() => extractText(message), [message]);
   const reasoningData = useMemo(() => extractReasoning(message), [message]);
@@ -303,11 +307,11 @@ export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkin
   }
 
   // Show thinking state (only if flag is enabled)
-  const showThinking = SHOW_THINKING_DURATION && role === 'assistant' && (isStreaming || !textContent || thinkingDuration !== undefined);
+  const showThinking = SHOW_THINKING_DURATION && role === 'assistant' && (isStreaming || !textContent || timeToFirstToken !== undefined);
   const isCurrentlyThinking = isStreaming && !textContent;
 
   return (
-    <div className="mb-4 space-y-2">
+    <div className="group mb-4 space-y-2">
       {/* Thinking state - show "Thinking..." with spinner or "Thought for X seconds" */}
       {showThinking && (
         <div className="flex items-center gap-2 text-xs text-fd-muted-foreground">
@@ -316,10 +320,10 @@ export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkin
               <Loader2 className="size-3 animate-spin" />
               <span>Thinking...</span>
             </>
-          ) : thinkingDuration !== undefined && textContent ? (
+          ) : timeToFirstToken !== undefined && textContent ? (
             <>
               <Brain className="size-3" />
-              <span>Thought for {thinkingDuration.toFixed(1)}s</span>
+              <span>Thought for {timeToFirstToken.toFixed(1)}s</span>
             </>
           ) : null}
         </div>
@@ -398,7 +402,7 @@ export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkin
       )}
 
       {(onFeedback && isMessageComplete || textContent) && (
-        <div className="group/actions mt-1 flex flex-wrap items-center gap-1 opacity-0 transition-opacity hover:opacity-100">
+        <div className="mt-1 flex flex-wrap items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {textContent && (
             <Button
               type="button"
@@ -443,6 +447,14 @@ export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkin
                 <ThumbsDown className="size-3" />
               </Button>
             </>
+          )}
+
+          {isDev && (timeToFirstToken !== undefined || timeToLastToken !== undefined) && (
+            <span className="ml-1 text-xs text-fd-muted-foreground">
+              {timeToFirstToken !== undefined && `${timeToFirstToken.toFixed(1)}s`}
+              {timeToFirstToken !== undefined && timeToLastToken !== undefined && ' / '}
+              {timeToLastToken !== undefined && `${timeToLastToken.toFixed(1)}s`}
+            </span>
           )}
 
           {showCommentInput && (

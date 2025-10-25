@@ -274,8 +274,8 @@ export function ChatSidebar({ isOpen, onClose }: ChatSidebarProps) {
       }
 
       const navWidth = leftSidebarWidthRef.current;
-      const halfViewport = viewport / 2;
-      const baseThreshold = Math.max(MIN_WIDTH, halfViewport);
+      const fullscreenViewport = viewport * 0.95;
+      const baseThreshold = Math.max(MIN_WIDTH, fullscreenViewport);
 
       let takeoverThreshold: number;
       if (navWidth > 0) {

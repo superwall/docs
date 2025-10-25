@@ -10,6 +10,7 @@ import {
   MessageCircle,
   X,
   ChevronDown,
+  PanelRightClose,
 } from 'lucide-react';
 import { cn } from 'fumadocs-ui/utils/cn';
 import {
@@ -70,7 +71,7 @@ export function ChatView({
   const sdkDropdownRef = useRef<HTMLDivElement>(null);
 
   // Track thinking time for messages
-  const [messageTimings, setMessageTimings] = useState<Record<string, { startTime: number; endTime?: number }>>({});
+  const [messageTimings, setMessageTimings] = useState<Record<string, { startTime: number; firstTokenTime?: number; endTime?: number }>>({});
 
   const SDK_OPTIONS = [
     { value: '', label: 'None' },
@@ -186,8 +187,16 @@ export function ChatView({
         };
       }
 
-      // End timing when first text appears
-      if (hasText && !existing.endTime) {
+      // Track first token time when first text appears
+      if (hasText && !existing.firstTokenTime) {
+        return {
+          ...prev,
+          [messageId]: { ...existing, firstTokenTime: Date.now() }
+        };
+      }
+
+      // Track end time when message is complete (not loading anymore)
+      if (!isLoading && existing.firstTokenTime && !existing.endTime) {
         return {
           ...prev,
           [messageId]: { ...existing, endTime: Date.now() }
@@ -196,7 +205,7 @@ export function ChatView({
 
       return prev;
     });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   // Fetch user session to check if logged in
   useEffect(() => {
@@ -441,7 +450,7 @@ export function ChatView({
                 aria-label="Close chat"
                 className="cursor-pointer"
               >
-                <X className="size-4" />
+                <PanelRightClose className="size-4" />
               </Button>
             )}
           </div>
@@ -449,18 +458,27 @@ export function ChatView({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto flex h-full w-full max-w-[960px] flex-col space-y-4 px-4 py-6">
+        <div className="mx-auto flex h-full w-full max-w-[960px] flex-col space-y-4 px-4 py-6 pb-16">
           {messages.map((message, index) => {
             const isLastMessage = index === messages.length - 1;
             const isCurrentlyStreaming = isLastMessage && message.role === 'assistant' && isLoading;
             const timing = messageTimings[message.id];
+
+            // Calculate durations
+            const timeToFirstToken = timing && timing.firstTokenTime
+              ? (timing.firstTokenTime - timing.startTime) / 1000
+              : undefined;
+            const timeToLastToken = timing && timing.endTime
+              ? (timing.endTime - timing.startTime) / 1000
+              : undefined;
 
             return (
               <ChatMessage
                 key={message.id}
                 message={message}
                 isStreaming={isCurrentlyStreaming}
-                thinkingDuration={timing && timing.endTime ? (timing.endTime - timing.startTime) / 1000 : undefined}
+                timeToFirstToken={timeToFirstToken}
+                timeToLastToken={timeToLastToken}
                 onFeedback={
                   message.role === 'assistant'
                     ? (rating, comment) => handleFeedback(message.id, rating, comment)
