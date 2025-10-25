@@ -1,29 +1,59 @@
 'use client';
 
-import AskAI from "@/components/AskAI";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function AIPageContent() {
+import { ChatView } from '@/components/ChatView';
+import { useFumadocsSidebarWidth } from '@/hooks/useFumadocsSidebarWidth';
+
+function AIPageContentInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [initialQuery, setInitialQuery] = useState<string | null>(null);
+  const [initialQuery, setInitialQuery] = useState<{ id: number; value: string } | null>(null);
+  const sidebarWidth = useFumadocsSidebarWidth();
 
   useEffect(() => {
     const searchQuery = searchParams.get('search');
-    if (searchQuery) {
-      try {
-        const decoded = decodeURIComponent(searchQuery);
-        setInitialQuery(decoded);
-        // Clear the URL parameter
-        const url = new URL(window.location.href);
-        url.searchParams.delete('search');
-        router.replace(url.pathname + url.search, { scroll: false });
-      } catch {
-        // Fail silently if malformed
+    if (!searchQuery) return;
+
+    try {
+      const decoded = decodeURIComponent(searchQuery);
+      if (decoded.trim().length > 0) {
+        setInitialQuery({ id: Date.now(), value: decoded });
       }
+    } catch {
+      // ignore malformed queries
     }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('search');
+    router.replace(url.pathname + url.search, { scroll: false });
   }, [searchParams, router]);
 
-  return <AskAI initialQuery={initialQuery} />;
+  const computedWidth = sidebarWidth > 0 ? `calc(100vw - ${sidebarWidth}px)` : '100vw';
+
+  return (
+    <div className="flex flex-1 justify-end">
+      <div
+        className="flex w-full min-h-screen"
+        style={{ width: computedWidth, maxWidth: '100vw' }}
+      >
+        <ChatView
+          className="min-h-screen w-full"
+          autoFocus
+          initialQuery={initialQuery?.value}
+          initialQueryKey={initialQuery?.id ?? null}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default function AIPageContent() {
+  return (
+    <Suspense fallback={null}>
+      <AIPageContentInner />
+    </Suspense>
+  );
 }

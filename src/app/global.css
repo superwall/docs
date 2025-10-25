@@ -20,6 +20,7 @@
     */
     --radius-lg: 0.75rem;
     --spacing: 0.3rem;
+    --sw-chat-width: 0px;
 }
 
 .dark {
@@ -55,6 +56,61 @@
     --tw-prose-counters: var(--color-fd-muted-foreground);
 }
 
+body {
+    padding-right: var(--sw-chat-width);
+    transition: padding-right 0.3s ease;
+}
+
+@media (max-width: 1023px) {
+    body {
+        padding-right: 0 !important;
+    }
+}
+
+html.chat-open {
+    --fd-toc-width: 0px;
+    --fd-tocnav-height: 0px;
+}
+
+#nd-toc,
+#nd-tocnav {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    will-change: opacity, transform;
+}
+
+#nd-toc {
+    overflow: hidden;
+    will-change: transform;
+    width: var(--fd-toc-width, 286px);
+    max-width: var(--fd-toc-width, 286px);
+    flex: 0 0 var(--fd-toc-width, 286px);
+}
+
+#nd-toc > div {
+    transition: padding 0.3s ease;
+}
+
+html.chat-open .xl\[--fd-toc-width\:286px\] {
+    --fd-toc-width: 0px !important;
+}
+
+html.chat-open #nd-toc,
+html.chat-open #nd-tocnav {
+    opacity: 0;
+    pointer-events: none;
+}
+html.chat-open #nd-toc {
+    transform: translateX(12px);
+    width: 0 !important;
+    max-width: 0 !important;
+    flex: 0 0 0 !important;
+    margin: 0 !important;
+}
+
+html.chat-open #nd-toc > div {
+    padding: 0 !important;
+}
+
 /* colored pill on first column for <ParamTable> */
 .fd-param tbody td:first-child code {
     background: #74F8F020;
@@ -74,4 +130,16 @@
 [data-role="expand"],
 svg[data-icon="true"] {      /* ← arrow in current Fumadocs build */
   pointer-events: none;
+}
+
+/* Wiggle animation for chat sidebar */
+@keyframes wiggle {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(-4px); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
 }

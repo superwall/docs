@@ -1,22 +1,29 @@
-import { DocsPage, DocsBody, DocsDescription, DocsTitle } from "fumadocs-ui/page";
-import { Suspense } from "react";
-import AIPageContent from "./AIPageContent";
+'use client';
 
-export const metadata = {
-  title: "Ask AI",
-  description: "Get instant answers to your questions about Superwall.",
-};
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ChatView } from '@/components/ChatView';
 
 export default function AIPage() {
+  // const router = useRouter();
+
+  // Check if we're at /docs/ai and redirect to /docs/home?ai=true
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined' && window.location.pathname === '/docs/ai') {
+  //     router.replace('/docs/home?ai=true');
+  //   }
+  // }, [router]);
+
+  // If we're at /ai, show fullscreen chat
   return (
-    <DocsPage toc={[]} full={false}>
-      <DocsTitle>Ask AI</DocsTitle>
-      <DocsDescription>Get instant answers to your questions about Superwall.</DocsDescription>
-      <DocsBody>
-        <Suspense fallback={<div>Loading...</div>}>
-          <AIPageContent />
-        </Suspense>
-      </DocsBody>
-    </DocsPage>
+    <div className="fixed inset-0 flex">
+      {/* Fullscreen chat view - goes up to the left sidebar */}
+      <ChatView
+        className="flex-1"
+        showCloseButton={false}
+        allowFullscreenToggle={false}
+        autoFocus
+      />
+    </div>
   );
 }

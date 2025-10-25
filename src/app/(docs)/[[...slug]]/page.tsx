@@ -1,14 +1,24 @@
 import { source } from "@/lib/source"
 import { DocsPage, DocsBody, DocsDescription, DocsTitle } from "fumadocs-ui/page"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 // import { createRelativeLink } from "fumadocs-ui/mdx"
 import { getMDXComponents } from "@/mdx-components"
-import { createElement } from "react"
 import { Rate } from "@/components/rate"
 import { CopyPageButton } from "@/components/CopyPageButton"
 
+const ASK_AI_SLUG = 'ai';
+
+function isAskAISlug(slug?: string[]) {
+  return Array.isArray(slug) && slug.length === 1 && slug[0] === ASK_AI_SLUG;
+}
+
 export default async function Page(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params
+
+  if (isAskAISlug(params.slug)) {
+    redirect('/?ai=fullscreen')
+  }
+
   const page = source.getPage(params.slug)
   if (!page) notFound()
 
@@ -20,7 +30,7 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
   // Get current path for copy button
   const currentPath = params.slug ? `/${params.slug.join('/')}` : '/';
 
-  const disabledPages = ['/home', '/support', '/ios', '/android', '/flutter', '/expo', '/dashboard'];
+  const disabledPages = ['/home', '/docs/support', '/ios', '/android', '/flutter', '/expo', '/dashboard'];
   const shouldDisableButton = disabledPages.includes(currentPath);
 
   return (
@@ -52,6 +62,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: { params: Promise<{ slug?: string[] }> }) {
   const params = await props.params
+  if (isAskAISlug(params.slug)) {
+    return {
+      title: 'Ask AI',
+      description: 'Get instant answers to your questions about Superwall.',
+    }
+  }
   const page = source.getPage(params.slug)
   if (!page) notFound()
 

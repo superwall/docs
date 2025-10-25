@@ -15,9 +15,56 @@ export function GlobalScripts({ location }: GlobalScriptsProps) {
   const unifyScriptSrc = process.env.NEXT_PUBLIC_UNIFY_SCRIPT_SRC;
   const unifyApiKey = process.env.NEXT_PUBLIC_UNIFY_API_KEY;
   const rb2bKey = process.env.NEXT_PUBLIC_RB2B_KEY;
+  const pylonAppId = process.env.NEXT_PUBLIC_PYLON_APP_ID;
+
+  // Only show Pylon in development
+  const isDev = process.env.NEXTJS_ENV === 'development' || process.env.NODE_ENV === 'development';
+
+  // Separate script for Pylon in local development only
+  const pylonLocalDevScript = isDev ? `
+    (function() {
+      var isLocalhost = typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+      if (!isLocalhost) return;
+
+      var pylonAppId = ${toJsStringLiteral(pylonAppId)};
+      if (!pylonAppId) return;
+
+      // Load Pylon widget script
+      (function(){
+        var e=window;
+        var t=document;
+        var n=function(){n.e(arguments)};
+        n.q=[];
+        n.e=function(e){n.q.push(e)};
+        e.Pylon=n;
+        var r=function(){
+          var e=t.createElement("script");
+          e.setAttribute("type","text/javascript");
+          e.setAttribute("async","true");
+          e.setAttribute("src","https://widget.usepylon.com/widget/" + pylonAppId);
+          var n=t.getElementsByTagName("script")[0];
+          n.parentNode.insertBefore(e,n);
+        };
+        if(t.readyState==="complete"){r()}
+        else if(e.addEventListener){e.addEventListener("load",r,false)}
+      })();
+
+      // Configure Pylon with test user data for local dev
+      window.pylon = {
+        chat_settings: {
+          app_id: pylonAppId,
+          email: "dev@superwall.com",
+          name: "Local Dev User"
+        }
+      };
+    })();
+  ` : '';
 
   const scriptContent = `
           (async function () {
+
             try {
               var response = await fetch('/api/auth/session', { credentials: 'include' });
               var isLoggedIn = true;
@@ -116,8 +163,15 @@ export function GlobalScripts({ location }: GlobalScriptsProps) {
         `;
 
   return (
-    <Script id="auth-tracking-scripts" strategy="afterInteractive">
-      {scriptContent}
-    </Script>
+    <>
+      {isDev && (
+        <Script id="pylon-local-dev" strategy="afterInteractive">
+          {pylonLocalDevScript}
+        </Script>
+      )}
+      <Script id="auth-tracking-scripts" strategy="afterInteractive">
+        {scriptContent}
+      </Script>
+    </>
   );
 }

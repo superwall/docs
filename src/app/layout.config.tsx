@@ -1,5 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import { Activity, Book, BookOpen, Github, Twitter, HelpCircle, Sparkles } from 'lucide-react';
+import { Activity, Book, BookOpen, Github, Twitter, HelpCircle, MessageCircle } from 'lucide-react';
 import { DiscordIcon } from '@/components/DiscordIcon';
 
 /**
@@ -31,9 +31,9 @@ export const baseOptions: BaseLayoutProps = {
     // },
     {
       text: 'Ask AI',
-      url: '/ai',
+      url: '/docs/ai',
       active: 'none',
-      icon: <Sparkles />,
+      icon: <MessageCircle />,
     },
     {
       text: 'Help Center',
@@ -43,7 +43,7 @@ export const baseOptions: BaseLayoutProps = {
     },
     {
       text: 'Support',
-      url: '/support',
+      url: '/docs/support',
       active: 'none',
       icon: <HelpCircle />,
     },
