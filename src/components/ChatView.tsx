@@ -69,6 +69,9 @@ export function ChatView({
   const [showSdkDropdown, setShowSdkDropdown] = useState(false);
   const sdkDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Track thinking time for messages
+  const [messageTimings, setMessageTimings] = useState<Record<string, { startTime: number; endTime?: number }>>({});
+
   const SDK_OPTIONS = [
     { value: '', label: 'None' },
     { value: 'ios', label: 'iOS' },
@@ -104,10 +107,6 @@ export function ChatView({
     () =>
       new DefaultChatTransport({
         api: '/docs/api/ai',
-        fetch: async (url, options) => {
-          const response = await fetch(url, options);
-          return response;
-        },
         body: () => {
           const { content, pathname: currentPath } = latestContextRef.current;
           const href = typeof window !== 'undefined' ? window.location.href : undefined;
@@ -140,12 +139,9 @@ export function ChatView({
     status,
     setMessages,
     error,
-    setError,
   } = useChat({
     transport,
     id: 'superwall-ai-chat-v2',
-    messages: initialMessages,
-    initialError,
     onError: (error) => {
       console.error('Chat error:', error);
       saveError(error);
@@ -156,14 +152,51 @@ export function ChatView({
         saveError(undefined); // Clear error on success
       }
     },
-    streamProtocol: 'data',
   });
+
+  // Load initial messages on mount
+  useEffect(() => {
+    if (initialMessages.length > 0 && messages.length === 0) {
+      setMessages(initialMessages);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
   useEffect(() => {
     latestContextRef.current = { content: pageContent, pathname };
   }, [pageContent, pathname]);
+
+  // Track thinking time for assistant messages
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== 'assistant') return;
+
+    const messageId = lastMessage.id;
+    const hasText = lastMessage.parts.some(p => p.type === 'text' && 'text' in p && p.text);
+
+    setMessageTimings(prev => {
+      const existing = prev[messageId];
+
+      // Start timing when message appears
+      if (!existing) {
+        return {
+          ...prev,
+          [messageId]: { startTime: Date.now() }
+        };
+      }
+
+      // End timing when first text appears
+      if (hasText && !existing.endTime) {
+        return {
+          ...prev,
+          [messageId]: { ...existing, endTime: Date.now() }
+        };
+      }
+
+      return prev;
+    });
+  }, [messages]);
 
   // Fetch user session to check if logged in
   useEffect(() => {
@@ -268,13 +301,13 @@ export function ChatView({
       comment?: string
     ) => {
       try {
-        const message = messages.find((m) => m.id === messageId);
+        const message = messages.find((msg) => msg.id === messageId);
         if (!message) return;
 
         const extractText = (msg: typeof message) =>
           msg.parts.map((p) => (p.type === 'text' ? p.text : '')).join('');
 
-        const prevMessage = messages.find((m, i) => messages[i + 1]?.id === messageId);
+        const prevMessage = messages.find((_msg, i) => messages[i + 1]?.id === messageId);
         const conversationId = getConversationId();
 
         await fetch('/docs/api/feedback', {
@@ -417,30 +450,46 @@ export function ChatView({
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto flex h-full w-full max-w-[960px] flex-col space-y-4 px-4 py-6">
-          {messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              message={message}
-              onFeedback={
-                message.role === 'assistant'
-                  ? (rating, comment) => handleFeedback(message.id, rating, comment)
-                  : undefined
-              }
-              onRetry={
-                message.role === 'user'
-                  ? () => {
-                      const text = message.parts
-                        .filter((p) => p.type === 'text')
-                        .map((p) => ('text' in p ? p.text : ''))
-                        .join('');
-                      if (text) {
-                        sendMessage({ text });
+          {messages.map((message, index) => {
+            const isLastMessage = index === messages.length - 1;
+            const isCurrentlyStreaming = isLastMessage && message.role === 'assistant' && isLoading;
+            const timing = messageTimings[message.id];
+
+            return (
+              <ChatMessage
+                key={message.id}
+                message={message}
+                isStreaming={isCurrentlyStreaming}
+                thinkingDuration={timing && timing.endTime ? (timing.endTime - timing.startTime) / 1000 : undefined}
+                onFeedback={
+                  message.role === 'assistant'
+                    ? (rating, comment) => handleFeedback(message.id, rating, comment)
+                    : undefined
+                }
+                onRetry={
+                  message.role === 'user'
+                    ? () => {
+                        const text = message.parts
+                          .filter((p) => p.type === 'text')
+                          .map((p) => ('text' in p ? p.text : ''))
+                          .join('');
+                        if (text) {
+                          sendMessage({ text });
+                        }
                       }
-                    }
-                  : undefined
-              }
-            />
-          ))}
+                    : undefined
+                }
+              />
+            );
+          })}
+
+          {/* Show "Loading..." before assistant message appears */}
+          {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
+            <div className="mb-4 flex items-center gap-2 text-xs text-fd-muted-foreground">
+              <Loader2 className="size-3 animate-spin" />
+              <span>Loading...</span>
+            </div>
+          )}
 
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">

@@ -178,9 +178,11 @@ interface ChatMessageProps {
   message: UIMessage;
   onFeedback?: (rating: 'positive' | 'negative', comment?: string) => void;
   onRetry?: () => void;
+  isStreaming?: boolean;
+  thinkingDuration?: number;
 }
 
-export function ChatMessage({ message, onFeedback, onRetry }: ChatMessageProps) {
+export function ChatMessage({ message, onFeedback, onRetry, isStreaming, thinkingDuration }: ChatMessageProps) {
   const role = message.role;
 
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
@@ -297,13 +299,34 @@ export function ChatMessage({ message, onFeedback, onRetry }: ChatMessageProps) 
     );
   }
 
+  // Show thinking state
+  const showThinking = role === 'assistant' && (isStreaming || !textContent || thinkingDuration !== undefined);
+  const isCurrentlyThinking = isStreaming && !textContent;
+
   return (
     <div className="mb-4 space-y-2">
+      {/* Thinking state - show "Thinking..." with spinner or "Thought for X seconds" */}
+      {showThinking && (
+        <div className="flex items-center gap-2 text-xs text-fd-muted-foreground">
+          {isCurrentlyThinking ? (
+            <>
+              <Loader2 className="size-3 animate-spin" />
+              <span>Thinking...</span>
+            </>
+          ) : thinkingDuration !== undefined && textContent ? (
+            <>
+              <Brain className="size-3" />
+              <span>Thought for {thinkingDuration.toFixed(1)}s</span>
+            </>
+          ) : null}
+        </div>
+      )}
+
       {/* Thinking and tool calls section - always in "loading" style */}
       {(showThinkingPlaceholder || showThinkingAfterTools || toolParts.length > 0 || showThinkingSummary || reasoningData.content) && (
         <div className="space-y-2">
           {/* Thinking indicator - show during loading */}
-          {showThinkingPlaceholder && (
+          {showThinkingPlaceholder && !isCurrentlyThinking && (
             <div className="flex items-center gap-2 text-sm text-fd-muted-foreground">
               <Brain className="size-4 animate-pulse" />
               <span>Thinking…</span>
