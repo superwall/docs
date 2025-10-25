@@ -1,7 +1,7 @@
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const systemPrompt = `# Superwall Docs AI
 
