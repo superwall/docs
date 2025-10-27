@@ -34,19 +34,6 @@
         "guides/presenting-paywalls-from-one-another",
         "[Creating a Countdown Timer](https://superwall.com/blog/creating-countdown-timers-in-paywalls)",
         "[Managing Connectivity Issues](https://superwall.com/blog/handling-connectivity-interruptions-with-superwall)",
-        "[Building Mult-Tier Paywalls](https://superwall.com/blog/how-to-build-multi-tiered-paywalls)",
-        
-        "---Web Checkout---",
-        "web-checkout/web-checkout-overview",
-        "web-checkout/web-checkout-creating-an-app",
-        "web-checkout/web-checkout-configuring-stripe-keys-and-settings",
-        "web-checkout/web-checkout-paddle-setup",
-        "web-checkout/web-checkout-adding-a-stripe-product",
-        "web-checkout/web-checkout-creating-campaigns-to-show-paywalls",
-        "[SDK Integration](/sdk/guides/web-checkout)",
-        "web-checkout/web-checkout-direct-stripe-checkout",
-        "web-checkout/web-checkout-testing-purchases",
-        "web-checkout/web-checkout-managing-memberships",
-        "web-checkout/web-checkout-faq"
+"[Building Mult-Tier Paywalls](https://superwall.com/blog/how-to-build-multi-tiered-paywalls)"
     ]
 }

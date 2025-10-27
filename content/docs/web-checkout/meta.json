@@ -1,0 +1,24 @@
+{
+    "title": "Web Checkout",
+    "icon": "ShoppingBag",
+    "root": true,
+    "pages": [
+        "[Dashboard Docs](https://superwall.com/docs/dashboard)",
+        "web-checkout-overview",
+
+        "---Getting Started---",
+        "web-checkout-creating-an-app",
+        "web-checkout-configuring-stripe-keys-and-settings",
+        "web-checkout-paddle-setup",
+        "web-checkout-adding-a-stripe-product",
+        "web-checkout-creating-campaigns-to-show-paywalls",
+
+        "---Implementation---",
+        "web-checkout-direct-stripe-checkout",
+        "web-checkout-testing-purchases",
+        "web-checkout-managing-memberships",
+
+        "---Resources---",
+        "web-checkout-faq"
+    ]
+}
