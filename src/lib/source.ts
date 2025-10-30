@@ -10,10 +10,8 @@ export const AndroidIcon = (props: SVGProps<SVGSVGElement>) =>
     {
       xmlns: 'http://www.w3.org/2000/svg',
       fill: 'currentColor',
-      height: 24,
-      width: 24,
-      className: 'h-6 w-6 text-white',
       viewBox: '0 0 16 16',
+      className: props.className || 'h-6 w-6 text-white',
       ...props,
     },
     createElement('path', {
@@ -27,10 +25,8 @@ export const FlutterIcon = (props: SVGProps<SVGSVGElement>) =>
     {
       xmlns: 'http://www.w3.org/2000/svg',
       fill: 'currentColor',
-      height: 24,
-      width: 24,
-      className: 'h-6 w-6 text-white',
       viewBox: '0 0 24 24',
+      className: props.className || 'h-6 w-6 text-white',
       ...props,
     },
     createElement('path', {
@@ -44,10 +40,8 @@ export const ExpoIcon = (props: SVGProps<SVGSVGElement>) =>
     {
       xmlns: 'http://www.w3.org/2000/svg',
       fill: 'currentColor',
-      height: 24,
-      width: 24,
-      className: 'h-6 w-6 text-white',
       viewBox: '0 0 256 256',
+      className: props.className || 'h-6 w-6 text-white',
       ...props,
     },
     createElement('path', {
@@ -61,10 +55,8 @@ export const AppleIcon = (props: SVGProps<SVGSVGElement>) =>
     {
       xmlns: 'http://www.w3.org/2000/svg',
       fill: 'currentColor',
-      height: 24,
-      width: 24,
-      className: 'h-6 w-6 text-white',
       viewBox: '0 0 22.773 22.773',
+      className: props.className || 'h-6 w-6 text-white',
       ...props,
     },
     createElement(
@@ -112,34 +104,37 @@ export const source = loader({
   // it assigns a URL to your pages
   baseUrl: '/',
   source: docs.toFumadocsSource(),
-  icon(name, props = {}) {
+  icon(name, props: React.SVGProps<SVGSVGElement> = {}) {
     if (!name) return undefined
+
+    // Merge className properly - use props.className if provided, otherwise default
+    const mergedClassName = props.className || 'size-4 text-current';
 
     if (name === 'Apple') {
       return createElement(AppleIcon, {
-        className: 'h-6 w-6 text-white',
         ...props,
+        className: mergedClassName,
       });
     }
 
     if (name === 'Android') {
       return createElement(AndroidIcon, {
-        className: 'h-6 w-6 text-white',
         ...props,
+        className: mergedClassName,
       });
     }
 
     if (name === 'Flutter') {
       return createElement(FlutterIcon, {
-        className: 'h-6 w-6 text-white',
         ...props,
+        className: mergedClassName,
       });
     }
 
     if (name === 'Expo') {
       return createElement(ExpoIcon, {
-        className: 'h-6 w-6 text-white',
         ...props,
+        className: mergedClassName,
       });
     }
 
@@ -152,11 +147,11 @@ export const source = loader({
 
     if (name in icons) {
       return createElement(icons[name as keyof typeof icons], {
-        className: 'h-6 w-6 text-white',
         ...props,
+        className: mergedClassName,
       });
     }
     // Fallback to <img> for custom SVGs
-    return createElement('img', { src: `/resources/${name}`, className: 'size-3', ...props });
+    return createElement('img', { src: `/resources/${name}`, className: mergedClassName, ...props });
   },
 });

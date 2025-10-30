@@ -32,7 +32,7 @@ import {
   DialogOverlay,
   DialogTitle,
 } from '@radix-ui/react-dialog';
-import type { SortedResult } from 'fumadocs-core/server';
+import type { SortedResult } from 'fumadocs-core/search/server';
 import { cva } from 'class-variance-authority';
 import { useEffectEvent } from 'fumadocs-core/utils/use-effect-event';
 import { createContext } from 'fumadocs-core/framework';
@@ -92,8 +92,9 @@ export function SearchDialogWrapper(props: SharedProps) {
 
   const { search, setSearch, query } = useDocsSearch({
     type: 'fetch',
-    api: '/docs/api/search'
-  }, undefined, selectedSdk || undefined, SEARCH_DEBOUNCE_MS);
+    api: selectedSdk ? `/docs/api/search?sdk=${selectedSdk}` : '/docs/api/search',
+    delayMs: SEARCH_DEBOUNCE_MS
+  });
 
   // Track debouncing state in development
   useEffect(() => {
