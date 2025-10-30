@@ -101,7 +101,6 @@ Superwall events are transformed into standardized Mixpanel events with the `sw_
 | `product_change` | `sw_product_change` | Plan changed |
 | `non_renewing_purchase` | `sw_non_renewing_purchase` | One-time purchase |
 | Any event with `price < 0` | `sw_refund` | Refund processed |
-| `test` | `sw_test` | Test event |
 
 ## Event Properties
 
@@ -222,16 +221,12 @@ This ensures consistent user tracking even for:
 
 ## Testing the Integration
 
-### 1. Validate Credentials
-The integration automatically validates your credentials by sending a test event when configured.
+### 1. Trigger Sandbox Events
+- iOS: Use TestFlight with a sandbox Apple ID. StoreKit Configuration files do not generate App Store Server Notifications, so webhooks and downstream integrations won't fire.
+- Google Play: Use license test accounts to perform sandbox purchases.
+- Stripe: Use Stripe Test Mode to create sandbox transactions.
 
-### 2. Test Event Properties
-Test events include:
-- Event: `sw_test`
-- Basic properties to verify connection
-- No revenue impact
-
-### 3. Verify in Mixpanel
+### 2. Verify in Mixpanel
 Check your Mixpanel project:
 1. Live View → Verify events arriving
 2. Users → Check profile updates

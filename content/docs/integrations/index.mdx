@@ -122,7 +122,6 @@ The `data` field contains detailed information about the subscription or payment
 | Product Change        | `product_change`        | User changed subscription tier      |
 | Subscription Paused   | `subscription_paused`   | Subscription temporarily paused     |
 | Non-Renewing Purchase | `non_renewing_purchase` | One-time purchase                   |
-| Test                  | `test`                  | Test event for webhook verification |
 
 ## Period Types
 
@@ -146,7 +145,7 @@ The `data` field contains detailed information about the subscription or payment
 | Environment | Value        | Description                        |
 | ----------- | ------------ | ---------------------------------- |
 | Production  | `PRODUCTION` | Live production transactions       |
-| Sandbox     | `SANDBOX`    | Test transactions (not real money) |
+| Sandbox     | `SANDBOX`    | Sandbox transactions (not real money) |
 
 ## Cancel/Expiration Reasons
 
@@ -353,13 +352,6 @@ if (event.data.price !== 0 || event.data.name === "non_renewing_purchase") {
 }
 ```
 
-### Detecting Test Events
-
-```javascript
-if (event.data.name === "test") {
-  // Test webhook for endpoint verification
-}
-```
 
 ## Revenue Calculation
 
@@ -406,10 +398,13 @@ events.forEach((event) => {
 
 ## Testing Webhooks
 
-Test events can be identified by:
+To test webhooks, trigger real events in sandbox:
 
-- `event.data.name === "test"`
-- These events have minimal data and are used for webhook endpoint verification
+- iOS: Use TestFlight with a sandbox Apple ID (StoreKit Configuration files do not trigger webhooks).
+- Google Play: Use license test accounts for sandbox purchases.
+- Stripe: Use Stripe Test Mode to create sandbox transactions.
+
+Note: We do not support sending arbitrary "test" webhooks.
 
 ## Best Practices
 

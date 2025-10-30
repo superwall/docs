@@ -122,7 +122,6 @@ The `data` field contains detailed information about the subscription or payment
 | Product Change        | `product_change`        | User changed subscription tier      |
 | Subscription Paused   | `subscription_paused`   | Subscription temporarily paused     |
 | Non-Renewing Purchase | `non_renewing_purchase` | One-time purchase                   |
-| Test                  | `test`                  | Test event for webhook verification |
 
 ## Period Types
 
@@ -146,7 +145,7 @@ The `data` field contains detailed information about the subscription or payment
 | Environment | Value        | Description                        |
 | ----------- | ------------ | ---------------------------------- |
 | Production  | `PRODUCTION` | Live production transactions       |
-| Sandbox     | `SANDBOX`    | Test transactions (not real money) |
+| Sandbox     | `SANDBOX`    | Sandbox transactions (not real money) |
 
 ## Cancel/Expiration Reasons
 
@@ -353,13 +352,6 @@ if (event.data.price !== 0 || event.data.name === "non_renewing_purchase") {
 }
 ```
 
-### Detecting Test Events
-
-```javascript
-if (event.data.name === "test") {
-  // Test webhook for endpoint verification
-}
-```
 
 ## Revenue Calculation
 
@@ -410,13 +402,16 @@ events.forEach((event) => {
   iOS local StoreKit transactions (using a StoreKit Configuration file or StoreKitTest
   in Xcode) do not generate App Store Server Notifications. As a result, Superwall
   webhooks will not fire for these local test purchases. To verify webhook delivery on iOS,
-  use Sandbox via TestFlight/a sandbox Apple ID.
+  use Sandbox via TestFlight with a sandbox Apple ID.
 </Warning>
 
-Test events can be identified by:
+To test webhooks, trigger real events in sandbox:
 
-- `event.data.name === "test"`
-- These events have minimal data and are used for webhook endpoint verification
+- iOS: Use TestFlight with a sandbox Apple ID (StoreKit Configuration files do not trigger webhooks).
+- Google Play: Use license test accounts for sandbox purchases.
+- Stripe: Use Stripe Test Mode to create sandbox transactions.
+
+Note: We do not support sending arbitrary "test" webhooks.
 
 ## Best Practices
 
@@ -464,7 +459,6 @@ Revenue events (initial_purchase, renewal, non_renewing_purchase) typically have
 
 - Family sharing scenario (some cases)
 - Special promotional offers
-- Test transactions
 
 ### Cancel/Expiration Reasons by Store
 
@@ -501,9 +495,9 @@ Revenue events (initial_purchase, renewal, non_renewing_purchase) typically have
 All stores support both PRODUCTION and SANDBOX environments:
 
 - **PRODUCTION**: Live, real-money transactions
-- **SANDBOX**: Test transactions (TestFlight on iOS, test mode on Stripe, test purchases on Play Store)
+- **SANDBOX**: Sandbox transactions (TestFlight on iOS, Stripe Test Mode, Play Store test purchases)
 
-The environment field helps you filter out test transactions from production analytics.
+The environment field helps you filter out sandbox transactions from production analytics.
 
 ## Store Event Compatibility Matrix
 
