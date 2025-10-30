@@ -1,6 +1,5 @@
 import { source } from "@/lib/source"
-import { createFromSource } from "fumadocs-core/search/server"
-import type { SortedResult } from 'fumadocs-core/server';
+import { createFromSource, type SortedResult } from "fumadocs-core/search/server"
 import { NextRequest, NextResponse } from "next/server";
 import titleMap from '@/lib/title-map.json';
 

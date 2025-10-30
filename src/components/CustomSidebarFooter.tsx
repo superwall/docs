@@ -1,11 +1,9 @@
 'use client';
 
-import { DocsLayoutSidebarFooter } from 'fumadocs-ui/layouts/docs';
 import { useDiscordInfo } from '@/hooks/useDiscordInfo';
 import { DiscordIcon } from '@/components/DiscordIcon';
 import type { DocsLayoutProps } from 'fumadocs-ui/layouts/docs';
-import type { IconItemType } from 'fumadocs-ui/layouts/links';
-import { useMemo } from 'react';
+import { ThemeToggle } from 'fumadocs-ui/components/layout/theme-toggle';
 
 interface CustomSidebarFooterProps {
   i18n?: DocsLayoutProps['i18n'];
@@ -18,8 +16,8 @@ export function CustomSidebarFooter({ i18n, themeSwitch, githubUrl }: CustomSide
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Theme switch and other footer content */}
-      <DocsLayoutSidebarFooter i18n={i18n} themeSwitch={themeSwitch} links={[]} />
+      {/* Theme switch */}
+      {themeSwitch && themeSwitch.enabled && <ThemeToggle />}
       
       {/* Custom social links with proper spacing */}
       <div className="flex items-center gap-2">

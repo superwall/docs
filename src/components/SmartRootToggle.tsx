@@ -107,7 +107,11 @@ export function SmartRootToggle({ options, placeholder, ...props }: SmartRootTog
 function Item(props: Option) {
   return (
     <>
-      {props.icon}
+      {props.icon && (
+        <div className="flex shrink-0 items-center justify-center size-4 [&_svg]:size-4 [&_img]:size-4">
+          {props.icon}
+        </div>
+      )}
       <div className="flex-1 text-start">
         <p className="text-[15px] font-medium md:text-sm">{props.title}</p>
         {props.description ? (
