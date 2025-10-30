@@ -17,66 +17,65 @@ export function GlobalScripts({ location }: GlobalScriptsProps) {
   const rb2bKey = process.env.NEXT_PUBLIC_RB2B_KEY;
   const pylonAppId = process.env.NEXT_PUBLIC_PYLON_APP_ID;
 
-  // Only show Pylon in development
-  const isDev = process.env.NEXTJS_ENV === 'development' || process.env.NODE_ENV === 'development';
-
-  // Separate script for Pylon in local development only
-  const pylonLocalDevScript = isDev ? `
-    (function() {
-      var isLocalhost = typeof window !== 'undefined' &&
-        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-      if (!isLocalhost) return;
-
-      var pylonAppId = ${toJsStringLiteral(pylonAppId)};
-      if (!pylonAppId) return;
-
-      // Load Pylon widget script
-      (function(){
-        var e=window;
-        var t=document;
-        var n=function(){n.e(arguments)};
-        n.q=[];
-        n.e=function(e){n.q.push(e)};
-        e.Pylon=n;
-        var r=function(){
-          var e=t.createElement("script");
-          e.setAttribute("type","text/javascript");
-          e.setAttribute("async","true");
-          e.setAttribute("src","https://widget.usepylon.com/widget/" + pylonAppId);
-          var n=t.getElementsByTagName("script")[0];
-          n.parentNode.insertBefore(e,n);
-        };
-        if(t.readyState==="complete"){r()}
-        else if(e.addEventListener){e.addEventListener("load",r,false)}
-      })();
-
-      // Configure Pylon with test user data for local dev
-      window.pylon = {
-        chat_settings: {
-          app_id: pylonAppId,
-          email: "dev@superwall.com",
-          name: "Local Dev User"
-        }
-      };
-    })();
-  ` : '';
-
   const scriptContent = `
           (async function () {
 
             try {
               var response = await fetch('/api/auth/session', { credentials: 'include' });
               var isLoggedIn = true;
+              var sessionData = null;
               if (response && response.ok) {
                 try {
                   var session = await response.json();
                   isLoggedIn = !!(session && session.isLoggedIn);
+                  sessionData = session;
                 } catch (_e) {
-                  // ignore JSON parse errors; default remains logged in
+                  console.error('Failed to authenticate user' + _e);
+                  return;
                 }
               }
-              if (!isLoggedIn) {
+              else {
+                console.error('Failed to authenticate user');
+                return;
+              }
+              
+              if (isLoggedIn) {
+                // Load Pylon widget for logged-in users
+                var pylonAppId = ${toJsStringLiteral(pylonAppId)};
+                if (pylonAppId && sessionData.userInfo.email) {
+                  // Load Pylon widget script
+                  (function(){
+                    var e=window;
+                    var t=document;
+                    var n=function(){n.e(arguments)};
+                    n.q=[];
+                    n.e=function(e){n.q.push(e)};
+                    e.Pylon=n;
+                    var r=function(){
+                      var e=t.createElement("script");
+                      e.setAttribute("type","text/javascript");
+                      e.setAttribute("async","true");
+                      e.setAttribute("src","https://widget.usepylon.com/widget/" + pylonAppId);
+                      var n=t.getElementsByTagName("script")[0];
+                      n.parentNode.insertBefore(e,n);
+                    };
+                    if(t.readyState==="complete"){r()}
+                    else if(e.addEventListener){e.addEventListener("load",r,false)}
+                  })();
+
+                  // Configure Pylon with user data from session
+                  var userEmail = sessionData.userInfo.email;
+                  var userName = sessionData.userInfo.name;
+                  window.pylon = {
+                    chat_settings: {
+                      app_id: pylonAppId,
+                      email: sessionData.userInfo.email,
+                      name: sessionData.userInfo.name,
+                      email_hash: sessionData.emailHash,
+                    }
+                  };
+                }
+              } else {
                 var meshSdkKey = ${toJsStringLiteral(meshSdkKey)};
                 if (meshSdkKey) {
                   // Avina
@@ -163,15 +162,8 @@ export function GlobalScripts({ location }: GlobalScriptsProps) {
         `;
 
   return (
-    <>
-      {isDev && (
-        <Script id="pylon-local-dev" strategy="afterInteractive">
-          {pylonLocalDevScript}
-        </Script>
-      )}
-      <Script id="auth-tracking-scripts" strategy="afterInteractive">
-        {scriptContent}
-      </Script>
-    </>
+    <Script id="auth-tracking-scripts" strategy="afterInteractive">
+      {scriptContent}
+    </Script>
   );
 }
