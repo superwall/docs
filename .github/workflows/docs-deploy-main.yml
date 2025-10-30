@@ -24,6 +24,7 @@ jobs:
       contents: read
       deployments: write
     env:
+      SEARCH_MODE: ${{ secrets.SEARCH_MODE }}
       # Cloudflare configuration
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
@@ -60,6 +61,7 @@ jobs:
           NEXT_PUBLIC_UNIFY_SCRIPT_SRC=${DOCS_NEXT_PUBLIC_UNIFY_SCRIPT_SRC}
           NEXT_PUBLIC_UNIFY_API_KEY=${DOCS_NEXT_PUBLIC_UNIFY_API_KEY}
           NEXT_PUBLIC_RB2B_KEY=${DOCS_NEXT_PUBLIC_RB2B_KEY}
+          SEARCH_MODE=${SEARCH_MODE}
           EOF
 
       - name: Generate Wrangler config for CI

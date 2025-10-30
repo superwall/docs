@@ -6,7 +6,7 @@ description: "Target users based on their device performance capabilities to opt
 The `deviceTier` variable allows you to create targeted audiences based on device performance capabilities. This helps optimize paywall experiences by showing resource-appropriate content to different device types. You can reference this in campaign filters, dynamic values, or in paywall text via the `device.deviceTier` variable.
 
 <Note>
-Device tier targeting is available starting in Android SDK version `2.2.2`. Make sure you're using this version or later to access this feature.
+Device tier targeting is available starting in Android SDK version `2.2.3`. Make sure you're using this version or later to access this feature.
 </Note>
 
 ## How device tier works
@@ -18,6 +18,15 @@ Device tier classification is based on several hardware factors:
 - Display quality
 
 This automatic classification helps you deliver paywalls that perform well across the full spectrum of Android devices.
+
+### Matching device ranges
+
+When creating device tier filters, you can use `contains` or `equals` for narrower matching:
+
+- **`contains`** - Broader matching that includes partial matches. For example, `deviceTier contains high` matches both `high` and `ultra_high` devices.
+- **`equals`** - Exact matching for precise targeting. For example, `deviceTier equals high` matches only `high` tier devices, not `ultra_high`.
+
+Use `contains` when you want to target a range of similar device capabilities, and `equals` when you need precise control over which specific tier to target.
 
 ## Device tier values
 

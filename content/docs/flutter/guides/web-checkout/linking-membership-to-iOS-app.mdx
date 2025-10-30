@@ -3,4 +3,91 @@ title: "Redeeming In-App"
 description: "Handle a deep link in your app and use the delegate methods."
 ---
 
-<include>../../../../shared/web-checkout/linking-membership-to-iOS-app.mdx</include>
+After purchasing from a web paywall, the user will be redirected to your app by a deep link to redeem their purchase on device.
+Please follow our [Post-Checkout Redirecting](/web-checkout-post-checkout-redirecting) guide to handle this user experience.
+
+<Note>
+  If you're using Superwall to handle purchases, then you don't need to do anything here.
+</Note>
+
+If you're using your own `PurchaseController`, you will need to update the subscription status with the redeemed web entitlements. If you're using RevenueCat, you should follow our [Using RevenueCat](/web-checkout-using-revenuecat) guide.
+
+### Using a PurchaseController
+
+If you're using a custom PurchaseController (with either iOS StoreKit or Android Play Billing), you'll need to merge the web entitlements with the device entitlements before setting the subscription status.
+Here's an example of how you might do this:
+
+```dart
+import 'package:superwall_flutter/superwall_flutter.dart';
+
+Future<void> syncSubscriptionStatus() async {
+  // Get the device entitlements from your purchase controller
+  // This will vary based on whether you're using RevenueCat, StoreKit, or Play Billing
+  final deviceEntitlements = await getDeviceEntitlements();
+
+  // Get the web entitlements from Superwall
+  final webEntitlements = Superwall.shared.entitlements?.web ?? [];
+
+  // Merge the two sets of entitlements
+  final allEntitlementIds = <String>{
+    ...deviceEntitlements,
+    ...webEntitlements.map((e) => e.id),
+  };
+
+  // Update subscription status
+  if (allEntitlementIds.isNotEmpty) {
+    final entitlements = allEntitlementIds
+        .map((id) => Entitlement(id: id))
+        .toSet();
+    
+    await Superwall.shared.setSubscriptionStatus(
+      SubscriptionStatusActive(entitlements: entitlements),
+    );
+  } else {
+    await Superwall.shared.setSubscriptionStatus(
+      SubscriptionStatusInactive(),
+    );
+  }
+}
+
+// Helper function to get device entitlements
+// This is a simplified example - your implementation will depend on your purchase system
+Future<List<String>> getDeviceEntitlements() async {
+  // For RevenueCat:
+  // final customerInfo = await Purchases.getCustomerInfo();
+  // return customerInfo.entitlements.active.keys.toList();
+
+  // For custom StoreKit/Play Billing:
+  // Query your store's API for current purchases
+  // Extract entitlement IDs from those purchases
+  // Return list of entitlement IDs
+  
+  return []; // Replace with your actual implementation
+}
+```
+
+In addition to syncing the subscription status when purchasing and restoring, you'll need to sync it whenever `didRedeemLink(result)` is called:
+
+```dart
+import 'package:superwall_flutter/superwall_flutter.dart';
+
+class MySuperwallDelegate extends SuperwallDelegate {
+  @override
+  void didRedeemLink(RedemptionResult result) {
+    // Don't use async here directly, spawn a separate task
+    _handleRedemption(result);
+  }
+  
+  Future<void> _handleRedemption(RedemptionResult result) async {
+    await syncSubscriptionStatus();
+  }
+}
+```
+
+### Refreshing of web entitlements
+
+If you aren't using a Purchase Controller, the SDK will refresh the web entitlements every 24 hours.
+
+### Redeeming while a paywall is open
+
+If a redeem event occurs when a paywall is open, the SDK will track that as a restore event and the paywall will close.

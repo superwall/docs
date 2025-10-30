@@ -3,4 +3,99 @@ title: "Redeeming In-App"
 description: "Handle a deep link in your app and use the delegate methods."
 ---
 
-<include>../../../../shared/web-checkout/linking-membership-to-iOS-app.mdx</include>
+After purchasing from a web paywall, the user will be redirected to your app by a deep link to redeem their purchase on device.
+Please follow our [Post-Checkout Redirecting](/web-checkout-post-checkout-redirecting) guide to handle this user experience.
+
+<Note>
+  If you're using Superwall to handle purchases, then you don't need to do anything here.
+</Note>
+
+If you're using your own `PurchaseController`, you will need to update the subscription status with the redeemed web entitlements. If you're using RevenueCat, you should follow our [Using RevenueCat](/web-checkout-using-revenuecat) guide.
+
+### Using a PurchaseController
+
+If you're using Google Play Billing in your PurchaseController, you'll need to merge the web entitlements with the device entitlements before setting the subscription status.
+Here's an example of how you might do this:
+
+```kotlin
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.QueryPurchasesParams
+import com.superwall.sdk.Superwall
+import com.superwall.sdk.models.entitlements.SubscriptionStatus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+suspend fun syncSubscriptionStatus(billingClient: BillingClient) {
+  withContext(Dispatchers.IO) {
+    val productIds = mutableSetOf<String>()
+
+    // Get the device entitlements from Google Play Billing
+    val params = QueryPurchasesParams.newBuilder()
+      .setProductType(BillingClient.ProductType.SUBS)
+      .build()
+    
+    val purchasesResult = billingClient.queryPurchasesAsync(params)
+    
+    // Collect purchased product IDs
+    purchasesResult.purchasesList.forEach { purchase ->
+      if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+        purchase.products.forEach { productId ->
+          productIds.add(productId)
+        }
+      }
+    }
+
+    // Get products from Superwall and extract their entitlements
+    val storeProducts = Superwall.instance.getProducts(productIds)
+    val deviceEntitlements = storeProducts.flatMap { it.entitlements }.toSet()
+
+    // Get the web entitlements from Superwall
+    val webEntitlements = Superwall.instance.entitlements.web
+
+    // Merge the two sets of entitlements
+    val allEntitlements = deviceEntitlements + webEntitlements
+
+    // Update subscription status on the main thread
+    withContext(Dispatchers.Main) {
+      if (allEntitlements.isNotEmpty()) {
+        Superwall.instance.setSubscriptionStatus(
+          SubscriptionStatus.Active(allEntitlements)
+        )
+      } else {
+        Superwall.instance.setSubscriptionStatus(SubscriptionStatus.Inactive)
+      }
+    }
+  }
+}
+```
+
+In addition to syncing the subscription status when purchasing and restoring, you'll need to sync it whenever `didRedeemLink(result:)` is called:
+
+```kotlin
+import com.superwall.sdk.delegate.SuperwallDelegate
+import com.superwall.sdk.models.redemption.RedemptionResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+class SWDelegate(private val billingClient: BillingClient) : SuperwallDelegate {
+  private val coroutineScope = CoroutineScope(Dispatchers.Main)
+  
+  override fun didRedeemLink(result: RedemptionResult) {
+    coroutineScope.launch {
+      syncSubscriptionStatus(billingClient)
+    }
+  }
+}
+```
+
+### Refreshing of web entitlements
+
+If you aren't using a Purchase Controller, the SDK will refresh the web entitlements every 24 hours.
+
+### Redeeming while a paywall is open
+
+If a redeem event occurs when a paywall is open, the SDK will track that as a restore event and the paywall will close.

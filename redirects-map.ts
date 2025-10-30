@@ -400,7 +400,32 @@ export const fileRedirectsMap = {
   "expo/quickstart/installation": "expo/quickstart/install",
   "expo/quickstart/configuring": "expo/quickstart/configure",
   "installation-via-rn-legacy": "expo/quickstart/install",
-  "using-the-superwall-delegate": "sdk/guides/using-the-superwall-delegate"
+  "using-the-superwall-delegate": "sdk/guides/using-the-superwall-delegate",
+
+  // Web Checkout redirects (moved from dashboard to top-level)
+  "dashboard/web-checkout/web-checkout-overview": "web-checkout/web-checkout-overview",
+  "dashboard/web-checkout/web-checkout-creating-an-app": "web-checkout/web-checkout-creating-an-app",
+  "dashboard/web-checkout/web-checkout-configuring-stripe-keys-and-settings": "web-checkout/web-checkout-configuring-stripe-keys-and-settings",
+  "dashboard/web-checkout/web-checkout-paddle-setup": "web-checkout/web-checkout-paddle-setup",
+  "dashboard/web-checkout/web-checkout-adding-a-stripe-product": "web-checkout/web-checkout-adding-a-stripe-product",
+  "dashboard/web-checkout/web-checkout-creating-campaigns-to-show-paywalls": "web-checkout/web-checkout-creating-campaigns-to-show-paywalls",
+  "dashboard/web-checkout/web-checkout-direct-stripe-checkout": "web-checkout/web-checkout-direct-stripe-checkout",
+  "dashboard/web-checkout/web-checkout-testing-purchases": "web-checkout/web-checkout-testing-purchases",
+  "dashboard/web-checkout/web-checkout-managing-memberships": "web-checkout/web-checkout-managing-memberships",
+  "dashboard/web-checkout/web-checkout-faq": "web-checkout/web-checkout-faq",
+
+  // Integrations redirects (moved from dashboard to top-level)
+  "dashboard/integrations": "integrations",
+  "dashboard/dashboard-integrations/integrations-webhooks": "integrations/webhooks",
+  "dashboard/dashboard-integrations/integrations-apple-search-ads": "integrations/apple-search-ads",
+  "dashboard/dashboard-integrations/integrations-mixpanel": "integrations/mixpanel",
+  "dashboard/dashboard-integrations/inegrations-mixpanel": "integrations/mixpanel",
+  "dashboard/dashboard-integrations/integrations-amplitude": "integrations/amplitude",
+  "dashboard/dashboard-integrations/inegrations-amplitude": "integrations/amplitude",
+  "dashboard/dashboard-integrations/integrations-statsig": "integrations/statsig",
+  "dashboard/dashboard-integrations/inegrations-statsig": "integrations/statsig",
+  "dashboard/dashboard-integrations/integrations-slack": "integrations/slack",
+  "dashboard/dashboard-integrations/inegrations-slack": "integrations/slack"
 }
 
 export const externalRedirectsMap = {

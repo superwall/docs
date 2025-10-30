@@ -1,0 +1,17 @@
+{
+    "title": "Integrations",
+    "icon": "Puzzle",
+    "root": true,
+    "pages": [
+        "[Dashboard Docs](https://superwall.com/docs/dashboard)",
+        "index",
+
+        "---Integrations---",
+        "webhooks",
+        "apple-search-ads",
+        "mixpanel",
+        "amplitude",
+        "statsig",
+        "slack"
+    ]
+}

@@ -3,4 +3,190 @@ title: "Post-Checkout Redirecting"
 description: "Learn how to handle users redirecting back to your app after a web purchase."
 ---
 
-<include>../../../../shared/web-checkout/post-checkout-redirecting.mdx</include>
+After a user completes a web purchase, Superwall needs to redirect them back to your app. You can configure this behavior in two ways:
+
+## Post-Purchase Behavior Modes
+
+You can configure how users are redirected after checkout in your [Application Settings](/web-checkout-configuring-stripe-keys-and-settings#post-purchase-behavior):
+
+### Redeem Mode (Default)
+
+Superwall manages the entire redemption experience:
+- Users are automatically deep linked to your app with a redemption code
+- Fallback to App Store/Play Store if the app isn't installed
+- Redemption emails are sent automatically
+- The SDK handles redemption via delegate methods (detailed below)
+
+This is the recommended mode for most apps.
+
+### Redirect Mode
+
+Redirect users to your own custom URL with purchase information:
+- **When to use**: You want to show a custom success page, perform additional actions before redemption, or have your own deep linking infrastructure
+- **What you receive**: Purchase data is passed as query parameters to your URL
+
+**Query Parameters Included**:
+- `app_user_id` - The user's identifier from your app
+- `email` - User's email address
+- `stripe_subscription_id` - The Stripe subscription ID
+- Any custom placement parameters you set
+
+**Example**:
+```
+https://yourapp.com/success?
+  app_user_id=user_123&
+  email=user@example.com&
+  stripe_subscription_id=sub_1234567890&
+  campaign_id=summer_sale
+```
+
+You'll need to implement your own logic to handle the redirect and deep link users into your app.
+
+---
+
+## Setting Up Deep Links
+
+Whether you're showing a checkout page in a browser or using the In-App Browser, the Superwall SDK relies on deep links to redirect back to your app.
+
+#### Prerequisites
+1. [Configuring Stripe Keys and Settings](/web-checkout-configuring-stripe-keys-and-settings)
+2. [Deep Links](/in-app-paywall-previews)
+
+<Warning>
+  If you're not using Superwall to handle purchases, then you'll need to follow extra steps to redeem the web purchase in your app.
+</Warning>
+
+- [Using RevenueCat](/web-checkout-using-revenuecat)
+- [Using a PurchaseController](/web-checkout-linking-membership-to-iOS-app#using-a-purchasecontroller)
+
+---
+
+## Handling Redemption (Redeem Mode)
+
+When using Redeem mode (the default), handle the user experience when they're redirected back to your app using `SuperwallDelegate` methods:
+
+### willRedeemLink
+
+When your app opens via the deep link, we will call the delegate method `willRedeemLink()` before making a network call to redeem the code.
+At this point, you might wish to display a loading indicator in your app so the user knows that the purchase is being redeemed.
+
+```dart
+import 'package:superwall_flutter/superwall_flutter.dart';
+import 'package:flutter/material.dart';
+
+class MySuperwallDelegate extends SuperwallDelegate {
+  @override
+  void willRedeemLink() {
+    // Show a loading indicator to the user
+    print('Activating your purchase...');
+    // You might show a SnackBar or loading dialog here
+  }
+}
+```
+
+You can manually dismiss the paywall at this point if needed, but note that the paywall will be dismissed automatically when the `didRedeemLink` method is called.
+
+### didRedeemLink
+
+After receiving a response from the network, we will call `didRedeemLink(result)` with the result of redeeming the code. The result is a `RedemptionResult` which can be one of:
+
+- `RedemptionResult` with `type: RedemptionResultType.success`: The redemption succeeded and contains information about the redeemed code.
+- `RedemptionResult` with `type: RedemptionResultType.error`: An error occurred while redeeming. You can check the error message via the error parameter.
+- `RedemptionResult` with `type: RedemptionResultType.expiredCode`: The code expired and contains information about whether a redemption email has been resent and an optional obfuscated email address.
+- `RedemptionResult` with `type: RedemptionResultType.invalidCode`: The code that was redeemed was invalid.
+- `RedemptionResult` with `type: RedemptionResultType.expiredSubscription`: The subscription that the code redeemed has expired.
+
+On network failure, the SDK will retry up to 6 times before returning an `error` `RedemptionResult` in `didRedeemLink(result)`.
+
+Here, you should remove any loading UI you added in `willRedeemLink` and show a message to the user based on the result. If a paywall is presented, it will be dismissed automatically.
+
+```dart
+import 'package:superwall_flutter/superwall_flutter.dart';
+import 'package:flutter/material.dart';
+
+class MySuperwallDelegate extends SuperwallDelegate {
+  final BuildContext context; // Pass context if you need to show dialogs/snackbars
+
+  MySuperwallDelegate(this.context);
+
+  @override
+  void didRedeemLink(RedemptionResult result) {
+    switch (result.type) {
+      case RedemptionResultType.expiredCode:
+        _showMessage('Expired Link');
+        print('[!] code expired: ${result.code}, ${result.expiredInfo}');
+        break;
+      
+      case RedemptionResultType.error:
+        _showMessage(result.error?.message ?? 'An error occurred');
+        print('[!] error: ${result.code}, ${result.error}');
+        break;
+      
+      case RedemptionResultType.expiredSubscription:
+        _showMessage('Expired Subscription');
+        print('[!] expired subscription: ${result.code}, ${result.redemptionInfo}');
+        break;
+      
+      case RedemptionResultType.invalidCode:
+        _showMessage('Invalid Link');
+        print('[!] invalid code: ${result.code}');
+        break;
+      
+      case RedemptionResultType.success:
+        final email = result.redemptionInfo?.purchaserInfo?.email;
+        if (email != null) {
+          Superwall.shared.setUserAttributes({'email': email});
+          _showMessage('Welcome, $email!');
+        } else {
+          _showMessage('Welcome!');
+        }
+        break;
+    }
+  }
+
+  void _showMessage(String message) {
+    // Show a snackbar or toast message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}
+```
+
+### Setting up the delegate
+
+Make sure to set your delegate when configuring Superwall:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Superwall.configure('pk_your_api_key');
+  
+  // Set the delegate (you'll need access to BuildContext for UI operations)
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Set the delegate after the widget is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Superwall.shared.setDelegate(MySuperwallDelegate(context));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: YourHomeScreen(),
+    );
+  }
+}
+```

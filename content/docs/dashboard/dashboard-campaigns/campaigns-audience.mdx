@@ -68,6 +68,21 @@ You can combine rules together, too. In the following example, if we only wanted
 
 <Frame>![](/images/campaigns-audience-combo-condition.png)</Frame>
 
+#### Using user properties or placement parameters 
+You can reference [user attributes](/sdk/quickstart/setting-user-properties) and [placement parameters](/docs/using-placement-parameters) in campaign filters. For example, if you were to set `hasLoggedCoffee` on your user, you could use that in a filter. 
+
+**Adding user properties**
+1. **Click** on Add Filter, and then click the **+** icon:
+<Frame>![](/images/campaign-filter-add-user-prop.png)</Frame>
+2. Select **User** and name the property, then save it:
+<Frame>![](/images/campaign-filter-add-user-prop-named.png)</Frame>
+3. Now you can select **User** (or type the property name) and the new property is available for user in your filter. Here, it's at the bottom:
+<Frame>![](/images/campaign-filter-add-user-prop-filter.png)</Frame>
+
+**Adding placement parameters**<br />
+This works exactly the same as above, just choose "Placement" instead:
+<Frame>![](/images/campaign-filter-add-placement-param.png)</Frame>
+
 #### Using rule groups
 You can combine rules together in groups. For example, you can mix **AND** and **OR** operators in the same group. To create a rule group, **click** on **+ Add Group** in the filter editor. 
 

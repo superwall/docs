@@ -3,4 +3,110 @@ title: "Using RevenueCat"
 description: "Handle a deep link in your app and use the delegate methods to link web checkouts with RevenueCat."
 ---
 
-<include>../../../../shared/web-checkout/using-revenuecat.mdx</include>
+After purchasing from a web paywall, the user will be redirected to your app by a deep link to redeem their purchase on device. Please follow our [Post-Checkout Redirecting](/web-checkout-post-checkout-redirecting) guide to handle this user experience.
+
+<Note>
+  If you're using Superwall to handle purchases, then you don't need to do anything here.
+</Note>
+
+<Warning>You only need to use a `PurchaseController` if you want end-to-end control of the purchasing pipeline. The recommended way to use RevenueCat with Superwall is by putting it in observer mode.</Warning>
+
+If you're using your own `PurchaseController`, you should follow our [Redeeming In-App](/web-checkout-linking-membership-to-iOS-app) guide.
+
+### Using a PurchaseController with RevenueCat
+
+If you're using RevenueCat, you'll need to follow [steps 1 to 4 in their guide](https://www.revenuecat.com/docs/web/integrations/stripe) to set up Stripe with RevenueCat. Then, you'll need to
+associate the RevenueCat customer with the Stripe subscription IDs returned from redeeming the code. You can do this by extracting the ids from the `RedemptionResult` and sending them to RevenueCat's API
+by using the `didRedeemLink(result)` delegate method:
+
+```typescript
+import { SuperwallDelegate, RedemptionResult } from 'expo-superwall/compat';
+import Purchases from 'react-native-purchases';
+
+export class SWDelegate extends SuperwallDelegate {
+  // The user tapped on a deep link to redeem a code
+  willRedeemLink(): void {
+    console.log('[!] willRedeemLink');
+    // Optionally show a loading indicator here
+  }
+
+  // Superwall received a redemption result and validated the purchase with Stripe.
+  async didRedeemLink(result: RedemptionResult): Promise<void> {
+    console.log('[!] didRedeemLink', result);
+    // Send Stripe IDs to RevenueCat to link purchases to the customer
+
+    // Get a list of subscription ids tied to the customer.
+    const stripeSubscriptionIds = 
+      result.type === 'success' ? result.stripeSubscriptionIds : null;
+    
+    if (!stripeSubscriptionIds) {
+      return;
+    }
+
+    const revenueCatStripePublicAPIKey = 'strp.....'; // replace with your RevenueCat Stripe Public API Key
+    const appUserId = Purchases.getAppUserID();
+
+    // In the background, process all subscription IDs
+    await Promise.all(
+      stripeSubscriptionIds.map(async (stripeSubscriptionId) => {
+        try {
+          const response = await fetch('https://api.revenuecat.com/v1/receipts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-Platform': 'stripe',
+              'Authorization': `Bearer ${revenueCatStripePublicAPIKey}`,
+            },
+            body: JSON.stringify({
+              app_user_id: appUserId,
+              fetch_token: stripeSubscriptionId,
+            }),
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            console.log(`[!] Success: linked ${stripeSubscriptionId} to user ${appUserId}`, data);
+          } else {
+            console.error(`[!] Error: unable to link ${stripeSubscriptionId} to user ${appUserId}. Response:`, data);
+          }
+        } catch (error) {
+          console.error(`[!] Error: unable to link ${stripeSubscriptionId} to user ${appUserId}`, error);
+        }
+      })
+    );
+
+    /// After all network calls complete, invalidate the cache
+    try {
+      const customerInfo = await Purchases.getCustomerInfo({ fetchPolicy: 'FETCH_CURRENT' });
+      
+      /// If you're using RevenueCat's `addCustomerInfoUpdateListener`, or keeping Superwall Entitlements in sync
+      /// via RevenueCat's listener methods, you don't need to do anything here. Those methods will be
+      /// called automatically when this call fetches the most up to date customer info, ignoring any local caches.
+
+      /// Otherwise, if you're manually calling `Purchases.getCustomerInfo` to keep Superwall's entitlements
+      /// in sync, you should use the newly updated customer info here to do so.
+      
+      /// You could always access web entitlements here as well
+      /// const webEntitlements = Superwall.shared.entitlements.web
+      
+      // Perform UI updates to let the user know their subscription was redeemed
+      // This runs automatically on the main thread in React Native
+    } catch (error) {
+      console.error('Error getting customer info', error);
+    }
+  }
+}
+```
+
+<Warning>
+  If you call `logIn` from RevenueCat's SDK, then you need to call the logic you've implemented
+  inside `didRedeemLink(result)` again. For example, that means if `logIn` was invoked from
+  RevenueCat, you'd either abstract out this logic above into a function to call again, or simply
+  call this function directly.
+</Warning>
+
+The web entitlements will be returned along with other existing entitlements in the `CustomerInfo` object accessible via RevenueCat's SDK.
+
+If you're logging in and out of RevenueCat, make sure to resend the Stripe subscription IDs to RevenueCat's endpoint after logging in.

@@ -1,0 +1,120 @@
+---
+title: "Using Superwall for Onboarding Flows"
+description: "Due to the flexible nature of our paywalls and SDK, you can easily use Superwall for onboarding flows."
+---
+
+Superwall's flexible paywall system can be used for building engaging onboarding experiences. With multi-page paywalls, dynamic content, and powerful targeting rules, you can create interactive onboarding flows without shipping app updates. Here's a quick guide on how to get up and running.
+
+## Creating an onboarding campaign
+
+Start by creating a [campaign](/campaigns) specifically for onboarding:
+
+1. Navigate to **Campaigns** in the dashboard sidebar
+2. Click **+ New Campaign** 
+3. Name it something like "User Onboarding"
+4. Add a [placement](/campaigns-placements) to trigger your onboarding flow
+
+## Triggering onboarding automatically
+
+There are two main approaches to triggering onboarding:
+
+### Using the `app_install` placement
+
+The [`app_install`](/campaigns-standard-placements) standard placement fires automatically when a user first installs your app. This is ideal for showing onboarding since it only fires once:
+
+1. Add `app_install` as a [placement](/campaigns-placements) to your onboarding campaign
+2. Optionally, in your [audience filters](/dashboard/dashboard-campaigns/campaigns-audience#using-user-properties-or-placement-parameters), add a condition like `user.totalPaywallViews` equals `0` to ensure it only shows to brand new users
+
+Since `app_install` only fires once per install, you don't need additional logic to prevent it from showing multiple times. However, if users complete onboarding and you want to track that for other purposes, you can still [set a user attribute](/sdk/quickstart/setting-user-properties):
+
+```swift iOS
+// Swift
+Superwall.shared.setUserAttributes(["hasCompletedOnboarding": true])
+
+// Android
+Superwall.instance.setUserAttributes(mapOf("hasCompletedOnboarding" to true))
+
+// Flutter
+Superwall.instance.setUserAttributes({
+  "hasCompletedOnboarding": true
+});
+
+// React Native / Expo
+await Superwall.shared.setUserAttributes({ hasCompletedOnboarding: true });
+```
+
+### Using a custom placement
+
+For more control over when onboarding appears, create a custom placement and register it manually:
+
+```swift iOS
+// Swift
+Superwall.shared.register(event: "start_onboarding")
+
+// Android
+Superwall.instance.register("start_onboarding")
+
+// Flutter
+Superwall.instance.register("start_onboarding");
+
+// React Native / Expo
+await Superwall.shared.register({ placement: "start_onboarding" });
+```
+
+This approach lets you trigger onboarding based on specific user actions, like completing account setup or reaching a certain screen.
+
+## Building multi-page onboarding paywalls
+
+Superwall's [Navigation component](/paywall-editor-navigation-component) is perfect for creating multi-page onboarding experiences. Check out our [Simple Onboarding](https://superwall.com/templates?templateId=119147) template to see this in action.
+
+To create a multi-page onboarding paywall:
+
+1. In the paywall editor, click **+** to add a new element
+2. Select **Navigation** under the "Base Elements" section
+3. Add your onboarding content pages using [stacks](/paywall-editor-stacks)
+4. Add buttons with tap behaviors to navigate between pages, or use transitions like Push, Fade, or Slide
+
+You can also use the [Slides component](/paywall-editor-slides-component) if you want gesture-driven navigation or the [Carousel component](/paywall-editor-carousel-component) if you want slides that auto-advance.
+
+## Personalizing content with dynamic values
+
+Use [variables](/paywall-editor-variables) and [dynamic values](/paywall-editor-dynamic-values) to show different content based on user attributes, device properties, or actions:
+
+**Show different messages based on device type:**
+```
+if device.interfaceType is "ipad"
+  then "Welcome to the best iPad experience"
+else
+  then "Welcome to your new favorite app"
+```
+
+**Display personalized content using user attributes:**
+```
+if user.accountType is "premium"
+  then "Unlock your premium features"
+else
+  then "Discover what you can do"
+```
+
+This means you can go to certain pages based off a button they tapped showing a survey, change wording, which products to show, and more. Rely on dynamic values and variables to completely customize flows.
+
+**Adjust layout based on onboarding progress:**
+
+Track which slide users are on using the [slides element variable](/paywall-editor-slides-component#tracking-or-updating-the-displayed-element-in-slides) and conditionally show/hide elements or change copy accordingly.
+
+## Tracking onboarding analytics
+
+To track onboarding metrics, you can use these [Superwall events](/tracking-analytics) and can they can also be sent to your own analytics service. Additionally, you can also use [custom paywall actions](/sdk/guides/advanced/custom-paywall-actions) to trigger specific tracking events when users interact with buttons or elements in your onboarding flow, giving you detailed insights into user behavior and drop-off points.
+
+## Best practices
+
+- **Length:** 3-10 pages is usually optimal for onboarding
+- **Use user attributes:** Track onboarding completion and progress to avoid showing it repeatedly
+- **Test variations:** Create multiple audiences to A/B test different onboarding flows
+- **Make it dismissible:** Consider adding a skip option for returning users
+- **Track analytics:** Monitor your onboarding completion rates in the campaign metrics
+
+Remember, since everything is managed through the dashboard, you can iterate on your onboarding experience without shipping app updates.
+
+## Going forward
+Superwall is currently building out more tools for onboarding, such as text boxes and text entry, and will be available soon.

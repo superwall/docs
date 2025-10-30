@@ -20,13 +20,11 @@ By default, Superwall has three different type of variables for use:
 
 While those will allow you to cover several cases, you can also add your own custom variables too.
 
-<Note>
+<Tip>
   Variables dealing with any product period, such as `someProduct.period`, `someProduct.periodly`,
-  and other similar variables, do _not_ localize automatically. This is because different languages
-  use varying orders and sentence structures for such terms. If you need them localized, add them as
-  you would any other term and enter localized values for each. Learn more about localization
-  [here](/paywall-editor-localization).
-</Note>
+  and other similar variables, can localize automatically now. Learn more [here](/paywall-editor-localization#localizing-period-lengths).
+</Tip>
+
 ### Using Variables
 
 You primarily use variables in the **component editor** and with [dynamic values](/paywall-editor-dynamic-values). When using a variable in text, follow the Liquid syntax to reference one: `{{ theVariable }}`. For example, to reference a variable in some text, you would:
