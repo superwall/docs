@@ -5,20 +5,33 @@ description: "Need help with anything Superwall-related? We're here to help."
 
 ## Resources
 
-We have lots of resources that can help you find the answer to your issue, try looking there first:
+We have lots of resources that can help you find the answer to your issue:
+- [Ask AI](/ai) for **instant answers** to your questions
 - Consult our Docs (you're here right now! try searching for your issue)
 - Search for solutions in our [Help Center](https://support.superwall.com/)
 - Check our [Status Page](https://status.superwall.com/) for any on-going issues
-- [Ask AI](/ai) for instant answers to your questions
 
 ## Contact Support
 
-If additional help is required, you can contact Support by logging into your dashboard at [superwall.com](https://superwall.com/login) and using the **💬 Chat button** at the bottom-right corner of the screen.
+If additional help is required, you can create a new Support ticket by using the **💬 Support button** in the bottom-right corner of the screen. 
 
-**Please provide any relevant details to help us resolve your issue quickly:**
-- A detailed description of the issue
-- User IDs if the issue is affecting specific users
-
+<LoginStatusProvider>
+  <BasedOnAuth>
+    <LoggedIn>
+      <Info>
+        **Please provide all relevant details to help us resolve your issue quickly:**
+        - A detailed description of the issue
+        - User IDs if the issue is affecting specific users
+        - Any and all relevant screenshots, links, logs, etc.
+      </Info>
+    </LoggedIn>
+    <LoggedOut>
+      <Warning>
+        You will need to [log into your Superwall account](https://superwall.com/login) first
+      </Warning>
+    </LoggedOut>
+  </BasedOnAuth>
+</LoginStatusProvider>
 
 ## Need help faster? 
 Try using [Ask AI](/ai) for instant answers.

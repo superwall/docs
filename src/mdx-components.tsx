@@ -10,6 +10,7 @@ import { Accordion, Accordions as AccordionGroup } from 'fumadocs-ui/components/
 import { ImageZoom as Frame } from 'fumadocs-ui/components/image-zoom'
 import { SDKContent } from './components/SDKContent'
 import { GithubInfo as GithubInfoComponent } from 'fumadocs-ui/components/github-info';
+import { WhenLoggedIn, WhenLoggedOut, LoginStatusProvider, BasedOnAuth, LoggedIn, LoggedOut } from './components/LoginStatusContext';
 
 // We'll add custom components here
 
@@ -278,5 +279,11 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     SDKContent,
     GithubInfo,
     ParamTable,
+    WhenLoggedIn,
+    WhenLoggedOut,
+    LoginStatusProvider,
+    BasedOnAuth,
+    LoggedIn,
+    LoggedOut,
   } as MDXComponents
 }
