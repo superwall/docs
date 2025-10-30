@@ -10,7 +10,7 @@ If creating filters to show a paywall under certain conditions doesn't apply to 
 
 In the audience view, you can set up filtering rules, check results of experiments and recent transactions resulting from them. All of your current audiences will show in the left-hand side of the campaign details screen:
 
-<Frame>![](/images/campaigns-audiences.png)</Frame>
+<Frame>![](/images/campaigns-audiences.webp)</Frame>
 
 The audience section lets you [edit the order](#reordering-audiences) in which audiences are evaluated. **Superwall evaluates audiences top-to-bottom.** For example, consider you had three audiences for a caffeine tracking app:
 
@@ -24,7 +24,7 @@ If a user logged caffeine in the morning, Superwall would first check if they ma
 
 To create a new audience, **click** the **+** button in the audiences section, located at the left-hand side of the campaign details view:
 
-<Frame>![](/images/campaigns-add-audience.png)</Frame>
+<Frame>![](/images/campaigns-add-audience.webp)</Frame>
 
 You have two options for creating a new audience:
 
@@ -35,7 +35,7 @@ You have two options for creating a new audience:
 
 To rename an audience, **click** the **pencil icon**, located at the top of a selected audience:
 
-<Frame>![](/images/campaigns-audiences-set-name.png)</Frame>
+<Frame>![](/images/campaigns-audiences-set-name.webp)</Frame>
 
 ### Configuring an audience
 
@@ -45,7 +45,7 @@ To use an audience to filter for a particular set of events, rules or any other 
 
 You can add filters (i.e. rules or conditions to match against) by **clicking** on an audience, and then clicking the **+ Add Filter** button:
 
-<Frame>![](/images/campaigns-audience-add-filter.png)</Frame>
+<Frame>![](/images/campaigns-audience-add-filter.webp)</Frame>
 
 From there, select any of the events to create a filter with. For example, if you want to use a placement you've made to match against:
 
@@ -56,32 +56,32 @@ From there, select any of the events to create a filter with. For example, if yo
 
 For example, if we wanted to show a certain paywall for users who tried to set a custom icon, it might look like this:
 
-<Frame>![](/images/campaigns-audience-filter-by-event.png)</Frame>
+<Frame>![](/images/campaigns-audience-filter-by-event.webp)</Frame>
 
 When you have a condition setup, **click** the **Save** button towards the bottom to apply it:
 
-<Frame>![](/images/campaign-audience-filter-save.png)</Frame>
+<Frame>![](/images/campaign-audience-filter-save.webp)</Frame>
 
 If you don't want to save any filter you're working on, **click** the **Discard** button by the save button.
 
 You can combine rules together, too. In the following example, if we only wanted the paywall to show on iOS, and not Android, you can simply click "+Add Filter" once more, and add the condition:
 
-<Frame>![](/images/campaigns-audience-combo-condition.png)</Frame>
+<Frame>![](/images/campaigns-audience-combo-condition.webp)</Frame>
 
 #### Using user properties or placement parameters 
 You can reference [user attributes](/sdk/quickstart/setting-user-properties) and [placement parameters](/docs/using-placement-parameters) in campaign filters. For example, if you were to set `hasLoggedCoffee` on your user, you could use that in a filter. 
 
 **Adding user properties**
 1. **Click** on Add Filter, and then click the **+** icon:
-<Frame>![](/images/campaign-filter-add-user-prop.png)</Frame>
+<Frame>![](/images/campaign-filter-add-user-prop.webp)</Frame>
 2. Select **User** and name the property, then save it:
-<Frame>![](/images/campaign-filter-add-user-prop-named.png)</Frame>
+<Frame>![](/images/campaign-filter-add-user-prop-named.webp)</Frame>
 3. Now you can select **User** (or type the property name) and the new property is available for user in your filter. Here, it's at the bottom:
-<Frame>![](/images/campaign-filter-add-user-prop-filter.png)</Frame>
+<Frame>![](/images/campaign-filter-add-user-prop-filter.webp)</Frame>
 
 **Adding placement parameters**<br />
 This works exactly the same as above, just choose "Placement" instead:
-<Frame>![](/images/campaign-filter-add-placement-param.png)</Frame>
+<Frame>![](/images/campaign-filter-add-placement-param.webp)</Frame>
 
 #### Using rule groups
 You can combine rules together in groups. For example, you can mix **AND** and **OR** operators in the same group. To create a rule group, **click** on **+ Add Group** in the filter editor. 
@@ -92,7 +92,7 @@ In the following example, we've created a filter that matches...
 - And their user seed greater than or equal to 60.
 - And if the app has been launched at least twice this week _and_ they are on iOS.
 
-<Frame>![](/images/campaign_audience_rulegroup.jpeg)</Frame>
+<Frame>![](/images/campaign_audience_rulegroup.webp)</Frame>
 
 For a hands on tutorial of creating multiple filters to show different paywalls, check out this video:
 
@@ -119,63 +119,63 @@ For a hands on tutorial of creating multiple filters to show different paywalls,
 
 To match your campaign to specific entitlement, **click** the entitlements button and choose an option:
 
-<Frame>![](/images/campaign-filter-match-via-entitlement.png)</Frame>
+<Frame>![](/images/campaign-filter-match-via-entitlement.webp)</Frame>
 
 1. **Show to unsubscribed users (default):** Users without an active entitlement match.
 2. **All users**: All users match.
 3. **Specify entitlement**: Users with the specified entitlement(s) and state are matched. Here, you can combine multiple entitlement checks, too. For example, if `gold` is `active` but `platinum` is `inactive`:
 
-<Frame>![](/images/entitlementDuelCheck.png)</Frame>
+<Frame>![](/images/entitlementDuelCheck.webp)</Frame>
 
 Once you've set up entitlement checks for the campaign, **click** the **Save** button that appears at the bottom:
 
-<Frame>![](/images/entitlementSave.png)</Frame>
+<Frame>![](/images/entitlementSave.webp)</Frame>
 
 #### Setting a limit
 
 To set a limit for an audience, **click** the **+ Add Limit** button — located below the entitlements section:
 
-<Frame>![](/images/campaigns-audiences-set-limit.png)</Frame>
+<Frame>![](/images/campaigns-audiences-set-limit.webp)</Frame>
 
 This is useful if you want to limit how many times a user can match with the audience. You can choose how many times the limit should be placed, along with a time duration and time span. For example: 1 (times) every 60 (time duration) minutes (time span):
 
-<Frame>![](/images/campaign-audience-config-limit.png)</Frame>
+<Frame>![](/images/campaign-audience-config-limit.webp)</Frame>
 
 Once you've set up a limit, **click** the **Save** button at the bottom:
 
-<Frame>![](/images/campaign-audience-limit-save.png)</Frame>
+<Frame>![](/images/campaign-audience-limit-save.webp)</Frame>
 
 #### Using AI audience generation 
 
 Superwall can generate an audience for you based on a description of the audience you want to target. To do this, **click** the **AI Audience** button — located here:
 
-<Frame>![](/images/campaigns-audience-ai-filter.jpeg)</Frame>
+<Frame>![](/images/campaigns-audience-ai-filter.webp)</Frame>
 
 Then, simply describe the audience you want to target, and Superwall will generate a filter for you. Superwall can use your custom placements and user attributes to generate a filter for you. For example, you could type "Target all users in the United States who have opened at least once":
 
-<Frame>![](/images/campaigns-audience-ai-filter-dscription.jpeg)</Frame>
+<Frame>![](/images/campaigns-audience-ai-filter-dscription.webp)</Frame>
 
 From there, Superwall will generate a filter for you. You can then **click** the **Save** button to apply it:
 
-<Frame>![](/images/campaigns-audience-ai-save.jpeg)</Frame>
+<Frame>![](/images/campaigns-audience-ai-save.webp)</Frame>
 
 ### Audience details
 
 When you select an audience, you can toggle between four main sections:
 
-<Frame>![](/images/campaign-audience-components.png)</Frame>
+<Frame>![](/images/campaign-audience-components.webp)</Frame>
 
 #### Filters
 
 This is where you can configure filters and limits. If there isn't one set, this will say "Everyone", indicating the audience will match all users.
 
-<Frame>![](/images/campaign-audience-everyone.png)</Frame>
+<Frame>![](/images/campaign-audience-everyone.webp)</Frame>
 
 #### Paywalls
 
 This section displays the paywalls which will present for the audience.
 
-<Frame>![](/images/campaign-audience-paywalls.png)</Frame>
+<Frame>![](/images/campaign-audience-paywalls.webp)</Frame>
 
 You can add new paywalls for the audience to use, or set a percentage to show across multiple paywalls when the audience is matched. To add a new paywall, click on **+ Add Paywall** to associate one to the current campaign.
 
@@ -183,7 +183,7 @@ You can add new paywalls for the audience to use, or set a percentage to show ac
 
 Here, you can see how paywalls are performing for the given audience.
 
-<Frame>![](/images/campaign-audience-results.png)</Frame>
+<Frame>![](/images/campaign-audience-results.webp)</Frame>
 
 Superwall will show top-level metrics here, but if you want to see more details, **click** the **Charts** button at the top-right hand side of the metrics.
 
@@ -191,7 +191,7 @@ Superwall will show top-level metrics here, but if you want to see more details,
 
 Finally, the users section shows **recent matches** in the audience from filters set up for it, and **transactions** that have resulted from them.
 
-<Frame>![](/images/campaign-audience-users.png)</Frame>
+<Frame>![](/images/campaign-audience-users.webp)</Frame>
 
 When viewing either one, Superwall will show which placement resulted in the paywall being presented (recent matches), and which placement led to a conversion (transactions).
 
@@ -199,7 +199,7 @@ When viewing either one, Superwall will show which placement resulted in the pay
 
 To change the order that Superwall evaluates audiences, simply drag and drop them in the left-hand sidebar of any opened campaign:
 
-<Frame>![](/images/campaigns-reorder-audience.png)</Frame>
+<Frame>![](/images/campaigns-reorder-audience.webp)</Frame>
 
 Remember, Superwall will check the audience at the top of the list here, and then go down one-by-one until it hits a match. These checks occur when a user hits a code path where you've registered a [placement](/campaigns-placements) or if an automatically tracked placement is triggered (i.e. something like `survey_response`).
 
@@ -207,7 +207,7 @@ Remember, Superwall will check the audience at the top of the list here, and the
 
 You can **duplicate**, **delete**, **pause** or **archive** an audience using the buttons at the top of open audience:
 
-<Frame>![](/images/campaign-audience-status.png)</Frame>
+<Frame>![](/images/campaign-audience-status.webp)</Frame>
 
 Archived audiences can be restored at any point. Paused campaigns are not evaluated by Superwall.
 
@@ -215,7 +215,7 @@ Archived audiences can be restored at any point. Paused campaigns are not evalua
 
 To duplicate or copy an existing audience, **click** the **+** button and choose "Import existing...". Then, you can select the audience you want to copy. Click it to use it as a template for a new audience:
 
-<Frame>![](/images/campaign-audience-dupe.jpeg)</Frame>
+<Frame>![](/images/campaign-audience-dupe.webp)</Frame>
 
 From there, you can edit its name, filters, paywalls, and more.
 
@@ -227,7 +227,7 @@ From there, you can edit its name, filters, paywalls, and more.
 
 Event count filters are a powerful way to target users based on the number of times they've performed an action or fired a placement. In this example, we would target users who have triggered the `caffeineLogged` placement at least 3 times in the last week:
 
-<Frame>![](/images/campaign_audience_event_based_count.jpeg)</Frame>
+<Frame>![](/images/campaign_audience_event_based_count.webp)</Frame>
 
  You can choose from the following time ranges:
 
@@ -239,11 +239,11 @@ Event count filters are a powerful way to target users based on the number of ti
 
 To create an event count filter, **click** on the **+ Add Filter** button, and then select one of the "Occurrences..." options:
 
-<Frame>![](/images/campaign_audience_occurrences.jpeg)</Frame>
+<Frame>![](/images/campaign_audience_occurrences.webp)</Frame>
 
 Then, filter for the event or placement you want to target. In our example, we're filtering for the `caffeineLogged` placement:
 
-<Frame>![](/images/audience_based_target_caffeine.jpeg)</Frame>
+<Frame>![](/images/audience_based_target_caffeine.webp)</Frame>
 
 Then choose the operator you want to use and the number of times the event or placement must have occurred. In our example above, we're targeting users who have logged caffeine at least 5 times in the last week. Be sure to **click** the **Save** button to save it:
 
@@ -251,7 +251,7 @@ Then choose the operator you want to use and the number of times the event or pl
 
 To filter by app version, add `appVersion` as a filter. This is helpful if you want to show a paywall to users on a specific version of your app. For example, to target users on version 1.0.1 or later, add a filter for `appVersion`, the operator to is greater than or equal to, and the value to 1.0.1:
 
-<Frame>![](/images/campaign_audience_appVersion.png)</Frame>
+<Frame>![](/images/campaign_audience_appVersion.webp)</Frame>
 
 Another useful app version filter is `appVersionPadded`. When filtering by app version, string comparisons can cause unexpected behavior for versions with triple digits. For example, `3.100.0` would incorrectly compare as less than `3.65.0` when using a standard `appVersion` filter.
 
@@ -280,7 +280,7 @@ For your audience filter, you could use user seeds 0-49.
 
 Here's what that would look like when setting up the filter:
 
-<Frame>![](/images/campaigns-audience-user-seed.png)</Frame>
+<Frame>![](/images/campaigns-audience-user-seed.webp)</Frame>
 
 **Campaign B: Placement late in onboarding**<br />
 And here, you'd filter by user seeds 50-99.

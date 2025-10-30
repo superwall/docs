@@ -4,7 +4,7 @@ title: "Products"
 
 To add products to your paywall, click the **Products** button from the **sidebar**:
 
-<Frame>![](/images/pe-editor-products-sidebar.png)</Frame>
+<Frame>![](/images/pe-editor-products-sidebar.webp)</Frame>
 
 <br />
 <Note>
@@ -33,7 +33,7 @@ In my most cases, Superwall will format your product's price in a localized mann
 2. Below it, the call-to-action button formats its text as `Subscribe for {{ products.selected.price }} / {{ products.selected.period }} `.
 3. That means any selected product's price will display with a similar pattern in the call-to-action button.
 
-<Frame>![](/images/pe-editor-products-template.png)</Frame>
+<Frame>![](/images/pe-editor-products-template.webp)</Frame>
 
 You can use [Liquid syntax](https://shopify.github.io/liquid/) to format prices in several different ways. For example, if you wanted to show an annual price differently, you could write `Subscribe for only {{ products.primary.monthlyPrice }} / month.` to display the localized price in monthly terms. If a product cost \$120.00 a year, then the text would read as "Subscribe for only \$10.00 / month."
 
@@ -49,11 +49,11 @@ A common use-case is showing copy that reflects the selected product's trial or 
 
 In Superwall, all data for the one-week free trial is found in the `trial` liquid variables, which are a part of a `product`. Below, critical details about its duration, offer price and more are shown in the example paywall. Take note of the text box on the right, which shows how these variables can be used:
 
-<Frame>![](/images/offerVars.png)</Frame>
+<Frame>![](/images/offerVars.webp)</Frame>
 
 ### Products missing App Store Connect API 
 When using Apple-based products, Superwall will automatically fetch the product information from App Store Connect. However, if you haven't set up the App Store Connect API, you may see a message indicating that the product information is missing:
 
-<Frame>![](/images/asc_invalid_pw.png)</Frame>
+<Frame>![](/images/asc_invalid_pw.webp)</Frame>
 
 To resolve this, follow the steps in our [App Store Connect API setup guide](/overview-settings-revenue-tracking#app-store-connect-api).

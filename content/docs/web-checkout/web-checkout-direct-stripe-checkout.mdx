@@ -5,7 +5,7 @@ description: "Offer Stripe products directly from your iOS paywalls and perform 
 
 For customers in the United States, you can offer Stripe products directly from your iOS paywalls. This is a great way to streamline the checkout process and make it easier for users to purchase your products.
 
-<Frame>![](/images/web_checkout_direct_to_stripe.jpg)</Frame>
+<Frame>![](/images/web_checkout_direct_to_stripe.webp)</Frame>
 
 <Steps>
     <Step title="Configure Web Checkout">
@@ -14,17 +14,17 @@ For customers in the United States, you can offer Stripe products directly from 
     <Step title="Add a Stripe product to an iOS paywall">
     Select a paywall and add a Stripe product to it. This will allow users to purchase the product directly from the paywall. Stripe products are prepended with "stripe" in the product selector:
 
-    <Frame>![](/images/web-checkout-select-product.png)</Frame>
+    <Frame>![](/images/web-checkout-select-product.webp)</Frame>
     </Step>
     <Step title="Choose Web Checkout Location">
     You can control whether or not Stripe checkout opens in your app via Safari, or externally in the Safari app:
 
-    <Frame>![](/images/web-checkout-location.png)</Frame>
+    <Frame>![](/images/web-checkout-location.webp)</Frame>
     </Step>
     <Step title="Create a campaign for U.S. customers">
     Since the ruling only applies to customers in the United States, you can easily create a campaign filter that will match to those customers. Just create a filter where `storeFrontCountryCode` matches `USA`, like this:
 
-    <Frame>![](/images/web-checkout-app2web-campaign-filter.png)</Frame>
+    <Frame>![](/images/web-checkout-app2web-campaign-filter.webp)</Frame>
     </Step>
     <Step title="Respond to Checkout">
     From there, the flow works the same way as it would for web checkout. Once the payment succeeds, the [Superwall delegate](/using-the-superwall-delegate) functions `willRedeemLink()` and `didRedeemLink(result:)` will be called. You can use these functions to handle the deep link in your app if you need to show any specific UI as described in our [Post-Checkout Redirecting](/web-checkout-post-checkout-redirecting) docs.

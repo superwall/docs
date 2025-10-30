@@ -15,7 +15,7 @@ To handle deep links on iOS, you'll need to add a custom URL scheme for your app
 
 Open **Xcode**. In your **info.plist**, add a row called **URL Types**. Expand the automatically created **Item 0**, and inside the **URL identifier** value field, type your **Bundle ID**, e.g., **com.superwall.Superwall-SwiftUI**. Add another row to **Item 0** called **URL Schemes** and set its **Item 0** to a URL scheme you'd like to use for your app, e.g., **exampleapp**. Your structure should look like this:
 
-<Frame>![](/../images/1.png)</Frame>
+<Frame>![](/../images/1.webp)</Frame>
 
 With this example, the app will open in response to a deep link with the format **exampleapp://**. You can [view Apple's documentation](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) to learn more about custom URL schemes.
 
@@ -165,7 +165,7 @@ In its **info.plist**, add a row called **URL Types**. Expand the automatically 
 
 Here's an example of what it should look like if you open the Flutter target's `Info` pane:
 
-<Frame>![](/../images/xcodeDeepLinkFlutter.jpeg)</Frame>
+<Frame>![](/../images/xcodeDeepLinkFlutter.webp)</Frame>
 
 #### Handling the Deep Link in Flutter
 In your Flutter app, use the Superwall SDK to handle the deep link via `Superwall.shared.handleDeepLink(theLink);`. Here's a complete example:
@@ -234,7 +234,7 @@ Open **Xcode**. In your **info.plist**, add a row called **URL Types**. Expand t
 
 Here's an example of what it should look like if you open the target's `Info` pane:
 
-<Frame>![](/../images/rnDeepLinkiOS.jpeg)</Frame>
+<Frame>![](/../images/rnDeepLinkiOS.webp)</Frame>
 
 #### React Native Project setup
 Next, you can use the Superwall SDK to handle the deeplink with `Superwall.shared.handleDeepLink(url);`. Here, we have code to ensure that the deep link opens a preview when the app is booted from the deep link, and when it's already in the foreground running:
@@ -295,17 +295,17 @@ Next, build and run your app on your phone.
 
 Then, head to the Superwall Dashboard. Click on **Settings** from the Dashboard panel on the left, then select **General**:
 
-<Frame>![](/../images/c252198-image.png)</Frame>
+<Frame>![](/../images/c252198-image.webp)</Frame>
 
 With the **General** tab selected, type your custom URL scheme, without slashes, into the **Apple Custom URL Scheme** field:
 
-<Frame>![](/../images/6b3f37e-image.png)</Frame>
+<Frame>![](/../images/6b3f37e-image.webp)</Frame>
 
 Next, open your paywall from the dashboard and click **Preview**. You'll see a QR code appear in a pop-up:
 
-<Frame>![](/../images/2.png)</Frame>
+<Frame>![](/../images/2.webp)</Frame>
 <br />
-<Frame>![](/../images/3.png)</Frame>
+<Frame>![](/../images/3.webp)</Frame>
 
 On your device, scan this QR code. You can do this via Apple's Camera app. This will take you to a paywall viewer within your app, where you can preview all your paywalls in different configurations.
 

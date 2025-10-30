@@ -4,7 +4,7 @@ title: "Variables"
 
 To add or edit variables, click the **Variables** button from the **sidebar**:
 
-<Frame>![](/images/pe-editor-vars-sidebar.png)</Frame>
+<Frame>![](/images/pe-editor-vars-sidebar.webp)</Frame>
 
 Variables allow you to reuse common values, adapt to the device's characteristics (such as size or color scheme), and do things like dynamically hide or how components. All of these scenarios can be achieved using variables in conjunction with our [dynamic values](/paywall-editor-dynamic-values) editor:
 
@@ -34,15 +34,15 @@ You primarily use variables in the **component editor** and with [dynamic values
 3. Then, drill down or search for the variable or its corresponding property.
 4. Click on it, and it'll be added to your text and correctly formatted.
 
-<Frame>![](/images/pe-editor-vars-select.png)</Frame>
+<Frame>![](/images/pe-editor-vars-select.webp)</Frame>
 
 To use a variable with a component property, **click** on the property and choose **Dynamic**:
 
-<Frame>![](/images/pe-editor-vars-click.png)</Frame>
+<Frame>![](/images/pe-editor-vars-click.webp)</Frame>
 
 The [dynamic values](/paywall-editor-dynamic-values) editor will appear. Next to **then:**, choose your variable and click **Save**:
 
-<Frame>![](/images/pe-editor-vars-dynamic-select.png)</Frame>
+<Frame>![](/images/pe-editor-vars-dynamic-select.webp)</Frame>
 
 Above, the "padding" variable was used. You can ignore the if/then rules above if you simply want to apply a variable, but to dynamically enable or disable them — you can set conditions accordingly. Read the docs over [dynamic values](/paywall-editor-dynamic-values) to learn more.
 
@@ -167,11 +167,11 @@ Use any variable above by referencing the `user` variable first: `{{ user.seed }
 
 To create your own variable, click **+ Add Variable** in the **sidebar** under the **Variables** section:
 
-<Frame>![](/images/pe-editor-vars-click-add.png)</Frame>
+<Frame>![](/images/pe-editor-vars-click-add.webp)</Frame>
 
 The variable editor will be presented:
 
-<Frame>![](/images/pe-editor-vars-create-custom.png)</Frame>
+<Frame>![](/images/pe-editor-vars-create-custom.webp)</Frame>
 
 You'll be presented with four fields to fill out:
 
@@ -182,11 +182,11 @@ You'll be presented with four fields to fill out:
 
 Once you have everything entered, click **Save**. Your variable will show up in a section in the **sidebar** under **Variables** called **Params**:
 
-<Frame>![](/images/pe-editor-vars-created.png)</Frame>
+<Frame>![](/images/pe-editor-vars-created.webp)</Frame>
 
 From there, they are able to be referenced the same way as any other variable:
 
-<Frame>![](/images/pe-editor-vars-usage.png)</Frame>
+<Frame>![](/images/pe-editor-vars-usage.webp)</Frame>
 
 ### Liquid syntax formatting
 
@@ -305,15 +305,15 @@ Output: `10`
 
 If you create a group of components built off of variables and conditions, save it as a [snippet](/paywall-editor-layout#snippets) to reuse. There are several stock snippets built this way. For example the **Product Selector** snippet:
 
-<Frame>![](/images/pe-editor-variables-snip1.png)</Frame>
+<Frame>![](/images/pe-editor-variables-snip1.webp)</Frame>
 
 Adding this snippet shows your products in a vertical stack:
 
-<Frame>![](/images/pe-editor-variables-snip2.png)</Frame>
+<Frame>![](/images/pe-editor-variables-snip2.webp)</Frame>
 
 When one is selected, the checkmark next to it is filled in. This is achieved with stock variables (i.e. the selected product) and then changing layer opacity based on if the checkmark's corresponding product is selected or not:
 
-<Frame>![](/images/pe-editor-variables-snip3.png)</Frame>
+<Frame>![](/images/pe-editor-variables-snip3.webp)</Frame>
 
 ### Testing and handling different states 
 Often times, you'll want to test things like introductory or trial offers, a certain page within a paging design, or keep a modal drawer open to tweak its contents or look. To do that, simply change the variable's value in the editor. On the left sidebar, click **Variables** and then search for the one you're after and set its value.
@@ -327,12 +327,12 @@ Here are some common examples:
 <br />
 2. **Testing a particular page in a paging paywall:** In this design, there are three distinct pages:
 <br />
-<Frame>![](/images/togglePages1.png)</Frame>
+<Frame>![](/images/togglePages1.webp)</Frame>
 
 By default, the first one is showing. Though, if you needed to easily edit the second or third page, start by finding the variable that is controlling which page is shown. Typically, it'll be a state variable. Here, it's `changeScreen`:
 <br />
-<Frame>![](/images/togglePages2.png)</Frame>
+<Frame>![](/images/togglePages2.webp)</Frame>
 
 By changing it, you can easily pull up each individual page and edit it as needed:
 <br />
-<Frame>![](/images/togglePages3.png)</Frame>
+<Frame>![](/images/togglePages3.webp)</Frame>

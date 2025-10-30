@@ -22,6 +22,18 @@ tsx scripts/generate-md-files.ts
 # Copy documentation images
 bun run copy:docs-images
 
+# Check for oversized images (runs automatically during build)
+bun run check:images
+
+# Optimize oversized images (resizes large images)
+bun run optimize:images
+
+# Convert all images to WebP format
+bun run convert:webp
+
+# Convert and delete original files after conversion
+bun run convert:webp -- --delete-originals
+
 # Deploy to Cloudflare (staging)
 bun run deploy:staging
 

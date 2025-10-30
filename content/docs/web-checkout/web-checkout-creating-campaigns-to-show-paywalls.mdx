@@ -17,11 +17,11 @@ There are two primary differences between web checkout and the typical Superwall
 
 Other than that, everything operates as a normal Superwall campaign would. For example:
 
-<Frame>![](/images/web2app_make_campaign.png)</Frame>
+<Frame>![](/images/web2app_make_campaign.webp)</Frame>
 
 Here, the placement `black-friday-promo` presents a paywall. If the app's URL in [settings](/web-checkout-configuring-stripe-keys-and-settings) is `caffeinepal`, then the URL for this placement would be `https://caffeinepal.superwall.app/black-friday-promo`. Visiting that web checkout link presents a paywall: 
 
-<Frame>![](/images/web2app_showing_paywall.png)</Frame>
+<Frame>![](/images/web2app_showing_paywall.webp)</Frame>
 
 Conceptually, you can think of these web checkout links performing a similar function as registering a placement does in our mobile SDK:
 
@@ -31,7 +31,7 @@ Superwall.shared.register(placement:"black-friday-promo") { _ in }
 
 This means that you now can use web checkout with all of the same powerful features that Superwall offers, such as A/B testing, paywall targeting and more. Again, these work just like any other campaign would in Superwall. The interface is the same, so now you create placements, start creating audience filters and more:
 
-<Frame>![](/images/web2app_campaigns.png)</Frame>
+<Frame>![](/images/web2app_campaigns.webp)</Frame>
 
 Also, remember to create responsive paywalls. Users can view your checkout page on a laptop, phone and other varying sized viewports. For some quick tips, check out this blog post over adapting paywalls to look great on [iPad](https://superwall.com/blog/how-to-create-adaptable-paywalls-for-iphone-and-ipad-using-superwall).
 
@@ -58,7 +58,7 @@ https://caffeinepal.superwall.app/black-friday-promo?name=jordan
 
 This will pass the `name` parameter to the placement, and you can use it in your audience filters. For example, you could create a filter that only shows the paywall if the `name` parameter is equal to `jordan`:
 
-<Frame>![](/images/web2app_qsp_jordan.png)</Frame>
+<Frame>![](/images/web2app_qsp_jordan.webp)</Frame>
 
 Or, you could access them in your paywall using the same flow as you would for [placement parameters](/sdk/guides/advanced/using-placement-parameters):
 
@@ -70,11 +70,11 @@ Or, you could access them in your paywall using the same flow as you would for [
 
 This makes it easy to show in your paywall: 
 
-<Frame>![](/images/web2app_qsp_var.png)</Frame>
+<Frame>![](/images/web2app_qsp_var.webp)</Frame>
 
 Then, if the URL is visited, the audience filter matches from above — and we can see the value on the paywall, too:
 
-<Frame>![](/images/web2app_qsp_paywall.png)</Frame>
+<Frame>![](/images/web2app_qsp_paywall.webp)</Frame>
 
 Of course, this is a simplistic example — but this is useful for personalization, seasonal events, influencer campaigns and more. Any query string parameter you pass can be used in the paywall, and in audience filters.
 
@@ -92,7 +92,7 @@ https://caffeinepal.superwall.app/black-friday-promo?email=myemail@yahoo.com
 
 When the Stripe checkout flow launches, the email is now filled out automatically:
 
-<Frame>![](/images/web2app_email.jpeg)</Frame>
+<Frame>![](/images/web2app_email.webp)</Frame>
 
 
 

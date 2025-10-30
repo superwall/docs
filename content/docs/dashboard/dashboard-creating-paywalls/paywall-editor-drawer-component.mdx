@@ -9,21 +9,21 @@ The drawer component was built to make displaying contents from a bottom drawer 
 1. In the left sidebar, click **+** to add a new element.
 2. Choose **Drawer** under the "Base Elements" header.
 
-<Frame>![](/images/paywall-editor-drawer-element.png)</Frame>
+<Frame>![](/images/paywall-editor-drawer-element.webp)</Frame>
 
 Drawers will automatically show a dimming view behind them when presented. Tapping on it will dismiss the drawer. By default, they are interactive — meaning they can be dismissed via a drag gesture. You can also change this to be `manual`, letting you explicity control when it presents or dismisses. Toggle this under the `Dismissable` property:
 
-<Frame>![](/images/paywall-editor-gesture-type.png)</Frame>
+<Frame>![](/images/paywall-editor-gesture-type.webp)</Frame>
 
 ### Presenting drawers
 
 When a drawer element is added, Superwall automatically creates an element variable for it (accessed through the **[Variables](/paywall-editor-variables)** tab in the left sidebar, or the variables button in the **[floating toolbar](/paywall-editor-floating-toolbar)**). Its name will match whatever is in the element hierarchy in the left sidebar:
 
-<Frame>![](/images/paywall-editor-drawer-vars.png)</Frame>
+<Frame>![](/images/paywall-editor-drawer-vars.webp)</Frame>
 
 To toggle its open state, you can use a tap behavior on a button or another element. In this example, we add a [tap behavior](/paywall-editor-styling-elements#tap-behaviors) to the button, which toggles the element variable's `Is Open` value:
 
-<Frame>![](/images/paywall-editor-drawer-toggle.png)</Frame>
+<Frame>![](/images/paywall-editor-drawer-toggle.webp)</Frame>
 
 <Note>
 The variable's name is derived by the node's unique identifier. You don't need to set or generally be aware of this value.
@@ -37,11 +37,11 @@ By default, drawers have a minimum height set. This is a general size that works
   <Tab title="Drawer Height">
     By default, there is a minimum height on the drawer. Here, we've removed that so that the inner stack will control its height:
 
-    <Frame>![](/images/paywall-editor-drawer-height-drawer.png)</Frame>
+    <Frame>![](/images/paywall-editor-drawer-height-drawer.webp)</Frame>
   </Tab>
   <Tab title="Stack Container Height">
      Since the drawer's minimum height was cleared, now it'll derive its height from the stack inside of it:
 
-    <Frame>![](/images/paywall-editor-drawer-height-stack.png)</Frame>
+    <Frame>![](/images/paywall-editor-drawer-height-stack.webp)</Frame>
   </Tab>
 </Tabs>

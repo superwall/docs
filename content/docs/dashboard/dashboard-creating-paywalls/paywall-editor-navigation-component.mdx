@@ -9,22 +9,22 @@ The navigation component was built to make paging, or navigating through paywall
 1. In the left sidebar, click **+** to add a new element.
 2. Choose **Navigation** under the "Base Elements" header.
 
-<Frame>![](/images/paywall-editor-nav-element.png)</Frame>
+<Frame>![](/images/paywall-editor-nav-element.webp)</Frame>
 
 You'll see the navigation component in the element hierarchy. **In most cases, you'll want a navigation's width to be 100% of the viewport**:
 
-<Frame>![](/images/paywall-editor-nav-width.png)</Frame>
+<Frame>![](/images/paywall-editor-nav-width.webp)</Frame>
 
 From there, add in content to create pages using [stacks](/paywall-editor-stacks):
 
-<Frame>![](/images/paywall-editor-nav-stacks.png)</Frame>
+<Frame>![](/images/paywall-editor-nav-stacks.webp)</Frame>
 
 Similar to the parent navigation element, it helps to have the width of your stacks be 100% of the parent.
 
 ### Changing pages 
 When a navigation element is added, Superwall automatically creates an element variable for it (accessed through the **[Variables](/paywall-editor-variables)** tab in the left sidebar, or the variables button in the **[floating toolbar](/paywall-editor-floating-toolbar)**). Its name will match whatever is in the element hierarchy in the left sidebar:
 
-<Frame>![](/images/paywall-editor-nav-vars.png)</Frame>
+<Frame>![](/images/paywall-editor-nav-vars.webp)</Frame>
 
 Each top-level child within the navigation component represents a _current index_ value, starting from 0. Changing this value will change which page is displayed. In this example, we add a [tap behavior](/paywall-editor-styling-elements#tap-behaviors) to the button, which increments the element variable's `current index` value:
 
@@ -38,7 +38,7 @@ The variable's name is derived by the node's unique identifier. You don't need t
 
 A navigation component has four different transitions to use. Edit them by **clicking** on the navigation component from the left sidebar, and then selecting a value in the trailing sidebar:
 
-<Frame>![](/images/paywall-editor-nav-transition.png)</Frame>
+<Frame>![](/images/paywall-editor-nav-transition.webp)</Frame>
 
 Available transitions are:
 

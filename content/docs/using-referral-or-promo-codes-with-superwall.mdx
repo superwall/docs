@@ -42,7 +42,7 @@ Now, let's go through each step in detail. We'll assume that you're triggering t
         <Step title="Referral code is tapped.">
             A paywall is shown. On it, this button that reads "Referral Code" has a custom tap action called "showPromoRedeem" which gets tapped:
 
-            <Frame>![](/images/rc_1.jpg)</Frame>
+            <Frame>![](/images/rc_1.webp)</Frame>
         </Step>
         <Step title="SuperwallDelegate handles custom action">
             This app has a [`SuperwallDelegate`](/using-superwall-delegate):
@@ -99,7 +99,7 @@ Now, let's go through each step in detail. We'll assume that you're triggering t
         <Step title="Referral UI is shown.">
             Now that your referral interface is showing, you'd validate the code on your server or by some other means.
 
-            <Frame>![](/images/rc_2.jpg)</Frame>
+            <Frame>![](/images/rc_2.webp)</Frame>
         </Step>
         <Step title="If it's successful, register a placement for referrals">
             Now, if the code succeeds, you'd dismiss the referral UI and the existing paywall. In our callback, we...
@@ -133,7 +133,7 @@ Now, let's go through each step in detail. We'll assume that you're triggering t
         <Step title="The discounted product is presented.">
             Finally, your paywall and discounted product that you setup in step #1 is shown. If they convert, you'll see all of the details in your campaign that you built for referrals, just like you would any other campaign. You can also forward events to your third party analytics service as well, as shown in the previous step.
 
-            <Frame>![](/images/rc_3.jpg)</Frame>
+            <Frame>![](/images/rc_3.webp)</Frame>
 
             And that's it! It's a matter of creating discounted products, using them in a campaign, showing a referral UI and validating it, and then registering a placement to show those paywalls within a campaign.
         </Step>

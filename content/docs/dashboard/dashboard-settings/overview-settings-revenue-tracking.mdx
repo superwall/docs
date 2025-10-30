@@ -4,13 +4,13 @@ title: "Revenue Tracking"
 
 In the **Revenue Tracking** section under **Settings**, you can set up revenue tracking three different ways. Revenue tracking is required to show revenue metrics in the Superwall dashboard.
 
-<Frame>![](/images/overview-settings-rev-tracking.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking.webp)</Frame>
 
 ## Status
 
 Your revenue tracking status will be listed at the top, indicating if you've successfully set it up or not:
 
-<Frame>![](/images/overview-settings-rev-tracking-status.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking-status.webp)</Frame>
 
 <Note>
   Until we receive the first event for your app (including Sandbox events), the configuration will still show as **missing**.
@@ -36,15 +36,15 @@ If you're using RevenueCat for purchase handling: [RevenueCat](#revenuecat)
 
 Use this method to forward subscriptions events from App Store Connect back to Superwall. To get started, go to **App Store Connect → App Information → App Store Server Notifications → Production & Sandbox URL fields:**
 
-<Frame>![](/images/overview-settings-rev-tracking-setup-server.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking-setup-server.webp)</Frame>
 
 For the URL, use the value in Superwall that was prefilled by clicking the copy button:
 
-<Frame>![](/images/overview-settings-rev-tracking-url.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking-url.webp)</Frame>
 
 Then, enter this in App Store Connect modal:
 
-<Frame>![](/images/overview-settings-rev-tracking-v2.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking-v2.webp)</Frame>
 
 **Click** the **Save** button once you've entered in the URL.
 
@@ -80,7 +80,7 @@ request.post(
 Setting up the in-app purchase configuration for iOS apps allows Superwall to power features like refund
 consumption.{" "}
 
-<Frame>![](/images/overview-settings-rev-tracking-iaps.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking-iaps.webp)</Frame>
 
 To complete setup, follow these steps:
 
@@ -105,16 +105,16 @@ To complete setup, follow these steps:
       **IMPORTANT**: You only have one chance to download the key file. Make sure to save it in a
       secure location.
     </Warning>
-    <Frame>![](/images/overview-settings-rev-tracking-confirm.png)</Frame>
+    <Frame>![](/images/overview-settings-rev-tracking-confirm.webp)</Frame>
   </Tab>
   <Tab title="Step 4">
     - Upload the key file you downloaded in the previous step to Superwall under "P8 Key File." -
     Fill in the **Bundle ID** of your app. - Enter the **Key ID** of the key you created in App
     Store Connect. You can find it in the "Key ID" column shown in the image from step 3. Locate the
     row for the key you made and copy the corresponding Key ID here.
-    <Frame>![](/images/overview-settings-rev-tracking-key-id.png)</Frame>- For **Issuer ID**, fill in
+    <Frame>![](/images/overview-settings-rev-tracking-key-id.webp)</Frame>- For **Issuer ID**, fill in
     the value found at **Users and Access -> Integrations -> In-App Purchase** in App Store Connect:
-    <Frame>![](/images/overview-settings-rev-tracking-issuer-id.png)</Frame>- **Click** on
+    <Frame>![](/images/overview-settings-rev-tracking-issuer-id.webp)</Frame>- **Click** on
     **Update** and confirm everything is set up correctly.
   </Tab>
 </Tabs>
@@ -123,7 +123,7 @@ To complete setup, follow these steps:
 
 Setting up the App Store Connect API helps Superwall pull product data from the App Store.
 
-<Frame>![](/images/overview-settings-rev-tracking-asc-api.png)</Frame>
+<Frame>![](/images/overview-settings-rev-tracking-asc-api.webp)</Frame>
 
 To complete setup, follow these steps:
 
@@ -143,16 +143,16 @@ To complete setup, follow these steps:
       **IMPORTANT**: You only have one chance to download the key file. Make sure to save it in a
       secure location.
     </Warning>
-    <Frame>![](/images/overview-settings-rev-tracking-asc-api-download.png)</Frame>
+    <Frame>![](/images/overview-settings-rev-tracking-asc-api-download.webp)</Frame>
   </Tab>
   <Tab title="Step 4">
     - Upload the key file you downloaded in the previous step to Superwall under "P8 Key File." -
     Enter the **Key ID** of the key you created in App Store Connect. You can find it in the "Key
     ID" column shown in the image from step 3. Locate the row for the key you made and copy the
     corresponding Key ID here.
-    <Frame>![](/images/overview-settings-rev-tracking-asc-api-key-id.png)</Frame>- For **Issuer ID**,
+    <Frame>![](/images/overview-settings-rev-tracking-asc-api-key-id.webp)</Frame>- For **Issuer ID**,
     fill in the value found at **Users and Access -> Integrations -> In-App Purchase** in App Store Connect:
-    <Frame>![](/images/overview-settings-rev-tracking-issuer-id.png)</Frame>- **Click** on
+    <Frame>![](/images/overview-settings-rev-tracking-issuer-id.webp)</Frame>- **Click** on
     **Update** and confirm everything is set up correctly.
   </Tab>
 </Tabs>
@@ -172,16 +172,16 @@ If you are using RevenueCat and have _both_ an Android and iOS app under the sam
 
 Here's an example, this app has both an Android and iOS project in Superwall. Both of them use RevenueCat:
 
-<Frame>![](/images/rcLinkStep1.jpeg)</Frame>
+<Frame>![](/images/rcLinkStep1.webp)</Frame>
 
 In Superwall, those have been linked together as a project:
 
-<Frame>![](/images/rcLinkStep2.jpeg)</Frame>
+<Frame>![](/images/rcLinkStep2.webp)</Frame>
 
 For _either_ the iOS or Android project, go to **Settings -> Revenue Tracking -> RevenueCat** and get the integration token (or make one if you haven't yet):
 
-<Frame>![](/images/rcLinkStep3.jpeg)</Frame>
+<Frame>![](/images/rcLinkStep3.webp)</Frame>
 
 Finally, in RevenueCat, use the token in their integration settings for Superwall:
 
-<Frame>![](/images/rcLinkStep4.jpeg)</Frame>
+<Frame>![](/images/rcLinkStep4.webp)</Frame>

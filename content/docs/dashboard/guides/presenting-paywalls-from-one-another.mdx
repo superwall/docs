@@ -9,7 +9,7 @@ It's possible to present another paywall from one already showing. This can be u
 - Next, the user taps the "Custom Icons Too 👀" button.
 - The current paywall dismisses, and then presents the icons-centric paywall.
 
-<Frame>![](/images/presentPaywallEx.jpg)</Frame>
+<Frame>![](/images/presentPaywallEx.webp)</Frame>
 
 <Tip>
   You can extend this technique to be used with several other interesting standard placements. For
@@ -38,7 +38,7 @@ They both have the same idea, though. You create a new campaign specifically for
   <Step title="Add a Custom Placement Tap Behavior">
     Select a component on your paywall and add a **Custom Placement** Tap Behavior, and name it whatever you wish (i.e. showIconPaywall).
 
-    <Frame>![](/images/customPlacementLink.png)</Frame>
+    <Frame>![](/images/customPlacementLink.webp)</Frame>
 
     Finally, be sure to click **Publish** at the top of the editor to push your changes live
 
@@ -46,18 +46,18 @@ They both have the same idea, though. You create a new campaign specifically for
   <Step title="Create a campaign for the other paywall to show">
     Create a new [campaign](/campaigns) specifically for this purpose, here — it's called "Custom Placement Example":
 
-    <Frame>![](/images/customPlacementCampaign.png)</Frame>
+    <Frame>![](/images/customPlacementCampaign.webp)</Frame>
 
   </Step>
   <Step title="Add the placement">
     In your new campaign, [add a new placement](/campaigns-placements#adding-a-placement) that matches the name of your custom action you added in step one. For us, that's `showIconPaywall`:
     <br />
-    <Frame>![](/images/customPlacementCreate.png)</Frame>
+    <Frame>![](/images/customPlacementCreate.webp)</Frame>
   </Step>
   <Step title="Choose a paywall to show">
   Finally, choose a paywall that should present by **clicking** on the **Paywalls** button at the top:
   <br />
-  <Frame>![](/images/customPlacementPaywall.png)</Frame>
+  <Frame>![](/images/customPlacementPaywall.webp)</Frame>
 </Step>
 
 </Steps>
@@ -80,7 +80,7 @@ They both have the same idea, though. You create a new campaign specifically for
 
     Here's what it should look like (again, with your own values here):
 
-    <Frame>![](/images/openPaywallParams.png)</Frame>
+    <Frame>![](/images/openPaywallParams.webp)</Frame>
 
     Finally, be sure to click **Publish** at the top of the editor to push your changes live.
 
@@ -88,32 +88,32 @@ They both have the same idea, though. You create a new campaign specifically for
   <Step title="Create a campaign for the other paywall to show">
     Create a new [campaign](/campaigns) specifically for this purpose, here — it's called "Deeplink Example":
 
-    <Frame>![](/images/openPaywallCampaign.png)</Frame>
+    <Frame>![](/images/openPaywallCampaign.webp)</Frame>
 
   </Step>
   <Step title="Add the placement">
     In your new campaign, [add a placement](/campaigns-placements#adding-a-placement) for the `deepLink_open` standard placement:
     <br />
-    <Frame>![](/images/openPaywallPlacement.png)</Frame>
+    <Frame>![](/images/openPaywallPlacement.webp)</Frame>
   </Step>
   <Step title="Edit the audience filter">
     Edit the default audience's filter to match `params.[whatever-you-named-the-parameter]`. Recall that in our example, the parameter was `offer` and the value was `icons`. So here, we'd type `params.offer` and **click** the **+** button:
     <br />
-    <Frame>![](/images/openPaywallParamsEditor.png)</Frame>
+    <Frame>![](/images/openPaywallParamsEditor.webp)</Frame>
 
     Superwall will ask what type of new parameter this is — choose **Placement** and enter the parameter name once more (i.e. "offer"). Click **Save**:
     <br />
-    <Frame>![](/images/openPaywallParamsCreate.png)</Frame>
+    <Frame>![](/images/openPaywallParamsCreate.webp)</Frame>
 
     Finally, choose the **is** operator and type in the value of your parameter (in our case, "icons"). Then, **click** the **+ Add Filter** button. Here's what it should look like:
     <br />
-    <Frame>![](/images/openPaywallFinal.png)</Frame>
+    <Frame>![](/images/openPaywallFinal.webp)</Frame>
 
   </Step>
   <Step title="Choose a paywall to show">
   Finally, choose a paywall that should present by **clicking** on the **Paywalls** button at the top:
   <br />
-  <Frame>![](/images/openPaywallPaywall.png)</Frame>
+  <Frame>![](/images/openPaywallPaywall.webp)</Frame>
 </Step>
 </Steps>
 

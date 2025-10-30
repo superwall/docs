@@ -8,7 +8,7 @@ StoreKit testing in Xcode is a local test environment for testing in-app purchas
 
 Go to **File ▸ New ▸ File...** in the menu bar , select **StoreKit Configuration File** and hit **Next**:
 
-<Frame>![](/images/3dbedb3-Screenshot_2023-03-02_at_11.35.16.png)</Frame>
+<Frame>![](/images/3dbedb3-Screenshot_2023-03-02_at_11.35.16.webp)</Frame>
 
 Give it the name **Products**. For a configuration file synced with an app on App Store Connect, select the checkbox, specify your team and app in the drop-down menus that appear, then click **Next**. For a local configuration, leave the checkbox unselected, then click **Next**. Save the file in the top-level folder of your project. You don't need to add it to your target.
 
@@ -18,15 +18,15 @@ It's best practice to create a new scheme in Xcode to be used for StoreKit testi
 
 Click the scheme in the scheme menu and click **Manage Schemes...**:
 
-<Frame>![](/images/e0e2c89-Screenshot_2023-03-02_at_11.44.02.png)</Frame>
+<Frame>![](/images/e0e2c89-Screenshot_2023-03-02_at_11.44.02.webp)</Frame>
 
 If you haven't already got a Staging scheme, select your current scheme and click **Duplicate**:
 
-<Frame>![](/images/d3c7e96-Screenshot_2023-03-02_at_11.44.47.png)</Frame>
+<Frame>![](/images/d3c7e96-Screenshot_2023-03-02_at_11.44.47.webp)</Frame>
 
 In the scheme editor, add the StoreKit Configuration file to your scheme by clicking on **Run** in the side bar, selecting the **Options** tab and choosing your configuration file in **StoreKit Configuration**. Then, click **Close**:
 
-<Frame>![](/images/444719d-Screenshot_2023-03-02_at_11.46.34.png)</Frame>
+<Frame>![](/images/444719d-Screenshot_2023-03-02_at_11.46.34.webp)</Frame>
 
 You can rename your scheme to **MyAppName (Staging)**.
 
@@ -36,15 +36,15 @@ If you've chosen to sync your configuration file with the App Store, your apps w
 
 If you're using a local configuration, open **Products.storekit**, click the **+** button at the bottom and create a new product. In this tutorial, we'll create an auto-renewable subscription:
 
-<Frame>![](/images/6d89a21-Screenshot_2023-03-02_at_12.07.50.png)</Frame>
+<Frame>![](/images/6d89a21-Screenshot_2023-03-02_at_12.07.50.webp)</Frame>
 
 Enter a name for a new subscription group and click **Done**. The subscription group name should match one that is set up for your app in App Store Connect, but it's not a requirement. That means you can test your subscription groups and products in the simulator and then create the products in App Store Connect later:
 
-<Frame>![](/images/717d912-Screenshot_2023-03-02_at_12.09.07.png)</Frame>
+<Frame>![](/images/717d912-Screenshot_2023-03-02_at_12.09.07.webp)</Frame>
 
 Configure the subscription as needed by filling in the **Reference Name**, **Product ID**, **Price**, **Subscription Duration**, and optionally an **Introductory Offer**. Again, this product doesn't have to exist in App Store Connect for you to test purchasing in the simulator. Here is a sample configuration:
 
-<Frame>![](/images/d6a9b7f-Screenshot_2023-03-02_at_12.10.27.png)</Frame>
+<Frame>![](/images/d6a9b7f-Screenshot_2023-03-02_at_12.10.27.webp)</Frame>
 
 Repeat this for all of your products. When configuring a paywall, the product ID you enter here must match the product ID on the paywall.
 
@@ -54,11 +54,11 @@ You're now all set!
 
 Once you've set up your StoreKit configuration file, you can leverage Xcode's Transaction Manager. Find it under **Debug -> StoreKit -> Manage Transactions...**:
 
-<Frame>![](/images/transactionManager.png)</Frame>
+<Frame>![](/images/transactionManager.webp)</Frame>
 
 Use this to quickly test purchasing your products. Once you make a purchase, you can open Transaction Manager to delete it, refund it, request parental approval and much more. Most commonly, you'll probably delete the transaction to reset your subscription state:
 
-<Frame>![](/images/transactionRemove.png)</Frame>
+<Frame>![](/images/transactionRemove.webp)</Frame>
 
 This makes everything a little faster, saving you the trouble of having to delete and reinstall your app to test these states. If you'd like to see a video over how to use it, check this one out:
 
