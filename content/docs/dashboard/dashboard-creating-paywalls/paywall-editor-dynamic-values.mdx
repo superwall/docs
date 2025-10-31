@@ -31,7 +31,7 @@ The dynamic values editor works like most control flow interfaces. You set a con
 
 Check out this example:
 
-<Frame>![](/images/pe-editor-dynamic-value-edit.webp)</Frame>
+<Frame>![](/images/pe-editor-dynamic-value-edit.png)</Frame>
 
 <Note>
   Notice how you can use [variables](/paywall-editor-variables) within the dynamic values editor,
@@ -50,7 +50,7 @@ You can also add rules within a group.
 
 When you add a condition, you'll have the choice to either add a rule or a group:
 
-<Frame>![](/images/pe-editor-dynamic-values-step-one.webp)</Frame>
+<Frame>![](/images/pe-editor-dynamic-values-step-one.png)</Frame>
 
 Think about them like this:
 
@@ -77,7 +77,7 @@ The first part of that statement would be a **rule** and the second check that's
 
 A common use-case of dynamic values is to conditionally show or hide components, or change copy, based on whether or not the user is eligible for a free trial. To do this, set up a dynamic value as follows:
 
-<Frame>![](/images/freeTrialDetection.webp)</Frame>
+<Frame>![](/images/freeTrialDetection.png)</Frame>
 
 In short, use `products.hasIntroductoryOffer` to detect whether or not a free trial is available.
 
@@ -93,24 +93,24 @@ In short, use `products.hasIntroductoryOffer` to detect whether or not a free tr
     This text component's color is to set to the theme's primary color without any condition (ie. it
     should always be this color).
     <br />
-    <Frame>![](/images/pe-editor-dynamic-values-no-condition.webp)</Frame>
+    <Frame>![](/images/pe-editor-dynamic-values-no-condition.png)</Frame>
   </Tab>
   <Tab title="A Single Rule">
     If the product has an introductory offer, the text component will read "Try for free".
     <br />
-    <Frame>![](/images/pe-editor-dynamic-values-step-two.webp)</Frame>
+    <Frame>![](/images/pe-editor-dynamic-values-step-two.png)</Frame>
   </Tab>
   <Tab title="Using a Group">
     Here, we set the text to be larger than it normally would be if the user an introductory offer
     and they haven't seen a paywall in 3 days.
     <br />
-    <Frame>![](/images/pe-editor-dynamic-values-group.webp)</Frame>
+    <Frame>![](/images/pe-editor-dynamic-values-group.png)</Frame>
   </Tab>
   <Tab title="Using Both">
     Here, some text is set if the user's app version is greater than `1.1.0` and they are on an
     iPhone. If those are true, and they have an introductory offer — the text "Power up your iPhone
     like never before" is used.
     <br />
-    <Frame>![](/images/pe-editor-dynamic-values-combo.webp)</Frame>
+    <Frame>![](/images/pe-editor-dynamic-values-combo.png)</Frame>
   </Tab>
 </Tabs>

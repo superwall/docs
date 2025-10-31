@@ -31,7 +31,7 @@ async function copyImages() {
     const srcDir = path.join(baseSrcDir, subpath)
     const destDir = path.join(baseDestDir, subpath)
 
-    const files = await glob('**/*.{png,jpg,jpeg,gif,svg,webp}', { cwd: srcDir })
+    const files = await glob('**/*.{png,jpg,jpeg,gif,svg}', { cwd: srcDir })
     total += files.length
     await fs.ensureDir(destDir)
 

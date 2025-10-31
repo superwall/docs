@@ -18,11 +18,11 @@ Before you attempt to test a paywall on iOS via TestFlight, make sure they are i
 
 To get started, select an app. Then **click** the **Products** button from the sidebar. Choose **+ Add Product**:
 
-<Frame>![](/images/add-product.webp)</Frame>
+<Frame>![](/images/add-product.png)</Frame>
 
 From there, you have five fields to fill out:
 
-<Frame>![](/images/add-product-modal.webp)</Frame>
+<Frame>![](/images/add-product-modal.png)</Frame>
 
 | Field      | Description                                                                                                |
 | ---------- | ---------------------------------------------------------------------------------------------------------- |
@@ -57,18 +57,18 @@ If you don't have multiple tiers of service, you can use only the default `pro` 
 
 To add an entitlement, **click** on the **Entitlements** tab within the products page. Then click **Add Entitlement**:
 
-<Frame>![](/images/addEntitlement.webp)</Frame>
+<Frame>![](/images/addEntitlement.png)</Frame>
 
 From there, give it a name, and click **Create**:
 
-<Frame>![](/images/createEntitlement.webp)</Frame>
+<Frame>![](/images/createEntitlement.png)</Frame>
 
 At this point, you can go back to your products and attach one or more entitlements to each one. 
 
 #### Editing entitlements
 To edit or delete an entitlement, click on the trailing pencil icon or the trash can icon to remove one. Note that if your entitlement is associated with any product, you'll need to remove it first before you can delete it.
 
-<Frame>![](/images/editEntitlement.webp)</Frame>
+<Frame>![](/images/editEntitlement.png)</Frame>
 
 ### Getting product identifiers
 
@@ -78,29 +78,29 @@ _If you use RevenueCat to handle in-app subscriptions, skip to [Using RevenueCat
 
 On **App Store Connect**, head over to **Your App ▸ App Store ▸ Subscriptions ▸ _Your Subscription Group_**:
 
-![](/images/0b4f712-Screen_Shot_2022-05-17_at_3.29.45_PM.webp "Screen Shot 2022-05-17 at 3.29.45 PM.png")
+![](/images/0b4f712-Screen_Shot_2022-05-17_at_3.29.45_PM.png "Screen Shot 2022-05-17 at 3.29.45 PM.png")
 
 Then, copy your **Product ID**:
 
-![3372](/images/f0c2605-Screen_Shot_2022-05-17_at_3.28.41_PM.webp "Screen Shot 2022-05-17 at 3.28.41 PM.png")
+![3372](/images/f0c2605-Screen_Shot_2022-05-17_at_3.28.41_PM.png "Screen Shot 2022-05-17 at 3.28.41 PM.png")
 
 Your products, whether live or pre-release, shouldn't be in the "Missing Metadata" state. If they are, you won't be able to test them on device. To fix this, make sure your products are in the "Ready to Submit" or "Approved" state. Superwall will automatically warn you if they are in this state when you have the [App Store Connect API set up](/overview-settings-revenue-tracking#app-store-connect-api):
 
-<Frame>![](/images/asc_invalid_products.webp)</Frame>
+<Frame>![](/images/asc_invalid_products.png)</Frame>
 
 ### Using Google Play Console
 
 To add subscription products, on **Google Play Console**, head over to **Your App ▸ Monetize ▸ Products ▸
 Subscriptions**:
 
-![Google Play Products](/images/google-play-products.webp)
+![Google Play Products](/images/google-play-products.png)
 
 You can also grab your **base plan id** and any offer ids if you're going to use
 them.
 
 To add in-app products, no base plan id is required. For **period**, select **None(Lifetime/Consumable)**:
 
-![Google Play Products](/images/google-play-in-app-products.webp)
+![Google Play Products](/images/google-play-in-app-products.png)
 
 **Google Play Offers**
 
@@ -139,7 +139,7 @@ offer **if the user is eligible**. If the user is not eligible for the offer,
 we'll fall back to the base plan. The [eligiblity criteria](https://support.google.com/googleplay/android-developer/answer/12154973?hl=en#:~:text=or%20inactive%20states.-,Offer%20eligibility%C2%A0,-You%20can%20provide) is set in the Google
 Play Console, and is based on the user's purchase history.
 
-![Multiple Offers](/images/multiple-offers.webp)
+![Multiple Offers](/images/multiple-offers.png)
 
 #### Using RevenueCat
 
@@ -147,11 +147,11 @@ For those who use RevenueCat, Superwall can automatically pre-populate your prod
 
 On RevenueCat, make sure your products are associated with an offering (it doesn't need to be the current offering):
 
-![](/images/9426b54-Screen_Shot_2022-05-17_at_3.34.57_PM.webp "Screen Shot 2022-05-17 at 3.34.57 PM.png")
+![](/images/9426b54-Screen_Shot_2022-05-17_at_3.34.57_PM.png "Screen Shot 2022-05-17 at 3.34.57 PM.png")
 
 Then, add your [RevenueCat Public API Key](https://docs.revenuecat.com/docs/authentication) inside of settings by clicking the **cog wheel icon** in the navigation bar from any page and selecting **Settings**. Paste your API key then click **Update Application**:
 
-![](/images/a4ef0c4-Screenshot_2022-11-25_at_17.13.57.webp "Screen Shot 2022-05-17 at 2.58.21 PM.png")
+![](/images/a4ef0c4-Screenshot_2022-11-25_at_17.13.57.png "Screen Shot 2022-05-17 at 2.58.21 PM.png")
 
 ### Using products in paywalls
 
@@ -167,7 +167,7 @@ Note that on iOS, if you're using consumables you need to include `SKIncludeCons
 ### Understanding paid offer types
 Any **paid up front** or **pay as you go** product offer types will also be referenced using the `trial` variables. In Superwall, these are represented as "paid trials". For example, to reference the product's trial price of $3.99 in the image below, you'd use `products.selected.trialPeriodPrice`: 
 
-<Frame>![](/images/paidOfferExample.webp)</Frame> 
+<Frame>![](/images/paidOfferExample.png)</Frame> 
 
 For more on setting customized text using Liquid Templating, visit this [doc](/paywall-editor-liquid).
 

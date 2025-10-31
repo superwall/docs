@@ -7,19 +7,10 @@ import { ArrowUpRight } from "lucide-react"
 import { AlertCircle, Lightbulb, Info as InfoCircle, AlertTriangle, Check as CheckIcon } from "lucide-react"
 import React from "react"
 import { Accordion, Accordions as AccordionGroup } from 'fumadocs-ui/components/accordion';
-import { OptimizedFrame } from './components/OptimizedFrame'
+import { ImageZoom as Frame } from 'fumadocs-ui/components/image-zoom'
 import { SDKContent } from './components/SDKContent'
 import { GithubInfo as GithubInfoComponent } from 'fumadocs-ui/components/github-info';
 import { WhenLoggedIn, WhenLoggedOut, LoginStatusProvider, BasedOnAuth, LoggedIn, LoggedOut } from './components/LoginStatusContext';
-
-// Frame component wrapper for MDX usage
-const Frame = ({ src, alt, caption, ...props }: any) => {
-  // Handle both string src and object with src property
-  const imageSrc = typeof src === 'string' ? src : src?.src || '';
-  const imageAlt = alt || (typeof src === 'object' ? src?.alt : '') || '';
-  
-  return <OptimizedFrame src={imageSrc} alt={imageAlt} caption={caption} {...props} />;
-};
 
 // We'll add custom components here
 

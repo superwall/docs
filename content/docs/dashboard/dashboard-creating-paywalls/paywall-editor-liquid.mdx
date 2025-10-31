@@ -9,7 +9,7 @@ However, Liquid is much more flexible then simple curly brackets. It also offers
 variables before outputting them. Ex: `{{ 1 | plus: 3 }}` will output `4`. They work left to right and do not support order of
 operations. (You can get around this limitation by using `assign`).
 
-<Frame>![](/images/pe-editor-vars-usage.webp)</Frame>
+<Frame>![](/images/pe-editor-vars-usage.png)</Frame>
 
 ### Liquid syntax formatting
 
@@ -98,7 +98,7 @@ You can access any variable available too ([including user created ones](https:/
 
 Here's an example:
 
-<Frame>![](/images/liquidImageExample.webp)</Frame>
+<Frame>![](/images/liquidImageExample.jpeg)</Frame>
 
 ## Custom Liquid filters
 
@@ -276,11 +276,11 @@ Our summer sale ends in {{ "2024-08-06T07:16:26.802Z" | countdown_from: state.no
 
 You can add "event_name" as a [variable](/dashboard/dashboard-creating-paywalls/paywall-editor-variables#custom-variables) to get the name of the placement (trigger event) that caused the paywall to be displayed:
 
-<Frame>![](/images/liquid-create-event_name-var.webp)</Frame>
+<Frame>![](/images/liquid-create-event_name-var.jpeg)</Frame>
 
 Then, it will be available to use as a custom variable. Once created, it should be listed under the **left sidebar -> Variables -> Params -> Event Name**:
 
-<Frame>![](/images/liquid-create-event_name-created.webp)</Frame>
+<Frame>![](/images/liquid-create-event_name-created.jpeg)</Frame>
 
 **Common Usage**:
 
@@ -291,4 +291,4 @@ Triggered by: {{ event_name }}
 
 But, more commonly, you might use it with a [dynamic value](/dashboard/dashboard-creating-paywalls/paywall-editor-dynamic-values). Then, you can customize your paywall based on the event name:
 
-<Frame>![](/images/liquid-event_name-dynamic-value.webp)</Frame>
+<Frame>![](/images/liquid-event_name-dynamic-value.jpeg)</Frame>

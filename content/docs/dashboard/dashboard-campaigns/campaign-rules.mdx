@@ -39,7 +39,7 @@ description: "Rules allow you to decide _which users_ see a paywall."
 Add a rule to a campaign by clicking the **Add Rule** button from within a [campaign](/docs/campaigns).
 
 <Frame>
-  ![](/images/2d6a66b-Screen_Shot_2022-05-17_at_4.42.49_PM.webp "Screen Shot 2022-05-17 at 4.42.49
+  ![](/images/2d6a66b-Screen_Shot_2022-05-17_at_4.42.49_PM.png "Screen Shot 2022-05-17 at 4.42.49
   PM.png")
 </Frame>
 
@@ -49,7 +49,7 @@ Change a rule's condition by clicking the highlighted condition itself:
 
 <Frame>
   ![In this example, we add a condition that evaluates to true if user has logged greater than or
-  equal to 3 days.](/images/f5938b2-Screenshot_2022-12-01_at_10.19.39.webp "Screen Shot 2022-05-17 at
+  equal to 3 days.](/images/f5938b2-Screenshot_2022-12-01_at_10.19.39.png "Screen Shot 2022-05-17 at
   5.00.10 PM.png")
 </Frame>
 
@@ -57,13 +57,13 @@ In this example, we add a condition that evaluates to true if user has logged gr
 
 This opens the **Rule Editor**. Here, you can edit the rule to set conditions based on user, device or event parameters and set a limit to how often the rule is matched:
 
-<Frame>![](/images/80da3f0-Screenshot_2022-12-01_at_10.28.33.webp)</Frame>
+<Frame>![](/images/80da3f0-Screenshot_2022-12-01_at_10.28.33.png)</Frame>
 
 In this example, only users who have the `en` `deviceLanguageCode` and have a `creator` `account_type` will match this rule. They will only match this rule once every 2 days.
 
 Clicking on the condition reveals a dropdown of possible conditions which you can filter on:
 
-<Frame>![](/images/f91ba64-Screenshot_2022-12-01_at_10.55.45.webp) </Frame>
+<Frame>![](/images/f91ba64-Screenshot_2022-12-01_at_10.55.45.png) </Frame>
 
 Conditions are added to this list when data is retrieved from the SDK via registering events or setting user attributes. If a condition doesn't yet exist in the drop down, you can manually add it by referencing it with dot syntax. For example, `user.custom_parameter` would reference `custom_parameter` on the `user` object. As with [paywall text variables](/paywall-editor-variables), the following objects are all available to use:
 
@@ -82,7 +82,7 @@ say "show this once per day" or "show this once per week". It allows you to
 balance between number of paywall impressions (which increase conversions) with
 the potential impact on retention if you show the paywall too often.
 
-<Frame>![limits](/images/campaigns/limit.webp)</Frame>
+<Frame>![limits](/images/campaigns/limit.png)</Frame>
 
 ### Segmenting Users into Cohorts Across Campaigns
 
@@ -93,7 +93,7 @@ Users are assigned a random number from 0 to 99 on app install (which is reassig
 The following settings can be access by clicking the ellipse icon to the right of any rule
 
 <Frame>
-  ![](/images/05bc541-Screen_Shot_2022-05-17_at_5.19.56_PM.webp "Screen Shot 2022-05-17 at 5.19.56
+  ![](/images/05bc541-Screen_Shot_2022-05-17_at_5.19.56_PM.png "Screen Shot 2022-05-17 at 5.19.56
   PM.png")
 </Frame>
 
