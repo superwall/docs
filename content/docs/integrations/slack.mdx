@@ -23,7 +23,7 @@ Fill out the following fields and **click** the **Enable Slack** button at the b
 - **Smart Filtering**: Choose between revenue events only or all subscription lifecycle events
 - **Visual Design**: Color-coded messages with contextual emojis for quick scanning
 - **Revenue Insights**: See price, proceeds, and currency information at a glance
-- **Sandbox Control**: Optional inclusion of test/sandbox events
+- **Sandbox Control**: Optional inclusion of sandbox events
 - **Rich Context**: Includes user ID, product, country, and transaction details
 
 ## Configuration
@@ -61,9 +61,9 @@ Fill out the following fields and **click** the **Enable Slack** button at the b
    - Format: `https://hooks.slack.com/services/T.../B.../...`
    - Keep this URL secure
 
-3. **Test Connection**:
-   - The integration sends a test message on setup
-   - Verify it appears in your selected channel
+3. **Verify Connection**:
+   - Trigger a real sandbox transaction (see Testing section below)
+   - Verify a message appears in your selected channel
 
 ## Event Filtering
 
@@ -244,13 +244,14 @@ Share wins with your team:
 2. **Check Currency**: Amounts in USD, original currency shown
 3. **Check User ID**: Falls back to transaction ID if not available
 
-### Test the Integration
+### Verify the Integration
 
-Send a test event to verify setup:
-1. Configure the integration
-2. A test message is automatically sent
-3. Check your Slack channel
-4. Look for "🧪 Test event" message
+1. Trigger a sandbox transaction in your app:
+   - iOS: Use TestFlight with a sandbox Apple ID. StoreKit Configuration files do not generate App Store Server Notifications, so webhooks and downstream integrations won't fire.
+   - Google Play: Use license test accounts to perform sandbox purchases.
+   - Stripe: Use Stripe Test Mode to create sandbox transactions.
+2. Confirm the message arrives in the configured Slack channel.
+3. If you enabled Production & Sandbox, sandbox messages include an 🧪 indicator.
 
 ## Rate Limits
 

@@ -23,7 +23,7 @@ Fill out the following fields and **click** the **Enable Statsig** button at the
 - **Revenue Tracking**: Tracks both price (gross) and proceeds (net after fees)
 - **User Property Enrichment**: Attaches store, product, and transaction metadata to user objects
 - **Environment Tier Separation**: Uses Statsig's tier system to separate production and staging data
-- **Sandbox Isolation**: Optional tracking for sandbox/test events
+- **Sandbox Isolation**: Separate tracking for sandbox events
 - **Transaction ID Tracking**: Maintains transaction IDs as custom IDs for reconciliation
 - **Custom Event Metadata**: Includes all Superwall event data as metadata for deep analysis
 
@@ -80,7 +80,6 @@ Superwall events are transformed into standardized Statsig events with the `sw_`
 | `product_change`           | `sw_product_change`        | Plan changed      |
 | `non_renewing_purchase`    | `sw_non_renewing_purchase` | One-time purchase |
 | Any event with `price < 0` | `sw_refund`                | Refund processed  |
-| `test`                     | `sw_test`                  | Test event        |
 
 ### Event properties
 
@@ -171,7 +170,7 @@ If `environment` is set to `"Production"`:
 This allows you to:
 
 - Filter events by environment tier in Statsig dashboards
-- Create separate metrics for production vs. test
+- Create separate metrics for production vs. sandbox
 - Validate integration without polluting production data
 
 ### Refund handling
@@ -203,19 +202,13 @@ This ensures consistent user tracking even for:
 
 ### Testing the integration
 
-#### 1. Validate credentials
+#### 1. Trigger sandbox events
 
-The integration automatically validates your credentials by sending a test event when configured.
+- iOS: Use TestFlight with a sandbox Apple ID. StoreKit Configuration files do not generate App Store Server Notifications, so webhooks and downstream integrations won't fire.
+- Google Play: Use license test accounts to perform test purchases in sandbox.
+- Stripe: Use Stripe Test Mode to create sandbox transactions.
 
-#### 2. Test event properties
-
-Test events include:
-
-- Event: `sw_test`
-- Basic properties to verify connection
-- No revenue impact
-
-#### 3. Verify in Statsig
+#### 2. Verify in Statsig
 
 Check your Statsig project:
 

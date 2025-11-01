@@ -90,7 +90,6 @@ All events are prefixed with `[Superwall]` followed by a descriptive name:
 | `product_change` | `[Superwall] Product Change` | Plan changed |
 | `non_renewing_purchase` | `[Superwall] Non-Renewing Purchase` | One-time purchase |
 | Any with `price < 0` | `[Superwall] Refund` | Refund processed |
-| `test` | `[Superwall] Test` | Test event |
 
 ### Event properties
 
@@ -228,8 +227,10 @@ Sessions are automatically managed:
 
 ### Testing the integration
 
-#### 1. Validate credentials
-The integration validates credentials by sending a test event when configured.
+#### 1. Trigger sandbox events
+- iOS: Use TestFlight with a sandbox Apple ID. StoreKit Configuration files do not generate App Store Server Notifications, so webhooks and downstream integrations won't fire.
+- Google Play: Use license test accounts to perform sandbox purchases.
+- Stripe: Use Stripe Test Mode to create sandbox transactions.
 
 #### 2. Verify in Amplitude
 
