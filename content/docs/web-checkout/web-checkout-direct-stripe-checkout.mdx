@@ -35,6 +35,23 @@ For customers in the United States, you can offer Stripe products directly from 
 
 If you need to test checkout, learn how [here](/web-checkout-testing-purchases).
 
-### Prefill email
+### Prefill customer information
 
-When starting checkout from an iOS paywall (App2Web), Stripe will automatically prefill the email field if you set the user's `email` as a [User Attribute](/sdk/quickstart/setting-user-properties) in your app before initiating checkout.
+When starting checkout from an iOS paywall (App2Web), you can prefill customer information in two ways:
+
+#### Email
+Stripe will automatically prefill the email field if you set the user's `email` as a [User Attribute](/sdk/quickstart/setting-user-properties) in your app before initiating checkout.
+
+#### Stripe Customer ID
+If you already have a Stripe customer ID for your user, you can set it as the `stripe_customer_id` user attribute. This will associate the checkout session with the existing Stripe customer, automatically prefilling their saved information and payment methods:
+
+```swift
+Superwall.shared.setUserAttributes([
+    "email": user.email,
+    "stripe_customer_id": user.stripeCustomerId
+])
+```
+
+<Note>
+When both `stripe_customer_id` and `email` are provided, the Stripe customer ID takes precedence. The checkout session will use the existing customer's information rather than creating a new customer.
+</Note>
