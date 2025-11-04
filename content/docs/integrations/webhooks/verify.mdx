@@ -1,0 +1,313 @@
+---
+title: "Verify Webhook Requests"
+description: "Learn how to verify webhook requests using the signing secret to ensure authenticity and security."
+---
+
+## Why Verify Webhooks?
+
+Verifying webhook requests is crucial for security. It ensures that:
+
+- Requests are actually coming from Superwall's servers
+- The payload hasn't been tampered with in transit
+- Replay attacks are prevented through timestamp validation
+
+Without verification, malicious actors could send fake webhook events to your endpoint.
+
+## Getting Your Signing Secret
+
+Every webhook endpoint has a unique signing secret that's used to verify requests. You can find this secret in your webhook details:
+
+<Frame>![Copy webhook signing secret](/images/integration_copy_secret.jpeg)</Frame>
+
+Click the **Copy Secret** button to copy your webhook's signing secret to your clipboard.
+
+<Warning>
+  Keep your signing secret secure. Never commit it to version control or expose it in client-side code. Store it as an environment variable like `SUPERWALL_WEBHOOK_SECRET`.
+</Warning>
+
+## Verification Methods
+
+### Option 1: Using Svix Library (Recommended)
+
+Superwall uses [Svix](https://svix.com) for webhook delivery, which provides robust verification libraries for multiple languages.
+
+Install the Svix library:
+
+```bash
+npm install svix
+# or
+yarn add svix
+# or
+pnpm add svix
+```
+
+Verify incoming requests:
+
+```javascript
+import { Webhook } from 'svix';
+
+export async function POST(request) {
+  // Get the raw body as a string
+  const payload = await request.text();
+
+  // Get the Svix headers
+  const headers = {
+    'svix-id': request.headers.get('svix-id'),
+    'svix-timestamp': request.headers.get('svix-timestamp'),
+    'svix-signature': request.headers.get('svix-signature'),
+  };
+
+  // Create a new Webhook instance with your secret
+  const wh = new Webhook(process.env.SUPERWALL_WEBHOOK_SECRET);
+
+  let event;
+
+  try {
+    // Verify the webhook
+    event = wh.verify(payload, headers);
+  } catch (err) {
+    console.error('Webhook verification failed:', err.message);
+    return new Response('Webhook verification failed', { status: 400 });
+  }
+
+  // Webhook is verified - process the event
+  console.log('Verified event:', event);
+
+  // Process your event here
+  // ...
+
+  return new Response('Success', { status: 200 });
+}
+```
+
+### Option 2: Manual Verification
+
+If you prefer not to use the Svix library, you can manually verify webhooks using the HMAC signature:
+
+```javascript
+import crypto from 'crypto';
+
+function verifyWebhook(payload, headers, secret) {
+  const msgId = headers['svix-id'];
+  const msgTimestamp = headers['svix-timestamp'];
+  const msgSignature = headers['svix-signature'];
+
+  // Verify timestamp to prevent replay attacks
+  const timestamp = parseInt(msgTimestamp, 10);
+  const now = Math.floor(Date.now() / 1000);
+
+  if (now - timestamp > 300) { // 5 minutes
+    throw new Error('Webhook timestamp too old');
+  }
+
+  // Create the signed content
+  const signedContent = `${msgId}.${msgTimestamp}.${payload}`;
+
+  // Compute the expected signature
+  const secretBytes = Buffer.from(secret.split('_')[1], 'base64');
+  const signature = crypto
+    .createHmac('sha256', secretBytes)
+    .update(signedContent)
+    .digest('base64');
+
+  // Compare signatures
+  const expectedSignature = `v1,${signature}`;
+
+  // Extract all signatures from the header
+  const passedSignatures = msgSignature.split(' ');
+
+  // Check if any signature matches
+  const signatureMatch = passedSignatures.some(sig =>
+    crypto.timingSafeEqual(
+      Buffer.from(sig),
+      Buffer.from(expectedSignature)
+    )
+  );
+
+  if (!signatureMatch) {
+    throw new Error('Webhook signature verification failed');
+  }
+
+  return JSON.parse(payload);
+}
+```
+
+## Important Implementation Notes
+
+### Use Raw Request Body
+
+The signature is computed against the **raw request body**. Do not parse or modify the body before verification:
+
+```javascript
+// ✅ Correct - use raw body
+const payload = await request.text();
+const event = wh.verify(payload, headers);
+
+// ❌ Wrong - parsing changes the body
+const payload = await request.json();
+const event = wh.verify(JSON.stringify(payload), headers); // Will fail!
+```
+
+### Required Headers
+
+Three headers are required for verification:
+
+| Header            | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `svix-id`         | Unique message ID                           |
+| `svix-timestamp`  | Unix timestamp when the webhook was sent    |
+| `svix-signature`  | HMAC signature(s) of the message            |
+
+### Framework-Specific Examples
+
+#### Next.js (App Router)
+
+```javascript
+// app/api/webhooks/route.js
+import { Webhook } from 'svix';
+
+export async function POST(request) {
+  const payload = await request.text();
+
+  const headers = {
+    'svix-id': request.headers.get('svix-id'),
+    'svix-timestamp': request.headers.get('svix-timestamp'),
+    'svix-signature': request.headers.get('svix-signature'),
+  };
+
+  const wh = new Webhook(process.env.SUPERWALL_WEBHOOK_SECRET);
+
+  try {
+    const event = wh.verify(payload, headers);
+
+    // Handle the event
+    switch (event.type) {
+      case 'initial_purchase':
+        // Handle initial purchase
+        break;
+      case 'renewal':
+        // Handle renewal
+        break;
+      // ... other event types
+    }
+
+    return new Response('Success', { status: 200 });
+  } catch (err) {
+    return new Response('Webhook verification failed', { status: 400 });
+  }
+}
+```
+
+#### Express
+
+```javascript
+import express from 'express';
+import { Webhook } from 'svix';
+
+const app = express();
+
+// Important: Use raw body for webhook verification
+app.post('/webhooks', express.raw({ type: 'application/json' }), (req, res) => {
+  const payload = req.body.toString();
+
+  const headers = {
+    'svix-id': req.headers['svix-id'],
+    'svix-timestamp': req.headers['svix-timestamp'],
+    'svix-signature': req.headers['svix-signature'],
+  };
+
+  const wh = new Webhook(process.env.SUPERWALL_WEBHOOK_SECRET);
+
+  try {
+    const event = wh.verify(payload, headers);
+
+    // Handle the event
+    console.log('Verified event:', event);
+
+    res.status(200).send('Success');
+  } catch (err) {
+    console.error('Webhook verification failed:', err.message);
+    res.status(400).send('Verification failed');
+  }
+});
+```
+
+#### Python (FastAPI)
+
+```python
+from fastapi import FastAPI, Request, HTTPException
+from svix.webhooks import Webhook, WebhookVerificationError
+import os
+
+app = FastAPI()
+
+@app.post("/webhooks")
+async def handle_webhook(request: Request):
+    payload = await request.body()
+    headers = {
+        "svix-id": request.headers.get("svix-id"),
+        "svix-timestamp": request.headers.get("svix-timestamp"),
+        "svix-signature": request.headers.get("svix-signature"),
+    }
+
+    wh = Webhook(os.environ["SUPERWALL_WEBHOOK_SECRET"])
+
+    try:
+        event = wh.verify(payload, headers)
+
+        # Handle the event
+        print(f"Verified event: {event}")
+
+        return {"status": "success"}
+    except WebhookVerificationError as e:
+        print(f"Webhook verification failed: {e}")
+        raise HTTPException(status_code=400, detail="Verification failed")
+```
+
+## Testing Webhook Verification
+
+During development, you can test webhook verification:
+
+1. **Use the actual signing secret** from your webhook endpoint
+2. **Capture real webhook payloads** by temporarily logging them
+3. **Test with valid and invalid signatures** to ensure your verification works
+
+<Warning>
+  Never test with production webhooks in a development environment without proper safeguards. Consider creating a separate webhook endpoint for testing.
+</Warning>
+
+## Security Best Practices
+
+1. **Always verify webhooks** - Never process unverified webhook data
+2. **Use environment variables** - Store your signing secret securely
+3. **Check timestamps** - Reject old webhooks to prevent replay attacks (Svix does this automatically)
+4. **Return 200 quickly** - Acknowledge receipt immediately, then process asynchronously
+5. **Log verification failures** - Monitor for potential attacks or configuration issues
+6. **Rotate secrets periodically** - Update your signing secret if it's ever compromised
+
+## Troubleshooting
+
+### Verification Always Fails
+
+- Ensure you're using the **raw request body**, not a parsed/stringified version
+- Check that all three required headers are present
+- Verify you're using the correct signing secret for this webhook endpoint
+- Make sure your secret includes the full value (it should start with `whsec_`)
+
+### "Timestamp too old" Errors
+
+- Your server's clock may be out of sync - verify your server time
+- Network delays may be too high - check your server's response time
+- The webhook may be a replay attack - this is working as intended
+
+## Advanced Usage
+
+For advanced webhook verification scenarios, including signature rotation and custom verification logic, see the [Svix documentation](https://docs.svix.com/receiving/verifying-payloads/how).
+
+---
+
+## Webhooks Reference
+
+For information about webhook events, payload structure, and handling different event types, see the main [Webhooks documentation](/docs/integrations/webhooks).
+
+In the **Webhooks** section within **Integrations**, you can manage your webhooks with Superwall:
