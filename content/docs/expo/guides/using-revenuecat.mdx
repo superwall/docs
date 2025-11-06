@@ -22,72 +22,74 @@ The easiest way to integrate RevenueCat with Superwall is using the `CustomPurch
 ### 1. Configure RevenueCat and Superwall
 
 ```tsx
-import { CustomPurchaseControllerProvider, SuperwallProvider, SuperwallLoaded, SuperwallLoading } from 'expo-superwall'
-import Purchases from 'react-native-purchases'
-import { Platform, useEffect } from 'react'
+import { useEffect } from "react"
+import { Platform } from "react-native"
+import Purchases, { PURCHASES_ERROR_CODE } from "react-native-purchases"
+import {
+  CustomPurchaseControllerProvider,
+  SuperwallProvider,
+  SuperwallLoaded,
+  SuperwallLoading,
+} from "expo-superwall"
 
-// Configure RevenueCat
-useEffect(() => {
-  const configureRevenueCat = async () => {
-    Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG)
-    const apiKey = Platform.OS === 'ios' ? 'ios_rc_key' : 'android_rc_key'
-    await Purchases.configure({ apiKey })
-  }
-  
-  configureRevenueCat()
-}, [])
+const REVENUECAT_API_KEYS = {
+  ios: "appl_YOUR_IOS_KEY_HERE",
+  android: "goog_YOUR_ANDROID_KEY_HERE",
+}
 
-export default function App() {
+const SUPERWALL_API_KEYS = {
+  ios: "YOUR_SUPERWALL_IOS_KEY",
+  android: "YOUR_SUPERWALL_ANDROID_KEY",
+}
+
+function App() {
+  useEffect(() => {
+    const apiKey = Platform.OS === "ios"
+      ? REVENUECAT_API_KEYS.ios
+      : REVENUECAT_API_KEYS.android
+    Purchases.configure({ apiKey })
+  }, [])
+
   return (
     <CustomPurchaseControllerProvider
       controller={{
         onPurchase: async (params) => {
           try {
-            // Get products from RevenueCat
             const products = await Purchases.getProducts([params.productId])
             const product = products[0]
-            
+
             if (!product) {
-              throw new Error(`Product not found: ${params.productId}`)
+              return { type: "failed", error: "Product not found" }
             }
 
-            // Make the purchase
             await Purchases.purchaseStoreProduct(product)
-            console.log("Purchase successful")
-            // No return needed - success is indicated by resolving normally
-          } catch (error) {
-            console.error("Purchase failed:", error)
-            throw error // Throwing error indicates failure
+          } catch (error: any) {
+            if (error.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
+              return { type: "cancelled" }
+            }
+            return { type: "failed", error: error.message }
           }
         },
+
         onPurchaseRestore: async () => {
           try {
             await Purchases.restorePurchases()
-            console.log("Restore successful")
-            // No return needed - success is indicated by resolving normally
-          } catch (error) {
-            console.error("Restore failed:", error)
-            throw error // Throwing error indicates failure
+          } catch (error: any) {
+            return { type: "failed", error: error.message }
           }
         },
       }}
     >
-      <SuperwallProvider 
-        apiKeys={{ 
-          ios: "YOUR_SUPERWALL_IOS_KEY", 
-          android: "YOUR_SUPERWALL_ANDROID_KEY" 
-        }}
-      >
+      <SuperwallProvider apiKeys={SUPERWALL_API_KEYS}>
         <SuperwallLoading>
-          {/* Loading spinner while Superwall initializes */}
+          {/* Loading UI */}
         </SuperwallLoading>
         <SuperwallLoaded>
-          {/* Your app content */}
+          {/* Your app */}
         </SuperwallLoaded>
       </SuperwallProvider>
     </CustomPurchaseControllerProvider>
   )
-}
 ```
 
 ### 2. Sync Subscription Status
