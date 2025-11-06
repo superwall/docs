@@ -1,0 +1,167 @@
+---
+title: "Account Management"
+description: "Manage your Superwall account preferences, security settings, and authentication methods."
+---
+
+The Account Settings page allows you to manage your personal profile information, security preferences, connected accounts, and passkeys. You can access this page by clicking on the profile menu in the bottom left corner of the dashboard and selecting **Manage**:
+
+<Frame>![Account Settings Page](/images/manage-account.png)</Frame>
+
+The account management page is organized into four main sections:
+
+1. **Profile Information:** Manage your account details and email preferences.
+2. **Security Settings:** Configure password and two-factor authentication.
+3. **Connected Accounts:** Link social accounts for easier sign-in.
+4. **Passkeys:** Set up password-free authentication using passkeys.
+
+## Profile Information
+
+The Profile Information section displays your account details and email verification status.
+
+### Name
+
+Your account display name. This field can be edited to update how your name appears throughout the Superwall dashboard.
+
+### Email
+
+Your account email address is used for:
+- Signing into your Superwall account.
+- Receiving notifications about your apps and campaigns.
+- Account recovery and security alerts.
+
+#### Email Verification
+
+If your email is not verified, you'll see a **Not Verified** badge next to your email address. To verify your email:
+
+1. Click the **Resend verification email** link below the email field.
+2. Check your inbox for a verification email from Superwall.
+3. Click the verification link in the email to complete the process.
+
+<Note>
+Verifying your email ensures you can receive important notifications and helps secure your account.
+</Note>
+
+## Security Settings
+
+The Security Settings section helps you protect your account with password management and two-factor authentication.
+
+### Password
+
+Manage your account password to keep your account secure. If you need to change your password:
+
+1. Click the **Request Password Reset** button.
+2. Check your email for a password reset link.
+3. Follow the instructions in the email to set a new password.
+
+<Tip>
+Use a strong, unique password for your Superwall account to maintain security best practices.
+</Tip>
+
+### Two-Factor Authentication (2FA)
+
+Two-factor authentication adds an extra layer of security to your account by requiring a second form of verification in addition to your password.
+
+When 2FA is **Disabled**, you'll see a **Disabled** badge and an **Enable 2FA** button. To enable two-factor authentication:
+
+1. Click the **Enable 2FA** button.
+2. Follow the setup wizard to configure 2FA using an authenticator app.
+3. Save your backup codes in a secure location.
+
+Once enabled, you'll need to provide a verification code from your authenticator app each time you sign in.
+
+<Warning>
+Make sure to save your backup codes when setting up 2FA. These codes can be used to access your account if you lose access to your authenticator app.
+</Warning>
+
+## Connected Accounts
+
+The Connected Accounts section allows you to link your Google or GitHub accounts for faster, more convenient sign-in to Superwall.
+
+### Google Account
+
+Connect your Google account to sign in to Superwall using Google authentication.
+
+**When not connected:**
+- You'll see a **Not Connected** badge.
+- Click **Connect Google** to link your Google account.
+- You'll be redirected to Google's authentication page to authorize the connection.
+
+**After connecting:**
+- You can use "Sign in with Google" on the Superwall login page.
+- You can disconnect your Google account at any time.
+
+### GitHub Account
+
+Connect your GitHub account to sign in to Superwall using GitHub authentication.
+
+**When not connected:**
+- You'll see a **Not Connected** badge.
+- Click **Connect GitHub** to link your GitHub account.
+- You'll be redirected to GitHub's authorization page to approve the connection.
+
+**After connecting:**
+- You can use "Sign in with GitHub" on the Superwall login page.
+- You can disconnect your GitHub account at any time.
+
+## Passkeys
+
+Passkeys provide a secure, password-free way to sign in to your Superwall account using your device's biometrics (like Face ID, Touch ID, or Windows Hello) or a security key.
+
+### What are Passkeys?
+
+Passkeys are a modern authentication method that:
+- Eliminate the need to remember passwords.
+- Provide stronger security against phishing and credential theft.
+- Use your device's built-in biometric authentication.
+- Work across your devices when synced through your operating system.
+
+### Adding Your First Passkey
+
+When you haven't set up any passkeys yet, you'll see an empty state with instructions. To add a passkey, click the **Add Passkey** button to open the passkey creation dialog:
+
+<Frame>![Add Passkey Dialog](/images/account-add-passkey.png)</Frame>
+
+#### Passkey Name
+
+Give your passkey a descriptive name to help you identify it later, such as "MacBook Pro," "YubiKey," or "iPhone." This is especially helpful when managing multiple passkeys across different devices.
+
+#### Authenticator Type
+
+Choose between two authenticator types:
+
+**Cross-Platform (Recommended)**
+
+Use a physical security key like YubiKey that works across multiple devices. This option is ideal if you want to use the same passkey on different computers or need a portable authentication method.
+
+**Platform Authenticator**
+
+Use your current device's built-in biometrics (Touch ID, Face ID, or Windows Hello). This option ties the passkey to your specific device and is convenient for single-device use.
+
+Once you've entered a name and selected your authenticator type, click **Add Passkey** to complete the setup. Your browser or device will prompt you to authenticate, and your new passkey will be ready to use.
+
+### Managing Multiple Passkeys
+
+You can add multiple passkeys to your account, which is useful if you:
+- Sign in from different devices (work computer, personal laptop, tablet, etc.).
+- Want backup authentication methods.
+- Share access across different locations.
+
+Each passkey will be listed in this section with options to remove or rename them.
+
+<Tip>
+We recommend adding at least two passkeys to your account as a backup in case you lose access to one of your devices.
+</Tip>
+
+### Using Passkeys to Sign In
+
+Once you've added a passkey:
+
+1. Go to the Superwall login page.
+2. Select the "Sign in with Passkey" option.
+3. Your device will prompt you to authenticate using biometrics or your security key.
+4. You'll be signed in immediately without entering a password.
+
+<Note>
+Passkeys are tied to specific devices and browsers. If you clear your browser data or switch to a new device, you'll need to add a new passkey or use an alternative sign-in method.
+</Note>
+

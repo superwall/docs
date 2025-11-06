@@ -68,6 +68,9 @@ Available tap actions are:
   1. **In-app browser:** Attempts to open the link _inside_ of the app using the platform's web browser control. For example, on iOS, this opens an instance of [`SFSafariViewController`](https://developer.apple.com/documentation/safariservices/sfsafariviewcontroller).
   2. **External:** Attempts to open the link _outside_ of the app using the platform's web browser app. For example, on iOS, this opens Safari. Please note that the paywall stays presented when the link is opened.
   3. **Deep Link:** Similar to the **external** option, but it'll _close_ the paywall before opening the URL. This is useful for internal navigation or when you are attempting to link to something in a web page and you'd like the paywall to close when doing so.
+- **Request Review:** Requests a review for the given app storefront.
+  1. **Rating Prompt:** Attempts to display the system-level ratings prompt for the platform. On Android, you may use `useMockReviews` on `SuperwallOptions` to ensure a prompt shows while testing.
+  2. **Written Review:** This option deeplinks to the repspective App Store so the user can write a written review.
 - **Custom Action:** Performs a custom action that you specify. Using custom actions, you can tie application logic to anything tapped or clicked on your paywall. Check out the docs [here](/custom-paywall-events).
 - **Custom Placement:** Registers the placement you specify in the **Name** field. One common use-case is presenting another paywall from a currently opened one. Check out the example [here](/presenting-paywalls-from-one-another).
 

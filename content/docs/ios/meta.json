@@ -41,6 +41,7 @@
         "sdk-reference/advanced",
 
         "---Guides---",
+        "guides/direct-purchasing",
         "guides/vibe-coding",
         "guides/using-revenuecat",
         "guides/experimental-flags",

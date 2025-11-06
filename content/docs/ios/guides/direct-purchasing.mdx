@@ -1,0 +1,82 @@
+---
+title: "Making Purchases"
+description: "Purchase any StoreKit product easily, with or without a paywall."
+---
+
+Making purchases of a consumable, non-consumable or subscription product in Superwall takes only one line. You can use this whether or not you are using Superwall's paywalls:
+
+```swift
+let result = await Superwall.shared.purchase(product)
+```
+
+This method takes a `StoreProduct` and returns a `PurchaseResult` so you can take action on the result. Here's an example from our demo app, [Caffeine Pal](https://github.com/superwall/CaffeinePal/blob/using-superwall-sdk/Caffeine%20Pal/Store%20and%20Models/CaffeineStore.swift#L121):
+
+```swift
+func purchase(_ product: StoreProduct) async throws {
+    let result = await Superwall.shared.purchase(product)
+    
+    switch result {
+    case .cancelled:
+        throw CaffeinePalStoreFrontError.cancelled
+    case .purchased:
+        // In `handleSuperwallEvent` delegate method, we'll check if an espresso recipe was
+        // Purchased and if it was, we'll add it to the purchased drinks set.
+        print("Purchased product \(product.productIdentifier)")
+    case .pending:
+        throw CaffeinePalStoreFrontError.pending
+    case .failed(let error):
+        throw error
+    }
+}
+```
+
+<Note>
+For the SDK reference, check out this [page](/ios/guides/advanced/direct-purchasing).
+</Note>
+
+The flow looks like this:
+
+1. Fetch your products.
+2. Call `purchase` on any of them.
+3. Respond to the result.
+
+Here's an example:
+
+### Fetch products
+
+A `StoreProduct` can be fetched using its corresponding identifier from App Store Connect or a [StoreKit Configuration File](/ios/guides/testing-purchases). For example, `subscription.caffeinePalPro.monthly` here:
+
+<Frame>![](/images/dp_product_id.jpeg)</Frame>
+
+That product could be fetched like so:
+
+```swift
+let caffeineSub = await Superwall.shared.products(for: Set(["subscription.caffeinePalPro.monthly"]))
+```
+
+### Call purchase
+
+Now, simply call `purchase`:
+
+```swift
+let result = await Superwall.shared.purchase(caffeineSub)
+```
+
+### Respond to result 
+
+Finally, respond to the result:
+
+```swift
+switch result {
+case .cancelled:
+    // user cancelled the purchase flow
+case .purchased:
+    // Purchase completed
+case .pending:
+    // Purchase in flight
+case .failed(let error):
+    // Couldn't purchase, check out the error
+}
+```
+
+There are a number of additional ways to respond to a purchase outside of this `result`, depending on how the product was purchased (for example, within a paywall). For examples, see this [doc](/ios/guides/advanced/viewing-purchased-products).
