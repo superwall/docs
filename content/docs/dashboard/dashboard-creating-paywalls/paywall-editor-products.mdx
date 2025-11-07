@@ -19,6 +19,25 @@ You can display as many products as you see fit on your paywall. Superwall will 
 <Tip>
 It's important to remember that _you_ retain full control over which of your products show in a paywall, and how. For example, use them along with [dynamic values](/paywall-editor-dynamic-values) to hide or show them to create any U.X. your design calls for.
 </Tip>
+
+### Web Checkout Locations
+
+When using web checkout products (Stripe or Paddle products), you can control how the checkout experience is presented to users. This setting determines where the web checkout interface appears:
+
+<Frame>![](/images/web-checkout-location.png)</Frame>
+
+There are three web checkout location options:
+
+- **Payment Sheet** (Recommended): Opens an in-app payment sheet that appears as a modal covering about half the screen height. This provides the smoothest user experience by keeping users within your app context.
+
+- **In App Browser**: Opens the checkout flow in an in-app web browser (like Safari View Controller on iOS). This keeps users within your app while providing full web functionality.
+
+- **External**: Opens the system's default web browser for checkout. This takes users completely out of your app but may be necessary for certain compliance requirements.
+
+<Tip>
+The Payment Sheet option is recommended as it provides the best user experience with minimal disruption to your app flow. Users can complete their purchase without feeling like they've left your app.
+</Tip>
+
 ### Understanding the selected product and selected product index variables
 
 The `products.selected` variable will always represent any product the user has selected on your paywall. By default, it will be the _first_ product you've added. In addition, the `products.selectedIndex` variable will also be updated as products are selected. This opens up many patterns to use, such as customizing copy, images, videos, or anything else based on which product the user has tapped on. 
