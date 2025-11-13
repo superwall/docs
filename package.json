@@ -18,7 +18,8 @@
     "dev": "bun run build:prep && run-p watch:images \"dev:next\"",
     "dev:next": "next dev --turbo -p 8293",
     "clear:cache": "tsx scripts/clear-cache.ts",
-    "start": "next start"
+    "start": "next start",
+    "download:references": "bun scripts/download-references.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.11",

@@ -30,6 +30,37 @@ bun run deploy
 ```
 DO NOT EVER DEPLOY WITHOUT CHECKING WITH THE USER
 
+## SDK References
+
+When working on tasks that require referencing any of the Superwall SDKs (iOS, Android, Flutter, or React Native), ALWAYS run the following command first to ensure you have the latest SDK source code:
+
+```bash
+bun run download:references
+```
+
+This command will:
+- Clone the iOS, Android, Flutter, and React Native SDK repositories into the `reference/` directory
+- If the repositories already exist, it will pull the latest changes
+- The reference directory is gitignored, so these repositories won't be committed
+
+SDK repositories:
+- iOS: `reference/ios/` (superwall-ios)
+- Android: `reference/android/` (superwall-android)
+- Flutter: `reference/flutter/` (Superwall-Flutter)
+- React Native: `reference/react-native/` (expo-superwall)
+
+After downloading the references, you should:
+1. Directly examine the source files in these repositories to understand the actual implementation
+2. Look at the public API files to understand the exact syntax and method signatures
+3. Check example projects or tests to see how features are used in practice
+4. Use this first-hand knowledge to ensure documentation is accurate and reflects the current SDK capabilities
+
+This direct inspection is critical for:
+- Writing accurate code examples with correct syntax
+- Understanding available features and their proper usage
+- Ensuring documentation matches the actual SDK implementation
+- Identifying any undocumented features or recent changes
+
 ## Documentation Site Architecture
 
 ### Build System
