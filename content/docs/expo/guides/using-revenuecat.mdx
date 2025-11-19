@@ -400,7 +400,7 @@ export class RCPurchaseController extends PurchaseController {
 }
 ```
 
-As discussed in [Purchases and Subscription Status](/docs/advanced-configuration), this `PurchaseController` is responsible for handling the subscription-related logic. Take a few moments to look through the code to understand how it does this.
+As discussed in [Purchases and Subscription Status](/docs/expo/guides/advanced-configuration), this `PurchaseController` is responsible for handling the subscription-related logic. Take a few moments to look through the code to understand how it does this.
 
 ### 2. Configure Superwall
 
@@ -433,20 +433,5 @@ If you're using RevenueCat's [PurchasesAreCompletedBy](https://www.revenuecat.co
 1. Here, you aren't using RevenueCat's [entitlements](https://www.revenuecat.com/docs/getting-started/entitlements#entitlements) as a source of truth. If your app is multiplatform, you'll need to consider how to link up pro features or purchased products for users.
 2. If you require custom logic when purchases occur, then you'll want to add a purchase controller. In that case, Superwall handles purchasing flows and RevenueCat will still observe transactions to power their analytics and charts.
 3. Be sure that user identifiers are set the same way across Superwall and RevenueCat.
-
-:::ios
-Example:
-
-```swift
-Superwall.configure(apiKey: "superwall_public_key")
-Superwall.shared.identify(userId: user.identifier)
-Purchases.configure(with:
-  .builder(withAPIKey: "revcat_public_key")
-  .with(purchasesAreCompletedBy: .myApp, storeKitVersion: .storeKit1/.storeKit2)
-  .with(appUserID: user.identifier)
-  .build()
-)
-```
-:::
 
 For more information on observer mode, visit [RevenueCat's docs](https://www.revenuecat.com/docs/migrating-to-revenuecat/sdk-or-not/finishing-transactions).

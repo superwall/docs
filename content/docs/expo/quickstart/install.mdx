@@ -42,7 +42,7 @@ yarn dlx expo install expo-superwall
 
 ## Version Targeting
 
-<Warning>Superwall requires iOS 14.0 or higher, aswell as Android SDK 26 or higher. Ensure you Expo targets the correct minimum OS version by updating app.json or app.config.js.</Warning>
+<Warning>Superwall requires iOS 15.1 or higher, as well as Android SDK 21 or higher. Ensure your Expo project targets the correct minimum OS version by updating app.json or app.config.js.</Warning>
 
 First, install the `expo-build-properties` config plugin if your Expo project hasn’t yet:
 
@@ -61,10 +61,10 @@ Then, add the following to your `app.json` or `app.config.js` file:
         "expo-build-properties",
         {
           "android": {
-            "minSdkVersion": 26
+            "minSdkVersion": 21
           },
           "ios": {
-              "deploymentTarget": "14.0" // or higher
+              "deploymentTarget": "15.1" // or higher
           }
         }
       ]
