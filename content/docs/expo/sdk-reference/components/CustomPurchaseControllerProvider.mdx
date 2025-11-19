@@ -110,48 +110,10 @@ The `CustomPurchaseControllerProvider` listens for purchase events from the Supe
 
 ## Integration with RevenueCat
 
-When using RevenueCat, you can integrate it with the `CustomPurchaseControllerProvider` like this:
-
-```tsx
-import Purchases from 'react-native-purchases'
-
-const controller = {
-  onPurchase: async (params) => {
-    try {
-      if (params.platform === "ios") {
-        // iOS purchase logic
-        const products = await Purchases.getProducts([params.productId])
-        const product = products[0]
-        if (product) {
-          await Purchases.purchaseStoreProduct(product)
-        }
-      } else {
-        // Android purchase logic
-        const products = await Purchases.getProducts([params.productId])
-        const product = products[0]
-        if (product) {
-          await Purchases.purchaseStoreProduct(product)
-        }
-      }
-    } catch (error) {
-      console.error("Purchase failed:", error)
-      throw error // Re-throw to indicate failure to Superwall
-    }
-  },
-  onPurchaseRestore: async () => {
-    try {
-      await Purchases.restorePurchases()
-    } catch (error) {
-      console.error("Restore failed:", error)
-      throw error // Re-throw to indicate failure to Superwall
-    }
-  },
-}
-```
+For a complete RevenueCat integration with error handling, subscription status synchronization, and working examples, see the [Using RevenueCat](/docs/expo/guides/using-revenuecat) guide.
 
 ## Notes
 
 - The provider must wrap your app at a level where both the Superwall SDK and your purchase logic can access it
 - Purchase success/failure handling is automatic - you just need to perform the actual purchase
 - **Important:** The `onPurchase` and `onPurchaseRestore` callbacks should not return any values. Success is indicated by the Promise resolving normally, and failure by throwing an error
-- For RevenueCat integration, see the [Using RevenueCat](/docs/expo/guides/using-revenuecat) guide for complete examples
