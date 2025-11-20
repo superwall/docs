@@ -42,7 +42,7 @@ final class Delegate: SuperwallDelegate {
     let revenueCatStripePublicAPIKey = "strp....." // replace with your RevenueCat Stripe Public API Key
     let appUserId = Purchases.shared.appUserID
 
-    // In the background...
+      // In the background...
     Task.detached {
       await withTaskGroup(of: Void.self) { group in
         // For each subscription id, link it to the user in RevenueCat
@@ -55,18 +55,31 @@ final class Delegate: SuperwallDelegate {
             request.setValue("stripe", forHTTPHeaderField: "X-Platform")
             request.setValue("Bearer \(revenueCatStripePublicAPIKey)", forHTTPHeaderField: "Authorization")
 
-            do {
-              request.httpBody = try JSONEncoder().encode([
-                "app_user_id": appUserId,
-                "fetch_token": stripeSubscriptionId
-              ])
+              do {
+                request.httpBody = try JSONEncoder().encode([
+                  "app_user_id": appUserId,
+                  "fetch_token": stripeSubscriptionId
+                ])
 
-              let (data, _) = try await URLSession.shared.data(for: request)
-              let json = try JSONSerialization.jsonObject(with: data, options: [])
-              print("[!] Success: linked \(stripeSubscriptionId) to user \(appUserId)", json)
-            } catch {
-              print("[!] Error: unable to link \(stripeSubscriptionId) to user \(appUserId)", error)
-            }
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                guard let httpResponse = response as? HTTPURLResponse else {
+                  print("[!] Error: Received an invalid response for \(stripeSubscriptionId)")
+                  return
+                }
+
+                guard (200..<300).contains(httpResponse.statusCode) else {
+                  let body = String(data: data, encoding: .utf8) ?? ""
+                  print("[!] Error: RevenueCat responded with \(httpResponse.statusCode) for \(stripeSubscriptionId). Body: \(body)")
+                  return
+                }
+
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                print("[!] Success: linked \(stripeSubscriptionId) to user \(appUserId)", json)
+              } catch {
+                // Surface network errors so you can retry or notify the user.
+                print("[!] Error: unable to link \(stripeSubscriptionId) to user \(appUserId)", error)
+              }
           }
         }
       }
@@ -92,6 +105,11 @@ final class Delegate: SuperwallDelegate {
   }
 }
 ```
+
+<Note>
+  The snippet logs HTTP failures and propagates network errors so you can build retries, show UI,
+  or report the issue. Be sure to adapt the error handling to match your monitoring and UX needs.
+</Note>
 
 <Warning>
   If you call `logIn` from RevenueCat's SDK, then you need to call the logic you've implemented

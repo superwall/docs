@@ -30,9 +30,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
+  import okhttp3.Request
+  import okhttp3.RequestBody.Companion.toRequestBody
+  import org.json.JSONObject
+  import java.io.IOException
 
 class SWDelegate : SuperwallDelegate {
   private val client = OkHttpClient()
@@ -60,8 +61,8 @@ class SWDelegate : SuperwallDelegate {
 
     // In the background using coroutines...
     coroutineScope.launch {
-      // For each subscription id, link it to the user in RevenueCat
-      stripeSubscriptionIds.forEach { stripeSubscriptionId ->
+        // For each subscription id, link it to the user in RevenueCat
+        stripeSubscriptionIds.forEach { stripeSubscriptionId ->
         try {
           val json = JSONObject().apply {
             put("app_user_id", appUserId)
@@ -80,14 +81,15 @@ class SWDelegate : SuperwallDelegate {
             .addHeader("Authorization", "Bearer $revenueCatStripePublicAPIKey")
             .build()
 
-          val response = client.newCall(request).execute()
-          val responseBody = response.body?.string()
-          
-          if (response.isSuccessful) {
-            Log.d("Superwall", "[!] Success: linked $stripeSubscriptionId to user $appUserId: $responseBody")
-          } else {
-            Log.e("Superwall", "[!] Error: unable to link $stripeSubscriptionId to user $appUserId. Response: $responseBody")
-          }
+            client.newCall(request).execute().use { response ->
+              val responseBody = response.body?.string().orEmpty()
+
+              if (!response.isSuccessful) {
+                throw IOException("RevenueCat responded with ${response.code}: $responseBody")
+              }
+
+              Log.d("Superwall", "[!] Success: linked $stripeSubscriptionId to user $appUserId: $responseBody")
+            }
         } catch (e: Exception) {
           Log.e("Superwall", "[!] Error: unable to link $stripeSubscriptionId to user $appUserId", e)
         }
@@ -119,6 +121,11 @@ class SWDelegate : SuperwallDelegate {
   }
 }
 ```
+
+<Note>
+  The example surfaces non-200 responses and network exceptions so you can add retries, user messaging,
+  or monitoring. Customize the error handling to fit your production logging and UX.
+</Note>
 
 <Warning>
   If you call `logIn` from RevenueCat's SDK, then you need to call the logic you've implemented
