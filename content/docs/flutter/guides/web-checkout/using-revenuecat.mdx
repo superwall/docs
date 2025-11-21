@@ -50,31 +50,33 @@ class MySuperwallDelegate extends SuperwallDelegate {
 
     // In the background, send requests to RevenueCat
     for (final stripeSubscriptionId in stripeSubscriptionIds) {
-      try {
-        final url = Uri.parse('https://api.revenuecat.com/v1/receipts');
-        final response = await http.post(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Platform': 'stripe',
-            'Authorization': 'Bearer $revenueCatStripePublicAPIKey',
-          },
-          body: jsonEncode({
-            'app_user_id': appUserId,
-            'fetch_token': stripeSubscriptionId,
-          }),
-        );
+        try {
+          final url = Uri.parse('https://api.revenuecat.com/v1/receipts');
+          final response = await http.post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-Platform': 'stripe',
+              'Authorization': 'Bearer $revenueCatStripePublicAPIKey',
+            },
+            body: jsonEncode({
+              'app_user_id': appUserId,
+              'fetch_token': stripeSubscriptionId,
+            }),
+          );
 
-        if (response.statusCode == 200) {
+          if (response.statusCode != 200) {
+            throw Exception(
+              'RevenueCat responded with ${response.statusCode}: ${response.body}',
+            );
+          }
+
           final json = jsonDecode(response.body);
           print('[!] Success: linked $stripeSubscriptionId to user $appUserId: $json');
-        } else {
-          print('[!] Error: unable to link $stripeSubscriptionId to user $appUserId. Status: ${response.statusCode}');
+        } catch (error) {
+          print('[!] Error: unable to link $stripeSubscriptionId to user $appUserId: $error');
         }
-      } catch (error) {
-        print('[!] Error: unable to link $stripeSubscriptionId to user $appUserId: $error');
-      }
     }
 
     // After all network calls complete, invalidate the cache
@@ -99,6 +101,11 @@ class MySuperwallDelegate extends SuperwallDelegate {
   }
 }
 ```
+
+<Note>
+  The example throws when RevenueCat responds with an error so you can add retries, alerts, or custom
+  UI. Adapt the error-handling strategy to your networking and logging requirements.
+</Note>
 
 Set up the delegate when configuring Superwall:
 
@@ -198,11 +205,13 @@ class MySuperwallDelegate extends SuperwallDelegate {
       }),
     );
 
-    if (response.statusCode == 200) {
-      print('[!] Successfully linked $stripeSubscriptionId to $appUserId');
-    } else {
-      throw Exception('Failed to link subscription: ${response.statusCode}');
+    if (response.statusCode != 200) {
+      throw Exception(
+        'RevenueCat responded with ${response.statusCode}: ${response.body}',
+      );
     }
+
+    print('[!] Successfully linked $stripeSubscriptionId to $appUserId');
   }
 }
 ```
