@@ -28,6 +28,7 @@ The hook returns an object representing the Superwall store. If a `selector` fun
 
 ### Actions (Functions)
 -   `configure: (apiKey: string, options?: Record<string, any>) => Promise<void>`: Initializes the Superwall SDK with the provided API key and optional configuration options.
+    -   **Android / Google Play**: Include `{ passIdentifiersToPlayStore: true }` in the `options` object if you need the raw `appUserId` forwarded to Google Play as `obfuscatedExternalAccountId`. Otherwise the SDK sends a SHA-256 hash. This flag is ignored on iOS builds but you can guard it with `Platform.OS === "android"` if you prefer.
 -   `identify: (userId: string, options?: IdentifyOptions) => Promise<void>`: Identifies the user with the given `userId`.
     -   `IdentifyOptions`:
         -   `restorePaywallAssignments?: boolean`: If true, restores paywall assignments from a previous session.
@@ -63,5 +64,21 @@ function MyAdvancedComponent() {
   };
 
   return <Button title="Set Custom Flag" onPress={handleSetCustomAttribute} />;
+}
+```
+
+### Example: Configure with Android identifiers
+
+```tsx
+import { Platform } from "react-native"
+import Superwall from "expo-superwall/compat"
+
+async function configureSuperwall() {
+  await Superwall.configure({
+    apiKey: Platform.OS === "ios" ? IOS_KEY : ANDROID_KEY,
+    options: Platform.OS === "android"
+      ? { passIdentifiersToPlayStore: true }
+      : undefined,
+  })
 }
 ```

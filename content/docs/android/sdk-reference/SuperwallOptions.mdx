@@ -8,19 +8,25 @@ Only modify `networkEnvironment` if explicitly instructed by the Superwall team.
 </Warning>
 
 <Tip>
-Use different `SuperwallOptions` configurations for debug and release builds to optimize logging and behavior for each environment.
+Use different `SuperwallOptions` configurations for debug and release builds to optimize logging, purchasing behavior, and Google Play settings for each environment.
 </Tip>
 
 ## Purpose
-Configures various aspects of Superwall behavior including paywall presentation, networking, and logging.
+Configures paywall presentation, logging, Google Play purchase behavior, and other global SDK settings. Pass an instance in to [`Superwall.configure`](/android/sdk-reference/configure).
 
 ## Signature
 ```kotlin
 class SuperwallOptions {
     var paywalls: PaywallOptions = PaywallOptions()
-    var networkEnvironment: NetworkEnvironment = NetworkEnvironment.RELEASE
-    var logging: LoggingOptions = LoggingOptions()
+    var shouldObservePurchases: Boolean = false
+    var networkEnvironment: NetworkEnvironment = NetworkEnvironment.Release()
+    var isExternalDataCollectionEnabled: Boolean = true
     var localeIdentifier: String? = null
+    var isGameControllerEnabled: Boolean = false
+    var passIdentifiersToPlayStore: Boolean = false
+    var enableExperimentalDeviceVariables: Boolean = false
+    var logging: Logging = Logging()
+    var useMockReviews: Boolean = false
 }
 ```
 
@@ -28,9 +34,15 @@ class SuperwallOptions {
 // Java
 public class SuperwallOptions {
     public PaywallOptions paywalls = new PaywallOptions();
-    public NetworkEnvironment networkEnvironment = NetworkEnvironment.RELEASE;
-    public LoggingOptions logging = new LoggingOptions();
-    public String localeIdentifier = null;
+    public boolean shouldObservePurchases = false;
+    public NetworkEnvironment networkEnvironment = new NetworkEnvironment.Release();
+    public boolean isExternalDataCollectionEnabled = true;
+    public @Nullable String localeIdentifier = null;
+    public boolean isGameControllerEnabled = false;
+    public boolean passIdentifiersToPlayStore = false;
+    public boolean enableExperimentalDeviceVariables = false;
+    public Logging logging = new Logging();
+    public boolean useMockReviews = false;
 }
 ```
 
@@ -38,31 +50,32 @@ public class SuperwallOptions {
 <ParamTable>
 | Property | Type | Description |
 |----------|------|-------------|
-| `paywalls` | [`PaywallOptions`](/android/sdk-reference/PaywallOptions) | Configuration for paywall appearance and behavior. |
-| `networkEnvironment` | `NetworkEnvironment` | Network environment (`.RELEASE`, `.RELEASE_CANDIDATE`, `.DEVELOPER`, `.CUSTOM(String)`). **Use only if instructed by Superwall team.** |
-| `logging` | `LoggingOptions` | Logging configuration including level and scopes. |
-| `localeIdentifier` | `String?` | Override locale for paywall localization (e.g., "en_GB"). |
+| `paywalls` | [`PaywallOptions`](/android/sdk-reference/PaywallOptions) | Controls paywall presentation, preload, and alert behavior. |
+| `shouldObservePurchases` | `Boolean` | Set to `true` to have Superwall observe Google Play purchases you make outside the SDK. |
+| `networkEnvironment` | `NetworkEnvironment` | Overrides the API environment. **Only change if instructed by Superwall.** |
+| `isExternalDataCollectionEnabled` | `Boolean` | Allows Superwall to send non-paywall analytics events to the backend. Defaults to `true`. |
+| `localeIdentifier` | `String?` | Overrides the locale used for rule evaluation (e.g., `"en_GB"`). |
+| `isGameControllerEnabled` | `Boolean` | Forwards game controller events to paywalls. |
+| `passIdentifiersToPlayStore` | `Boolean` | When `true`, Google Play receives the raw `userId` as `obfuscatedExternalAccountId`; otherwise Superwall sends a SHA-256 hash. |
+| `enableExperimentalDeviceVariables` | `Boolean` | Enables experimental device variables (subject to change). |
+| `logging` | `Logging` | Sets log level and scopes printed to Logcat. |
+| `useMockReviews` | `Boolean` | Shows mock Google Play review dialogs for testing. |
 </ParamTable>
 
-## Returns / State
-This is a configuration object used when calling [`configure()`](/android/sdk-reference/configure).
+## How `passIdentifiersToPlayStore` affects Google Play
+Superwall always calls `BillingFlowParams.Builder.setObfuscatedAccountId(Superwall.instance.externalAccountId)` when launching a billing flow.
 
-## Usage
+- **Default (`false`)** – `externalAccountId` is a SHA-256 hash of the `userId`. Google Play displays the hashed value as `obfuscatedExternalAccountId`, and the same hash is sent back to your servers.
+- **Enabled (`true`)** – Superwall forwards the exact `appUserId` you passed to [`identify()`](/android/sdk-reference/identify). This makes it easier to correlate Google Play purchases with your users, but the value must comply with [Google's policy](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId) and must not contain PII.
 
-Basic options setup:
+Configure it as part of your application startup:
+
 ```kotlin
 val options = SuperwallOptions().apply {
-    // Configure paywall behavior
-    paywalls.shouldShowPurchaseFailureAlert = false
-    
-    // Configure logging
-    logging.level = LogLevel.WARN
-    
-    // Set locale for testing
-    localeIdentifier = "en_GB"
+    passIdentifiersToPlayStore = true
+    logging.level = LogLevel.info
 }
 
-// Use with configure
 Superwall.configure(
     application = this,
     apiKey = "pk_your_api_key",

@@ -9,12 +9,13 @@ Configures various aspects of the Superwall SDK including paywall behavior, logg
 ## Signature
 ```dart
 class SuperwallOptions {
-  final PaywallOptions paywalls;
-  final NetworkEnvironment networkEnvironment;
-  final bool isExternalDataCollectionEnabled;
-  final String? localeIdentifier;
-  final bool isGameControllerEnabled;
-  final Logging logging;
+  PaywallOptions paywalls = PaywallOptions();
+  NetworkEnvironment networkEnvironment = NetworkEnvironment.release;
+  bool isExternalDataCollectionEnabled = true;
+  String? localeIdentifier;
+  bool isGameControllerEnabled = false;
+  Logging logging = Logging();
+  bool passIdentifiersToPlayStore = false;
 }
 ```
 
@@ -23,26 +24,41 @@ class SuperwallOptions {
 | Property | Type | Description |
 |----------|------|-------------|
 | `paywalls` | [`PaywallOptions`](/flutter/sdk-reference/PaywallOptions) | Configuration for paywall presentation behavior. |
-| `networkEnvironment` | `NetworkEnvironment` | Network environment for API calls (release/staging). |
-| `isExternalDataCollectionEnabled` | `bool` | Enables external data collection for analytics. Defaults to `true`. |
+| `networkEnvironment` | `NetworkEnvironment` | Network environment for API calls (release/releaseCandidate/developer). Only change when instructed by Superwall. |
+| `isExternalDataCollectionEnabled` | `bool` | Enables external analytics collection. Defaults to `true`. |
 | `localeIdentifier` | `String?` | Override locale for paywall localization. Defaults to device locale. |
 | `isGameControllerEnabled` | `bool` | Enables game controller support. Defaults to `false`. |
 | `logging` | `Logging` | Configuration for SDK logging levels and behavior. |
+| `passIdentifiersToPlayStore` | `bool` | When `true`, Android builds send the plain `appUserId` to Google Play as `obfuscatedExternalAccountId`. Defaults to `false`. |
 </ParamTable>
+
+## Android-only: `passIdentifiersToPlayStore`
+Flutter apps can target both iOS and Android. Google Play always consumes the identifier you send through `BillingFlowParams.Builder.setObfuscatedAccountId`, which the SDK sources from `Superwall.instance.externalAccountId`.
+
+- When `passIdentifiersToPlayStore` is **`false`** (default) we SHA-256 hash your `userId` before sending it. Play Console and the Superwall backend will show the hashed value.
+- When it is **`true`**, we pass the exact `appUserId` you supplied to `Superwall.shared.identify`. This only changes behavior on Android—the flag is ignored on iOS builds.
+
+Set the option at configuration time when you specifically need the un-hashed identifier:
+
+```dart
+final options = SuperwallOptions()
+  ..passIdentifiersToPlayStore = true;
+
+await Superwall.configure(
+  apiKey,
+  options: options,
+);
+```
+
+Make sure the identifier complies with [Google's policy](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId) and never contains personally identifiable information.
 
 ## Usage
 
 Basic options:
 ```dart
-final options = SuperwallOptions(
-  paywalls: PaywallOptions(
-    shouldPreload: true,
-    automaticallyDismiss: false,
-  ),
-  logging: Logging(
-    level: LogLevel.debug,
-  ),
-);
+final options = SuperwallOptions()
+  ..paywalls = PaywallOptions()
+  ..logging = (Logging()..level = LogLevel.debug);
 
 await Superwall.configure(
   'pk_your_api_key',
@@ -52,40 +68,33 @@ await Superwall.configure(
 
 Production configuration:
 ```dart
-final productionOptions = SuperwallOptions(
-  paywalls: PaywallOptions(
-    shouldPreload: true,
-    automaticallyDismiss: true,
-  ),
-  networkEnvironment: NetworkEnvironment.release,
-  isExternalDataCollectionEnabled: true,
-  logging: Logging(level: LogLevel.warn),
-);
+final productionOptions = SuperwallOptions()
+  ..paywalls = (PaywallOptions()
+    ..shouldPreload = true
+    ..automaticallyDismiss = true)
+  ..networkEnvironment = NetworkEnvironment.release
+  ..isExternalDataCollectionEnabled = true
+  ..logging = (Logging()..level = LogLevel.warn);
 ```
 
-Development configuration:
+Development configuration (with Play Store IDs on Android):
 ```dart
-final developmentOptions = SuperwallOptions(
-  paywalls: PaywallOptions(
-    shouldPreload: false, // Faster builds
-    automaticallyDismiss: false, // Manual testing
-  ),
-  networkEnvironment: NetworkEnvironment.staging,
-  logging: Logging(
-    level: LogLevel.debug,
-    scopes: [LogScope.all],
-  ),
-);
+final developmentOptions = SuperwallOptions()
+  ..paywalls = (PaywallOptions()
+    ..shouldPreload = false
+    ..automaticallyDismiss = false)
+  ..networkEnvironment = NetworkEnvironment.developer
+  ..logging = (Logging()
+    ..level = LogLevel.debug
+    ..scopes = {LogScope.all})
+  ..passIdentifiersToPlayStore = true; // Android only
 ```
 
 Custom locale:
 ```dart
-final localizedOptions = SuperwallOptions(
-  localeIdentifier: 'es_ES', // Spanish (Spain)
-  paywalls: PaywallOptions(
-    shouldPreload: true,
-  ),
-);
+final localizedOptions = SuperwallOptions()
+  ..localeIdentifier = 'es_ES' // Spanish (Spain)
+  ..paywalls = (PaywallOptions()..shouldPreload = true);
 ```
 
 ## Related

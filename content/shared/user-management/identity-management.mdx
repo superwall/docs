@@ -17,13 +17,13 @@ If you use your own user management system, call `identify(userId:options:)` whe
 Calling `Superwall.shared.reset()` will reset the on-device userId to a random ID and clear the paywall assignments.
 
 :::android
-Note that for Android apps, if you want the `userId` passed to the Play Store when making purchases, you'll also need to set `passIdentifiersToPlayStore` via `SuperwallOptions`. Be aware of Google's rules that the `userId` must not contain any personally identifiable information, otherwise the purchase could [be rejected](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId).
+Google Play receives the identifier you pass to `BillingFlowParams.Builder.setObfuscatedAccountId` as both the **`obfuscatedExternalAccountId`** and the `externalAccountId` we forward to your Superwall backend. By default we SHA-256 hash your `userId` before sending it. If you want the raw `appUserId` to appear in Play Console and downstream server events, set `SuperwallOptions().passIdentifiersToPlayStore = true` before configuring the SDK. Make sure the value complies with [Google's policies](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId)—it must not contain personally identifiable information.
 :::
 :::flutter
-Note that for Android apps, if you want the `userId` passed to the Play Store when making purchases, you'll also need to set `passIdentifiersToPlayStore` via `SuperwallOptions`. Be aware of Google's rules that the `userId` must not contain any personally identifiable information, otherwise the purchase could [be rejected](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId).
+When you ship the Flutter SDK on Android, you must explicitly set `options.passIdentifiersToPlayStore = true` (for example, `final options = SuperwallOptions()..passIdentifiersToPlayStore = true;`) if you need the un-hashed `appUserId` to flow through Google Play's **`obfuscatedExternalAccountId`** field. This flag has no effect on iOS builds. Follow [Google's rules](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId) so the value is not rejected.
 :::
 :::expo
-Note that for Android apps, if you want the `userId` passed to the Play Store when making purchases, you'll also need to set `passIdentifiersToPlayStore` via `SuperwallOptions`. Be aware of Google's rules that the `userId` must not contain any personally identifiable information, otherwise the purchase could [be rejected](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId).
+If your Expo app targets Android, pass `{ passIdentifiersToPlayStore: true }` inside the options object you give to `Superwall.configure`. That ensures Google Play receives the plain `appUserId` as `obfuscatedExternalAccountId`; otherwise we send a hashed value. iOS builds ignore this option. Be sure the identifier satisfies [Google's requirements](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder#setObfuscatedAccountId) and never includes PII.
 :::
 
 :::ios
