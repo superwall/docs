@@ -37,7 +37,11 @@ interface Result extends Feedback {
   response?: ActionResponse;
 }
 
-export function Rate() {
+interface RateProps {
+  githubPath?: string;
+}
+
+export function Rate({ githubPath }: RateProps = {}) {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   // Effect to fetch user session
@@ -171,6 +175,20 @@ export function Rate() {
           <ThumbsDown />
           Bad
         </button>
+        {githubPath && (
+          <a
+            href={`https://github.com/superwall/docs/blob/main/content/docs/${githubPath}`}
+            rel="noreferrer noopener"
+            target="_blank"
+            className={cn(
+              rateButtonVariants({
+                active: false,
+              }),
+            )}
+          >
+            Edit on GitHub
+          </a>
+        )}
       </div>
       <CollapsibleContent className="mt-3">
         {previous ? (

@@ -41,7 +41,11 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
           })}
         />
       </DocsBody>
-      {!hideRate && <Rate />}
+      {!hideRate && (
+        <Rate 
+          githubPath={(page as any).file?.path || (page as any).path || (params.slug ? params.slug.join('/') : 'home')}
+        />
+      )}
     </DocsPage>
   )
 }
