@@ -19,7 +19,8 @@
     "dev:next": "next dev --turbo -p 8293",
     "clear:cache": "tsx scripts/clear-cache.ts",
     "start": "next start",
-    "download:references": "bun scripts/download-references.ts"
+    "download:references": "bun scripts/download-references.ts",
+    "test:dev-server": "bun test test/dev-server.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.11",
