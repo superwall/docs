@@ -1,0 +1,87 @@
+---
+title: "Subscription Status"
+description: "Methods for getting and setting the user's subscription status."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Methods for managing the user's subscription status. When using a `PurchaseController`, you must call `setSubscriptionStatus()` to update the user's subscription status whenever entitlements change.
+
+## Methods
+
+### getSubscriptionStatus()
+
+Retrieves the current subscription status of the user.
+
+**Signature:**
+```typescript
+async getSubscriptionStatus(): Promise<SubscriptionStatus>
+```
+
+**Returns:** A Promise that resolves to the current `SubscriptionStatus`.
+
+**Usage:**
+```typescript
+const status = await Superwall.shared.getSubscriptionStatus()
+console.log("Subscription status:", status)
+```
+
+### setSubscriptionStatus()
+
+Sets the subscription status of the user. When using a `PurchaseController`, you must call this method to update the user's subscription status. Alternatively, you can implement the [`SuperwallDelegate.subscriptionStatusDidChange`](/react-native/sdk-reference/SuperwallDelegate) delegate callback to receive notifications whenever the subscription status changes.
+
+**Signature:**
+```typescript
+async setSubscriptionStatus(status: SubscriptionStatus): Promise<void>
+```
+
+**Parameters:**
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `status` | `SubscriptionStatus` | The new subscription status. |
+</ParamTable>
+
+**Returns:** A Promise that resolves once the subscription status has been updated.
+
+**Usage:**
+```typescript
+import { SubscriptionStatus } from "@superwall/react-native-superwall"
+
+// Set active subscription with entitlements
+const activeStatus = SubscriptionStatus.Active(["pro"])
+await Superwall.shared.setSubscriptionStatus(activeStatus)
+
+// Set inactive subscription
+const inactiveStatus = SubscriptionStatus.Inactive()
+await Superwall.shared.setSubscriptionStatus(inactiveStatus)
+```
+
+## SubscriptionStatus Type
+
+The `SubscriptionStatus` type represents the user's subscription state:
+
+- `SubscriptionStatus.Active(entitlements: string[] \| Entitlement[])` - User has an active subscription with the specified entitlements
+- `SubscriptionStatus.Inactive()` - User does not have an active subscription
+- `SubscriptionStatus.Unknown()` - Subscription status is unknown
+
+## When to Update
+
+- After a successful purchase
+- After a purchase restoration
+- When a subscription expires
+- When a subscription is cancelled
+- On app launch (to sync with your backend)
+
+## Related
+
+- [`PurchaseController`](/react-native/sdk-reference/PurchaseController) - Handle purchases and update subscription status
+- [`SuperwallDelegate`](/react-native/sdk-reference/SuperwallDelegate) - Receive subscription status change notifications
+

@@ -1,0 +1,61 @@
+---
+title: "setUserAttributes()"
+description: "Sets user attributes for use in paywalls and on the Superwall dashboard."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Sets user attributes for use in paywalls and on the Superwall dashboard. If an attribute already exists, its value will be overwritten while other attributes remain unchanged. This is useful for analytics and campaign audience filters you may define in the Superwall Dashboard.
+
+<Note>
+**Note:** These attributes should not be used as a source of truth for sensitive information.
+</Note>
+
+## Signature
+```typescript
+async setUserAttributes(userAttributes: UserAttributes): Promise<void>
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `userAttributes` | `UserAttributes` | An object containing custom attributes to store for the user. Values can be any JSON-encodable value, URLs, or Dates. Keys beginning with `$` are reserved for Superwall and will be dropped. Arrays and dictionaries as values are not supported and will be omitted. |
+</ParamTable>
+
+## Returns / State
+Returns a Promise that resolves once the user attributes have been updated.
+
+## Usage
+
+```typescript
+await Superwall.shared.setUserAttributes({
+  name: user.name,
+  email: user.email,
+  username: user.username,
+  profilePic: user.profilePicUrl,
+  plan: "premium",
+  signUpDate: new Date()
+})
+```
+
+## Best Practices
+
+- Set user attributes after calling [`identify()`](/react-native/sdk-reference/identify)
+- Update attributes whenever relevant user information changes
+- Use attributes in campaign audience filters on the Superwall Dashboard
+- Don't store sensitive information (passwords, tokens, etc.) as user attributes
+
+## Related
+
+- [`getUserAttributes()`](/react-native/sdk-reference/getUserAttributes) - Get user attributes
+- [`identify()`](/react-native/sdk-reference/identify) - Identify a user
+
+

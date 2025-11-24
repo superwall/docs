@@ -20,7 +20,7 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
   // Get current path for copy button
   const currentPath = params.slug ? `/${params.slug.join('/')}` : '/';
 
-  const disabledPages = ['/home', '/support', '/ios', '/android', '/flutter', '/expo', '/dashboard'];
+  const disabledPages = ['/home', '/support', '/ios', '/android', '/flutter', '/expo', '/react-native', '/dashboard'];
   const shouldDisableButton = disabledPages.includes(currentPath);
 
   return (

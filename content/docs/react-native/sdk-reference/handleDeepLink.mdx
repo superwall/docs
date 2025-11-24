@@ -1,0 +1,69 @@
+---
+title: "handleDeepLink()"
+description: "Handles a deep link."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Handles a deep link that may be related to Superwall functionality (e.g., promotional links, paywall deep links).
+
+## Signature
+```typescript
+async handleDeepLink(url: string): Promise<boolean>
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `url` | `string` | The deep link URL to handle. |
+</ParamTable>
+
+## Returns / State
+Returns a Promise that resolves to a boolean indicating whether the deep link was handled by Superwall. Returns `true` if Superwall handled the link, `false` otherwise.
+
+## Usage
+
+```typescript
+// In your deep link handler
+const url = "https://your-app.com/paywall?placement=onboarding"
+const wasHandled = await Superwall.shared.handleDeepLink(url)
+
+if (!wasHandled) {
+  // Handle other deep links in your app
+  handleOtherDeepLink(url)
+}
+```
+
+## Integration
+
+Typically, you'll call this method from your app's deep link handler:
+
+```typescript
+import { Linking } from "react-native"
+
+// Handle initial URL (if app was opened via deep link)
+Linking.getInitialURL().then((url) => {
+  if (url) {
+    Superwall.shared.handleDeepLink(url)
+  }
+})
+
+// Handle deep links while app is running
+Linking.addEventListener("url", (event) => {
+  Superwall.shared.handleDeepLink(event.url)
+})
+```
+
+## Related
+
+- [`SuperwallDelegate.paywallWillOpenDeepLink`](/react-native/sdk-reference/SuperwallDelegate) - Delegate method called before opening a deep link
+
+

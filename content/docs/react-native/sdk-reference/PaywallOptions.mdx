@@ -1,0 +1,112 @@
+---
+title: "PaywallOptions"
+description: "Options for configuring the appearance and behavior of paywalls."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Options for configuring the appearance and behavior of paywalls. Use this to customize how paywalls are presented and how purchase failures are handled.
+
+<Note>
+`PaywallOptions` (and its `RestoreFailed` helper) do not take constructor arguments. Create an instance, then set properties directly.
+</Note>
+
+## Signature
+```typescript
+export class PaywallOptions {
+  isHapticFeedbackEnabled = true
+  restoreFailed: RestoreFailed = new RestoreFailed()
+  shouldShowPurchaseFailureAlert = true
+  shouldPreload = false
+  automaticallyDismiss = true
+  transactionBackgroundView: TransactionBackgroundView = TransactionBackgroundView.spinner
+}
+```
+
+## Properties
+
+<ParamTable>
+| Property | Type | Description |
+|---------|------|-------------|
+| `isHapticFeedbackEnabled` | `boolean` | Whether haptic feedback is enabled when interacting with paywalls. Defaults to `true`. |
+| `restoreFailed` | `RestoreFailed` | Configuration for the alert shown when restore purchases fails. |
+| `shouldShowPurchaseFailureAlert` | `boolean` | Whether to show an alert when a purchase fails. Defaults to `true`. |
+| `shouldPreload` | `boolean` | Whether paywalls should be preloaded. If `false`, you can manually preload using `preloadAllPaywalls()` or `preloadPaywalls()`. Defaults to `false`. |
+| `automaticallyDismiss` | `boolean` | Whether paywalls should automatically dismiss after a successful purchase. Defaults to `true`. |
+| `transactionBackgroundView` | `TransactionBackgroundView` | The view to show behind Apple's payment sheet during a transaction. Options: `spinner`, `none`. Defaults to `spinner`. |
+</ParamTable>
+
+## Usage
+
+Create paywall options:
+
+```typescript
+import { PaywallOptions, TransactionBackgroundView, RestoreFailed } from "@superwall/react-native-superwall"
+
+const paywallOptions = new PaywallOptions()
+paywallOptions.isHapticFeedbackEnabled = true
+paywallOptions.shouldShowPurchaseFailureAlert = false
+paywallOptions.shouldPreload = true
+paywallOptions.automaticallyDismiss = true
+paywallOptions.transactionBackgroundView = TransactionBackgroundView.spinner
+
+const restoreFailed = new RestoreFailed()
+restoreFailed.title = "No Subscription Found"
+restoreFailed.message = "We couldn't find an active subscription for your account."
+restoreFailed.closeButtonTitle = "Okay"
+
+paywallOptions.restoreFailed = restoreFailed
+
+const superwallOptions = new SuperwallOptions({
+  paywalls: paywallOptions
+})
+
+await Superwall.configure({
+  apiKey: "pk_your_api_key",
+  options: superwallOptions
+})
+```
+
+## RestoreFailed
+
+Customize the alert shown when restore purchases fails:
+
+```typescript
+const restoreFailed = new RestoreFailed()
+restoreFailed.title = "No Subscription Found"
+restoreFailed.message = "We couldn't find an active subscription for your account."
+restoreFailed.closeButtonTitle = "Okay"
+
+const paywallOptions = new PaywallOptions()
+paywallOptions.restoreFailed = restoreFailed
+```
+
+## Transaction Background View
+
+Control what appears behind Apple's payment sheet:
+
+```typescript
+// Show a spinner (default)
+const options1 = new PaywallOptions({
+  transactionBackgroundView: TransactionBackgroundView.spinner
+})
+
+// Show nothing
+const options2 = new PaywallOptions({
+  transactionBackgroundView: TransactionBackgroundView.none
+})
+```
+
+## Related
+
+- [`SuperwallOptions`](/react-native/sdk-reference/SuperwallOptions) - Main SDK configuration options
+- [`preloadAllPaywalls()`](/react-native/sdk-reference/Superwall) - Manually preload all paywalls
+- [`preloadPaywalls()`](/react-native/sdk-reference/Superwall) - Manually preload specific paywalls
+

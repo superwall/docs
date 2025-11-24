@@ -1,0 +1,103 @@
+---
+title: "PaywallPresentationHandler"
+description: "Handles events related to paywall presentation."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Handles events related to paywall presentation. Use this to receive callbacks about the paywall lifecycle when registering a placement.
+
+## Signature
+```typescript
+export class PaywallPresentationHandler {
+  onPresentHandler?: (info: PaywallInfo) => void
+  onDismissHandler?: (info: PaywallInfo, result: PaywallResult) => void
+  onErrorHandler?: (error: string) => void
+  onSkipHandler?: (reason: PaywallSkippedReason) => void
+
+  onPresent(handler: (info: PaywallInfo) => void): void
+  onDismiss(handler: (info: PaywallInfo, result: PaywallResult) => void): void
+  onError(handler: (error: string) => void): void
+  onSkip(handler: (reason: PaywallSkippedReason) => void): void
+}
+```
+
+## Methods
+
+<ParamTable>
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `onPresent` | `handler: (info: PaywallInfo) => void` | Sets a handler that is called when a paywall is presented. |
+| `onDismiss` | `handler: (info: PaywallInfo, result: PaywallResult) => void` | Sets a handler that is called when a paywall is dismissed. |
+| `onError` | `handler: (error: string) => void` | Sets a handler that is called when an error occurs during paywall presentation. |
+| `onSkip` | `handler: (reason: PaywallSkippedReason) => void` | Sets a handler that is called when a paywall is skipped (not shown). |
+</ParamTable>
+
+## Usage
+
+Create a handler and use it when registering a placement:
+
+```typescript
+import { PaywallPresentationHandler, PaywallResult, PaywallSkippedReason } from "@superwall/react-native-superwall"
+
+const handler = new PaywallPresentationHandler()
+
+handler.onPresent((info) => {
+  console.log("Paywall presented:", info.name)
+  // Pause video, hide UI, etc.
+  pauseBackgroundTasks()
+})
+
+handler.onDismiss((info, result: PaywallResult) => {
+  console.log("Paywall dismissed with result:", result.type)
+  // Resume video, show UI, etc.
+  resumeBackgroundTasks()
+  
+  if (result.type === "purchased") {
+    console.log("User purchased!")
+  } else if (result.type === "declined") {
+    console.log("User dismissed without purchasing")
+  } else if (result.type === "restored") {
+    console.log("User restored a purchase")
+  }
+})
+
+handler.onError((error) => {
+  console.error("Paywall error:", error)
+  // Handle error
+})
+
+handler.onSkip((reason) => {
+  console.log("Paywall skipped:", reason)
+  // Handle skip reason
+})
+
+// Use the handler when registering
+Superwall.shared.register({
+  placement: "premium_feature",
+  handler: handler,
+  feature: () => {
+    // Feature code
+  }
+})
+```
+
+## Handler Callbacks
+
+- **onPresent**: Called when a paywall is successfully presented to the user.
+- **onDismiss**: Called when a paywall is dismissed. The `result` parameter has a `type` of `purchased`, `declined`, or `restored`.
+- **onError**: Called when an error occurs during paywall presentation or loading.
+- **onSkip**: Called when a paywall is skipped (not shown) for various reasons (user already subscribed, no audience match, etc.).
+
+## Related
+
+- [`register()`](/react-native/sdk-reference/register) - Register a placement with a handler
+- [`PaywallResult`](/react-native/sdk-reference/types) - Result types for paywall dismissal
+- [`PaywallSkippedReason`](/react-native/sdk-reference/types) - Reasons why a paywall might be skipped

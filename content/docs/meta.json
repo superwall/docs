@@ -11,6 +11,7 @@
         "ios",
         "android",
         "expo",
-        "flutter"
+        "flutter",
+        "react-native"
     ]
 }

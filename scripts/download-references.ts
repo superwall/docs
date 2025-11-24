@@ -16,8 +16,12 @@ const repositories = [
     url: 'https://github.com/superwall/Superwall-Flutter.git',
   },
   {
-    name: 'react-native',
+    name: 'expo',
     url: 'https://github.com/superwall/expo-superwall.git',
+  },
+  {
+    name: 'react-native',
+    url: 'https://github.com/superwall/react-native-superwall.git',
   },
 ];
 

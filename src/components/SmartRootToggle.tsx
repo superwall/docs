@@ -42,8 +42,8 @@ export function SmartRootToggle({ options, placeholder, ...props }: SmartRootTog
   const smartOptions = useMemo(() => {
     return options.map(option => {
       // Extract the SDK name from the original URL
-      // The URLs are like "/ios", "/android", etc. not "/docs/ios"
-      const sdkMatch = option.url.match(/^\/(\w+)/)
+      // The URLs are like "/ios", "/android", "/react-native", etc. not "/docs/ios"
+      const sdkMatch = option.url.match(/^\/([\w-]+)/)
       if (!sdkMatch) return option
       
       const targetSdk = sdkMatch[1] as any

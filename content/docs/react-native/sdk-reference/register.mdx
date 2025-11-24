@@ -1,0 +1,102 @@
+---
+title: "register()"
+description: "A function that registers a placement that can be remotely configured to show a paywall and gate feature access."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Registers a placement so that when it's added to a campaign on the Superwall Dashboard, it can trigger a paywall and optionally gate access to a feature.
+
+## Signature
+```typescript
+async register(params: {
+  placement: string
+  params?: Map<string, any> | Record<string, any>
+  handler?: PaywallPresentationHandler
+  feature?: () => void
+}): Promise<void>
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `placement` | `string` | The name of the placement you wish to register. |
+| `params` | `Map<string, any> \| Record<string, any>?` | Optional parameters to pass with your placement. These can be referenced within audience filters in your campaign. Keys beginning with `$` are reserved for Superwall and will be dropped. Arrays and dictionaries as values are not supported and will be omitted. Defaults to `undefined`. |
+| `handler` | `PaywallPresentationHandler?` | A handler whose functions provide status updates for the paywall lifecycle. Defaults to `undefined`. |
+| `feature` | `(() => void)?` | An optional completion callback representing the gated feature. It is executed based on the paywall's gating mode: called immediately for **Non-Gated**, called after the user subscribes or if already subscribed for **Gated**. If not provided, you can chain a `.then()` block to the returned promise. |
+</ParamTable>
+
+## Returns / State
+Returns a Promise that resolves when registration completes. If you supply a `feature` callback, it will be executed according to the paywall's gating configuration, as described above.
+
+## Usage
+
+With feature callback:
+```typescript
+Superwall.shared.register({
+  placement: "premium_feature",
+  params: {
+    source: "onboarding"
+  },
+  feature: () => {
+    // Code that unlocks the premium feature
+    openPremiumScreen()
+  }
+})
+```
+
+Using promise chaining:
+```typescript
+await Superwall.shared.register({
+  placement: "premium_feature",
+  params: {
+    source: "onboarding"
+  }
+}).then(() => {
+  // Code that unlocks the premium feature
+  openPremiumScreen()
+})
+```
+
+With presentation handler:
+```typescript
+import { PaywallPresentationHandler } from "@superwall/react-native-superwall"
+
+const handler = new PaywallPresentationHandler()
+handler.onPresent((info) => {
+  console.log("Paywall presented:", info.name)
+})
+handler.onDismiss((info, result) => {
+  console.log("Paywall dismissed:", result)
+})
+
+Superwall.shared.register({
+  placement: "onboarding_complete",
+  params: {
+    source: "onboarding"
+  },
+  handler: handler
+})
+```
+
+## Behavior
+
+This behavior is remotely configurable via the Superwall Dashboard:
+
+- For **Non-Gated** paywalls, the feature callback is executed when the paywall is dismissed or if the user is already paying.
+- For **Gated** paywalls, the feature callback is executed only if the user is already paying or if they begin paying.
+- If no paywall is configured, the feature callback is executed immediately.
+- If no feature callback is provided, the returned promise resolves when registration completes.
+- If a feature callback is provided, the returned promise always resolves after the feature callback is executed.
+
+Note: The feature callback will not be executed if an error occurs during registration. Such errors can be detected via the `handler`.
+
+

@@ -1,0 +1,106 @@
+---
+title: "SuperwallOptions"
+description: "Options for configuring the Superwall SDK."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Options for configuring the Superwall SDK. Use this to customize the appearance and behavior of paywalls, logging, and other SDK features.
+
+## Signature
+```typescript
+export class SuperwallOptions {
+  paywalls: PaywallOptions = new PaywallOptions()
+  networkEnvironment: NetworkEnvironment = NetworkEnvironment.Release
+  isExternalDataCollectionEnabled = true
+  localeIdentifier?: string
+  isGameControllerEnabled = false
+  logging: LoggingOptions = new LoggingOptions()
+  collectAdServicesAttribution = false
+  passIdentifiersToPlayStore = false
+  storeKitVersion?: "STOREKIT1" | "STOREKIT2"
+  enableExperimentalDeviceVariables = false
+}
+```
+
+## Properties
+
+<ParamTable>
+| Property | Type | Description |
+|---------|------|-------------|
+| `paywalls` | `PaywallOptions` | Options for configuring paywall appearance and behavior. See [`PaywallOptions`](/react-native/sdk-reference/PaywallOptions) for details. |
+| `networkEnvironment` | `NetworkEnvironment` | The network environment to use. Options: `Release`, `ReleaseCandidate`, `Developer`. Defaults to `Release`. |
+| `isExternalDataCollectionEnabled` | `boolean` | Whether external data collection is enabled. Defaults to `true`. |
+| `localeIdentifier` | `string?` | The locale identifier to use. If not set, the system locale is used. |
+| `isGameControllerEnabled` | `boolean` | Whether game controller support is enabled. Defaults to `false`. |
+| `logging` | `LoggingOptions` | Options for configuring logging behavior. **Must be an instance of `LoggingOptions` so `toJson()` is available.** |
+| `collectAdServicesAttribution` | `boolean` | Whether to collect AdServices attribution data. Defaults to `false`. |
+| `passIdentifiersToPlayStore` | `boolean` | Whether to pass identifiers to Play Store. Defaults to `false`. |
+| `storeKitVersion` | `"STOREKIT1" \| "STOREKIT2"?` | The StoreKit version to use (iOS only). Defaults to `undefined` (auto-detect). |
+| `enableExperimentalDeviceVariables` | `boolean` | Whether to enable experimental device variables. Defaults to `false`. |
+</ParamTable>
+
+## Usage
+
+Create options when configuring the SDK:
+
+```typescript
+import { SuperwallOptions, PaywallOptions, LoggingOptions, NetworkEnvironment, LogLevel, LogScope } from "@superwall/react-native-superwall"
+
+// Build logging options (must be an instance so toJson exists)
+const logging = new LoggingOptions()
+logging.level = LogLevel.Debug
+logging.scopes = [LogScope.All]
+
+// Build paywall options (set properties after construction)
+const paywalls = new PaywallOptions()
+paywalls.shouldShowPurchaseFailureAlert = false
+paywalls.isHapticFeedbackEnabled = true
+
+const options = new SuperwallOptions({
+  networkEnvironment: NetworkEnvironment.Developer,
+  isExternalDataCollectionEnabled: true,
+  localeIdentifier: "en_US",
+  logging,
+  paywalls
+})
+
+await Superwall.configure({
+  apiKey: "pk_your_api_key",
+  options: options
+})
+```
+
+## Network Environment
+
+Use different network environments for different build configurations:
+
+```typescript
+// Development builds
+const devOptions = new SuperwallOptions({
+  networkEnvironment: NetworkEnvironment.Developer
+})
+
+// Release candidate builds
+const rcOptions = new SuperwallOptions({
+  networkEnvironment: NetworkEnvironment.ReleaseCandidate
+})
+
+// Production builds
+const prodOptions = new SuperwallOptions({
+  networkEnvironment: NetworkEnvironment.Release
+})
+```
+
+## Related
+
+- [`PaywallOptions`](/react-native/sdk-reference/PaywallOptions) - Paywall-specific options
+- [`configure()`](/react-native/sdk-reference/configure) - Configure the SDK with options
+

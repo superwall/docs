@@ -1,0 +1,273 @@
+---
+title: "Types and Enums"
+description: "Reference for types, enums, and result objects used in the React Native SDK."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Overview
+
+This page provides reference documentation for types, enums, and result objects used throughout the React Native SDK.
+
+## SubscriptionStatus
+
+Represents the subscription status of a user.
+
+```typescript
+type SubscriptionStatus =
+  | SubscriptionStatus.Active
+  | SubscriptionStatus.Inactive
+  | SubscriptionStatus.Unknown
+
+// Create instances
+const active = SubscriptionStatus.Active(["pro", "premium"])
+const inactive = SubscriptionStatus.Inactive()
+const unknown = SubscriptionStatus.Unknown()
+```
+
+- **Active**: `status: "ACTIVE"` and an `entitlements` array (string IDs or `Entitlement` objects)
+- **Inactive**: `status: "INACTIVE"`
+- **Unknown**: `status: "UNKNOWN"`
+
+## PaywallResult
+
+Result of a paywall presentation.
+
+```typescript
+type PaywallResult =
+  | { type: "purchased"; productId: string }
+  | { type: "declined" }
+  | { type: "restored" }
+```
+
+- **purchased**: User successfully purchased (includes `productId`)
+- **declined**: User dismissed/declined the paywall
+- **restored**: User restored a previous purchase
+
+## PresentationResult
+
+Result of checking whether a placement will present a paywall.
+
+```typescript
+type PresentationResult =
+  | PresentationResultPaywall      // contains an Experiment
+  | PresentationResultHoldout      // contains an Experiment
+  | PresentationResultNoAudienceMatch
+  | PresentationResultPlacementNotFound
+  | PresentationResultUserIsSubscribed
+  | PresentationResultPaywallNotAvailable
+```
+
+- Use `PresentationResult.fromJson(...)` to materialize instances returned from the native bridge.
+- Holdout/Paywall results include the associated `Experiment`.
+
+## TriggerResult
+
+Result of registering a placement.
+
+```typescript
+enum TriggerResultType {
+  placementNotFound,
+  noAudienceMatch,
+  paywall,
+  holdout,
+  error,
+}
+
+class TriggerResult {
+  type: TriggerResultType
+  experiment?: Experiment
+  error?: string
+}
+```
+
+- Use `TriggerResult.fromJson(...)` to parse responses.
+
+## ConfigurationStatus
+
+Status of SDK configuration.
+
+```typescript
+enum ConfigurationStatus {
+  PENDING = "PENDING",
+  CONFIGURED = "CONFIGURED",
+  FAILED = "FAILED"
+}
+```
+
+- **PENDING**: Configuration is in progress
+- **CONFIGURED**: Configuration completed successfully
+- **FAILED**: Configuration failed
+
+## EntitlementsInfo
+
+Information about user entitlements.
+
+```typescript
+interface EntitlementsInfo {
+  status: SubscriptionStatus
+  active: Entitlement[]
+  all: Entitlement[]
+  inactive: Entitlement[]
+}
+```
+
+## PaywallInfo
+
+Information about a paywall.
+
+```typescript
+interface PaywallInfo {
+  identifier: string
+  name: string
+  url: string
+  experiment?: Experiment
+  products: Product[]
+  productIds: string[]
+  // ...additional timing and metadata fields
+}
+```
+
+## PaywallSkippedReason
+
+Reason why a paywall was skipped.
+
+```typescript
+type PaywallSkippedReason =
+  | PaywallSkippedReasonHoldout    // includes Experiment
+  | PaywallSkippedReasonNoAudienceMatch
+  | PaywallSkippedReasonPlacementNotFound
+  | PaywallSkippedReasonUserIsSubscribed
+```
+
+- Holdout and paywall decisions include the associated `Experiment` instance.
+
+## PurchaseResult
+
+Result of a purchase attempt.
+
+```typescript
+class PurchaseResult { type: string; error?: string }
+class PurchaseResultPurchased extends PurchaseResult {}
+class PurchaseResultCancelled extends PurchaseResult {}
+class PurchaseResultFailed extends PurchaseResult { error: string }
+class PurchaseResultPending extends PurchaseResult {}
+```
+
+## RestorationResult
+
+Result of a restore purchases attempt.
+
+```typescript
+abstract class RestorationResult {
+  static restored(): RestorationResult
+  static failed(error?: Error): RestorationResult
+}
+```
+
+- `RestorationResult.restored()` when purchases are restored
+- `RestorationResult.failed(error?)` when restoration fails
+
+## RedemptionResults
+
+Result of redeeming a promotional link.
+
+```typescript
+type RedemptionResult =
+  | { status: "SUCCESS"; code: string; redemptionInfo: RedemptionInfo }
+  | { status: "ERROR"; code: string; error: { message: string } }
+  | { status: "CODE_EXPIRED"; code: string; expired: { resent: boolean; obfuscatedEmail?: string } }
+  | { status: "INVALID_CODE"; code: string }
+  | { status: "EXPIRED_SUBSCRIPTION"; code: string; redemptionInfo: RedemptionInfo }
+```
+
+## LogLevel
+
+Logging level.
+
+```typescript
+enum LogLevel {
+  Debug = "debug",
+  Info = "info",
+  Warn = "warn",
+  Error = "error",
+  None = "none"
+}
+```
+
+## LogScope
+
+Logging scope.
+
+```typescript
+enum LogScope {
+  LocalizationManager = "localizationManager",
+  BounceButton = "bounceButton",
+  CoreData = "coreData",
+  ConfigManager = "configManager",
+  IdentityManager = "identityManager",
+  DebugManager = "debugManager",
+  DebugViewController = "debugViewController",
+  LocalizationViewController = "localizationViewController",
+  GameControllerManager = "gameControllerManager",
+  Device = "device",
+  Network = "network",
+  PaywallEvents = "paywallEvents",
+  ProductsManager = "productsManager",
+  StoreKitManager = "storeKitManager",
+  Placements = "placements",
+  Receipts = "receipts",
+  SuperwallCore = "superwallCore",
+  PaywallPresentation = "paywallPresentation",
+  PaywallTransactions = "paywallTransactions",
+  PaywallViewController = "paywallViewController",
+  Cache = "cache",
+  All = "all",
+}
+```
+
+## InterfaceStyle
+
+Interface style preference.
+
+```typescript
+enum InterfaceStyle {
+  LIGHT = "LIGHT",
+  DARK = "DARK"
+}
+```
+
+## NetworkEnvironment
+
+Network environment.
+
+```typescript
+enum NetworkEnvironment {
+  Release = "release",
+  ReleaseCandidate = "releaseCandidate",
+  Developer = "developer"
+}
+```
+
+## TransactionBackgroundView
+
+View to show behind Apple's payment sheet.
+
+```typescript
+enum TransactionBackgroundView {
+  spinner = "spinner",
+  none = "none"
+}
+```
+
+## Related
+
+- [`SubscriptionStatus` methods](/react-native/sdk-reference/subscriptionStatus) - Getting and setting subscription status
+- [`PaywallResult` usage](/react-native/sdk-reference/PaywallPresentationHandler) - Handling paywall results
+

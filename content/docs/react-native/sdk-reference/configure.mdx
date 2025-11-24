@@ -1,0 +1,103 @@
+---
+title: "configure()"
+description: "A static function that configures a shared instance of Superwall for use throughout your app."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+<Note>
+This is a static method called on the `Superwall` class itself, not on the shared instance.
+</Note>
+
+## Purpose
+Configures the shared instance of Superwall with your API key and optional configurations, making it ready for use throughout your app.
+
+## Signature
+```typescript
+static async configure({
+  apiKey,
+  options,
+  purchaseController,
+  completion,
+}: {
+  apiKey: string
+  options?: SuperwallOptions
+  purchaseController?: PurchaseController
+  completion?: () => void
+}): Promise<Superwall>
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `apiKey` | `string` | Your Public API Key from the Superwall dashboard settings. |
+| `options` | `SuperwallOptions?` | Optional configuration object for customizing paywall appearance and behavior. See [`SuperwallOptions`](/react-native/sdk-reference/SuperwallOptions) for details. Defaults to `undefined`. |
+| `purchaseController` | `PurchaseController?` | Optional object for handling all subscription-related logic yourself. If omitted, Superwall handles subscription logic. Defaults to `undefined`. |
+| `completion` | `(() => void)?` | Optional completion handler called when Superwall finishes configuring. Defaults to `undefined`. |
+</ParamTable>
+
+## Returns / State
+Returns a Promise that resolves to the configured `Superwall` instance. The instance is also accessible via [`Superwall.shared`](/react-native/sdk-reference/Superwall).
+
+## Usage
+
+Basic configuration:
+```typescript
+import Superwall from "@superwall/react-native-superwall"
+
+await Superwall.configure({
+  apiKey: "pk_your_api_key"
+})
+```
+
+With custom options:
+```typescript
+import Superwall, { SuperwallOptions } from "@superwall/react-native-superwall"
+
+const options = new SuperwallOptions({
+  paywalls: {
+    shouldShowPurchaseFailureAlert: false
+  }
+})
+
+await Superwall.configure({
+  apiKey: "pk_your_api_key",
+  options: options,
+  completion: () => {
+    console.log("Superwall configured successfully")
+  }
+})
+```
+
+With custom purchase controller:
+```typescript
+import Superwall, { PurchaseController } from "@superwall/react-native-superwall"
+
+class MyPurchaseController extends PurchaseController {
+  async purchaseFromAppStore(productId: string): Promise<PurchaseResult> {
+    // Your purchase logic
+  }
+  
+  async purchaseFromGooglePlay(productId: string, basePlanId?: string, offerId?: string): Promise<PurchaseResult> {
+    // Your purchase logic
+  }
+  
+  async restorePurchases(): Promise<RestorationResult> {
+    // Your restore logic
+  }
+}
+
+await Superwall.configure({
+  apiKey: "pk_your_api_key",
+  purchaseController: new MyPurchaseController()
+})
+```
+
+

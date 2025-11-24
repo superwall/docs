@@ -80,8 +80,9 @@ const SDK_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'ios', label: 'iOS' },
   { value: 'android', label: 'Android' },
-  { value: 'flutter', label: 'Flutter' },
   { value: 'expo', label: 'Expo' },
+  { value: 'flutter', label: 'Flutter' },
+  { value: 'react-native', label: 'React Native (Deprecated)' },
 ] as const;
 
 export function SearchDialogWrapper(props: SharedProps) {

@@ -1,0 +1,157 @@
+---
+title: "SuperwallDelegate"
+description: "A class that handles Superwall lifecycle events and analytics."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+<Note>
+Set the delegate using `Superwall.shared.setDelegate(delegate)` to receive these callbacks.
+</Note>
+
+<Tip>
+Use `handleSuperwallEvent(eventInfo)` to track Superwall analytics events in your own analytics platform for a complete view of user behavior.
+</Tip>
+
+<Warning>
+`SuperwallDelegate` is an abstract class—all methods are required. Provide no-op implementations for callbacks you do not use.
+</Warning>
+
+## Purpose
+Provides callbacks for Superwall lifecycle events, analytics tracking, and custom paywall interactions.
+
+## Signature
+```typescript
+export abstract class SuperwallDelegate {
+  abstract subscriptionStatusDidChange(from: SubscriptionStatus, to: SubscriptionStatus): void
+  abstract willRedeemLink(): void
+  abstract didRedeemLink(result: RedemptionResult): void
+  abstract handleSuperwallEvent(eventInfo: SuperwallEventInfo): void
+  abstract handleCustomPaywallAction(name: string): void
+  abstract willDismissPaywall(paywallInfo: PaywallInfo): void
+  abstract willPresentPaywall(paywallInfo: PaywallInfo): void
+  abstract didDismissPaywall(paywallInfo: PaywallInfo): void
+  abstract didPresentPaywall(paywallInfo: PaywallInfo): void
+  abstract paywallWillOpenURL(url: URL): void
+  abstract paywallWillOpenDeepLink(url: URL): void
+  abstract handleLog(
+    level: string,
+    scope: string,
+    message?: string,
+    info?: Map<string, any>,
+    error?: string
+  ): void
+}
+```
+
+## Methods
+
+All methods must be implemented (you can provide empty bodies). Key methods include:
+
+<ParamTable>
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `subscriptionStatusDidChange` | `from`, `to` | Called when subscription status changes. |
+| `handleSuperwallEvent` | `eventInfo` | Called for all internal analytics events. Use for tracking in your own analytics. |
+| `handleCustomPaywallAction` | `name` | Called when user taps elements with `data-pw-custom` tags. |
+| `willPresentPaywall` | `paywallInfo` | Called before paywall presentation. |
+| `didPresentPaywall` | `paywallInfo` | Called after paywall presentation. |
+| `willDismissPaywall` | `paywallInfo` | Called before paywall dismissal. |
+| `didDismissPaywall` | `paywallInfo` | Called after paywall dismissal. |
+| `paywallWillOpenURL` | `url` | Called when paywall attempts to open a URL. |
+| `paywallWillOpenDeepLink` | `url` | Called when paywall attempts to open a deep link. |
+| `handleLog` | `level`, `scope`, `message`, `info`, `error` | Called for logging messages from the SDK. |
+| `willRedeemLink` | - | Called before the SDK attempts to redeem a promotional link. |
+| `didRedeemLink` | `result` | Called after the SDK has attempted to redeem a promotional link. |
+</ParamTable>
+
+## Usage
+
+Basic delegate setup:
+```typescript
+import { SuperwallDelegate, PaywallInfo, SubscriptionStatus } from "@superwall/react-native-superwall"
+
+class MyDelegate extends SuperwallDelegate {
+  subscriptionStatusDidChange(from: SubscriptionStatus, to: SubscriptionStatus) {
+    console.log(`Subscription changed from ${from.status} to ${to.status}`)
+    // update UI here
+  }
+  
+  handleSuperwallEvent(eventInfo: SuperwallEventInfo) {
+    // Track in your analytics
+    Analytics.track("superwall_event", {
+      event: eventInfo.event.type,
+      paywall_id: eventInfo.paywallInfo?.id
+    })
+  }
+  
+  handleCustomPaywallAction(name: string) {
+    switch (name) {
+      case "help":
+        this.presentHelpScreen()
+        break
+      case "contact":
+        this.presentContactForm()
+        break
+    }
+  }
+  
+  willPresentPaywall(paywallInfo: PaywallInfo) {
+    // Pause video, hide UI, etc.
+    this.pauseBackgroundTasks()
+  }
+  
+  didDismissPaywall(paywallInfo: PaywallInfo) {
+    // Resume video, show UI, etc.
+    this.resumeBackgroundTasks()
+  }
+
+  // Required methods you might not use
+  willRedeemLink() {}
+  didRedeemLink() {}
+  handleCustomPaywallAction() {}
+  willPresentPaywall() {}
+  didPresentPaywall() {}
+  paywallWillOpenURL() {}
+  paywallWillOpenDeepLink() {}
+  handleLog() {}
+}
+
+// Set the delegate
+await Superwall.shared.setDelegate(new MyDelegate())
+```
+
+Track subscription status changes:
+```typescript
+subscriptionStatusDidChange(from: SubscriptionStatus, to: SubscriptionStatus) {
+  console.log("Subscription changed from", from, "to", to)
+  this.updateUI(for: to)
+}
+```
+
+Forward analytics events:
+```typescript
+handleSuperwallEvent(eventInfo: SuperwallEventInfo) {
+  switch (eventInfo.event.type) {
+    case EventType.paywallOpen:
+      Analytics.track("paywall_opened", {
+        paywall_id: eventInfo.paywallInfo?.id,
+        placement: eventInfo.placement
+      })
+      break
+    case EventType.transactionComplete:
+      Analytics.track("subscription_purchased", {
+        product_id: eventInfo.product?.id,
+        paywall_id: eventInfo.paywallInfo?.id
+      })
+      break
+  }
+}
+```
+

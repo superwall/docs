@@ -1,7 +1,7 @@
 import { docs } from '@/.source';
 import { loader } from 'fumadocs-core/source';
 import { createElement, SVGProps } from 'react';
-import { icons } from 'lucide-react'
+import { icons, AlertTriangle } from 'lucide-react'
 
 // ---------- custom SVG icons ----------
 export const AndroidIcon = (props: SVGProps<SVGSVGElement>) =>
@@ -138,6 +138,13 @@ export const source = loader({
 
     if (name === 'Expo') {
       return createElement(ExpoIcon, {
+        className: 'h-6 w-6 text-white',
+        ...props,
+      });
+    }
+
+    if (name === 'AlertTriangle') {
+      return createElement(AlertTriangle, {
         className: 'h-6 w-6 text-white',
         ...props,
       });

@@ -1,0 +1,88 @@
+---
+title: "Superwall"
+description: "The shared instance of Superwall that provides access to all SDK features."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+<Note>
+You must call [`configure()`](/react-native/sdk-reference/configure) before accessing `Superwall.shared`, otherwise your app may crash or behave unexpectedly.
+</Note>
+
+## Purpose
+Provides access to the configured Superwall instance after calling [`configure()`](/react-native/sdk-reference/configure).
+
+## Signature
+```typescript
+static get shared(): Superwall
+```
+
+## Parameters
+This is a static property with no parameters.
+
+## Returns / State
+Returns the shared `Superwall` instance that was configured via [`configure()`](/react-native/sdk-reference/configure).
+
+## Usage
+
+Configure first (typically in your app's entry point):
+```typescript
+import Superwall from "@superwall/react-native-superwall"
+
+await Superwall.configure({
+  apiKey: "pk_your_api_key"
+})
+```
+
+Then access throughout your app:
+```typescript
+Superwall.shared.register({
+  placement: "feature_access",
+  feature: () => {
+    // Feature code here
+  }
+})
+```
+
+Set user identity and attributes:
+```typescript
+await Superwall.shared.identify({
+  userId: "user123"
+})
+
+await Superwall.shared.setUserAttributes({
+  plan: "premium",
+  signUpDate: new Date()
+})
+```
+
+Set delegate:
+```typescript
+import { SuperwallDelegate } from "@superwall/react-native-superwall"
+
+class MyDelegate extends SuperwallDelegate {
+  subscriptionStatusDidChange(from, to) {
+    console.log(`Subscription status changed from ${from} to ${to}`)
+  }
+}
+
+await Superwall.shared.setDelegate(new MyDelegate())
+```
+
+## Main Methods
+
+- [`register()`](/react-native/sdk-reference/register) - Register a placement to trigger paywalls
+- [`identify()`](/react-native/sdk-reference/identify) - Identify a user
+- [`getUserAttributes()`](/react-native/sdk-reference/getUserAttributes) - Get user attributes
+- [`setUserAttributes()`](/react-native/sdk-reference/setUserAttributes) - Set user attributes
+- [`handleDeepLink()`](/react-native/sdk-reference/handleDeepLink) - Handle deep links
+- [`getSubscriptionStatus()`](/react-native/sdk-reference/subscriptionStatus) - Get subscription status
+- [`setSubscriptionStatus()`](/react-native/sdk-reference/subscriptionStatus) - Set subscription status
+
+

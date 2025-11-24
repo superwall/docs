@@ -1,0 +1,20 @@
+{
+    "title": "SDK Reference",
+    "pages": [
+        "index",
+        "configure",
+        "Superwall",
+        "register",
+        "identify",
+        "getUserAttributes",
+        "setUserAttributes",
+        "subscriptionStatus",
+        "handleDeepLink",
+        "SuperwallDelegate",
+        "PaywallPresentationHandler",
+        "PurchaseController",
+        "SuperwallOptions",
+        "PaywallOptions",
+        "types"
+    ]
+}

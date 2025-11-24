@@ -3,13 +3,14 @@
  * Handles path resolution and fallback logic between different SDK sections
  */
 
-export type SDKType = 'ios' | 'android' | 'flutter' | 'expo' | 'dashboard'
+export type SDKType = 'ios' | 'android' | 'flutter' | 'expo' | 'react-native' | 'dashboard'
 
 export const SDK_ROOTS: Record<SDKType, string> = {
   ios: '/ios',
   android: '/android', 
   flutter: '/flutter',
   expo: '/expo',
+  'react-native': '/react-native',
   dashboard: '/dashboard'
 }
 
@@ -18,6 +19,7 @@ export const SDK_NAMES: Record<SDKType, string> = {
   android: 'Android',
   flutter: 'Flutter', 
   expo: 'Expo',
+  'react-native': 'React Native (Deprecated)',
   dashboard: 'Dashboard'
 }
 

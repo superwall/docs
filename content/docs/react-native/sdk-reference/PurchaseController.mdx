@@ -1,0 +1,126 @@
+---
+title: "PurchaseController"
+description: "An abstract class that defines the contract for a purchase controller."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Abstract class that defines the contract for a purchase controller. This is used for custom purchase handling when you want to manage all subscription-related logic yourself.
+
+## Signature
+```typescript
+export abstract class PurchaseController {
+  abstract purchaseFromAppStore(productId: string): Promise<PurchaseResult>
+  abstract purchaseFromGooglePlay(
+    productId: string,
+    basePlanId?: string,
+    offerId?: string
+  ): Promise<PurchaseResult>
+  abstract restorePurchases(): Promise<RestorationResult>
+}
+```
+
+## Methods
+
+<ParamTable>
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `purchaseFromAppStore` | `productId` | Purchase a product from the App Store. Returns a Promise that resolves with the result of the purchase logic. |
+| `purchaseFromGooglePlay` | `productId`, `basePlanId?`, `offerId?` | Purchase a product from Google Play. Returns a Promise that resolves with the result of the purchase logic. |
+| `restorePurchases` | - | Restore purchases. Returns a Promise that resolves with the restoration result. |
+</ParamTable>
+
+## Usage
+
+Implement the `PurchaseController` class:
+
+```typescript
+import { PurchaseController, PurchaseResult, RestorationResult, PurchaseResultCancelled, PurchaseResultFailed, PurchaseResultPurchased } from "@superwall/react-native-superwall"
+
+class MyPurchaseController extends PurchaseController {
+  async purchaseFromAppStore(productId: string): Promise<PurchaseResult> {
+    try {
+      // Your iOS purchase logic here
+      // For example, using RevenueCat:
+      const purchase = await Purchases.purchaseProduct(productId)
+      
+      if (purchase.customerInfo.entitlements.active["pro"]) {
+        return new PurchaseResultPurchased()
+      } else {
+        return new PurchaseResultFailed("Purchase completed but entitlement not active")
+      }
+    } catch (error) {
+      if (error.userCancelled) {
+        return new PurchaseResultCancelled()
+      }
+      return new PurchaseResultFailed(error.message)
+    }
+  }
+  
+  async purchaseFromGooglePlay(
+    productId: string,
+    basePlanId?: string,
+    offerId?: string
+  ): Promise<PurchaseResult> {
+    try {
+      // Your Android purchase logic here
+      // For example, using RevenueCat:
+      const purchase = await Purchases.purchaseProduct(productId)
+      
+      if (purchase.customerInfo.entitlements.active["pro"]) {
+        return new PurchaseResultPurchased()
+      } else {
+        return new PurchaseResultFailed("Purchase completed but entitlement not active")
+      }
+    } catch (error) {
+      if (error.userCancelled) {
+        return new PurchaseResultCancelled()
+      }
+      return new PurchaseResultFailed(error.message)
+    }
+  }
+  
+  async restorePurchases(): Promise<RestorationResult> {
+    try {
+      // Your restore logic here
+      // For example, using RevenueCat:
+      const customerInfo = await Purchases.restorePurchases()
+      
+      if (customerInfo.entitlements.active["pro"]) {
+        return RestorationResult.restored()
+      } else {
+        return RestorationResult.failed("No active subscription found")
+      }
+    } catch (error) {
+      return RestorationResult.failed(error.message)
+    }
+  }
+}
+```
+
+Configure Superwall with your purchase controller:
+
+```typescript
+await Superwall.configure({
+  apiKey: "pk_your_api_key",
+  purchaseController: new MyPurchaseController()
+})
+```
+
+## Important Notes
+
+- When using a `PurchaseController`, you must call [`setSubscriptionStatus()`](/react-native/sdk-reference/subscriptionStatus) whenever the user's entitlements change.
+- The purchase controller is responsible for handling all purchase and restore logic.
+- You can use third-party services like RevenueCat, Stripe, or your own backend to handle purchases.
+
+## Related
+
+- [`setSubscriptionStatus()`](/react-native/sdk-reference/subscriptionStatus) - Update subscription status after purchases
+- [`SuperwallDelegate.subscriptionStatusDidChange`](/react-native/sdk-reference/SuperwallDelegate) - Receive subscription status change notifications

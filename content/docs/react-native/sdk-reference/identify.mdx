@@ -1,0 +1,75 @@
+---
+title: "identify()"
+description: "Creates an account with Superwall by linking the provided userId to Superwall's automatically generated alias."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Creates an account with Superwall by linking the provided `userId` to Superwall's automatically generated alias. Call this function as soon as you have a valid `userId`.
+
+## Signature
+```typescript
+async identify({
+  userId,
+  options,
+}: {
+  userId: string
+  options?: IdentityOptions
+}): Promise<void>
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `userId` | `string` | Your user's unique identifier as defined by your backend system. |
+| `options` | `IdentityOptions?` | An optional `IdentityOptions` object. You can set the `restorePaywallAssignments` property to `true` to instruct the SDK to wait to restore paywall assignments from the server before presenting any paywalls. This option should be used only in advanced cases (e.g., when users frequently switch accounts or reinstall the app). Defaults to `undefined`. |
+</ParamTable>
+
+## Returns / State
+Returns a Promise that resolves once the identification process is complete.
+
+## Usage
+
+Basic identification:
+```typescript
+await Superwall.shared.identify({
+  userId: "user123"
+})
+```
+
+With options to restore paywall assignments:
+```typescript
+import { IdentityOptions } from "@superwall/react-native-superwall"
+
+const options = new IdentityOptions()
+options.restorePaywallAssignments = true
+
+await Superwall.shared.identify({
+  userId: "user123",
+  options: options
+})
+```
+
+## When to Call
+
+Call `identify()` as soon as you have a valid `userId` in your app. This is typically:
+
+- After user login
+- After user registration
+- When restoring a previous session
+- On app launch if the user is already logged in
+
+## Related
+
+- [`reset()`](/react-native/sdk-reference/Superwall) - Reset the user identity
+- [`setUserAttributes()`](/react-native/sdk-reference/setUserAttributes) - Set user attributes after identification
+
+

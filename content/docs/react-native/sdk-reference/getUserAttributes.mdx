@@ -1,0 +1,41 @@
+---
+title: "getUserAttributes()"
+description: "Retrieves the user attributes, set using setUserAttributes."
+---
+
+<Warning>
+
+**Deprecated SDK**
+
+We strongly recommend migrating to the new [Superwall Expo SDK](/expo), see our [migration guide](/expo/guides/migrating-react-native) for details.
+
+</Warning>
+
+## Purpose
+Retrieves the user attributes that were previously set using [`setUserAttributes()`](/react-native/sdk-reference/setUserAttributes).
+
+## Signature
+```typescript
+async getUserAttributes(): Promise<UserAttributes>
+```
+
+## Parameters
+This method takes no parameters.
+
+## Returns / State
+Returns a Promise that resolves with an object representing the user's attributes. The object has string keys and values can be any JSON-encodable value, URLs, or Dates.
+
+## Usage
+
+```typescript
+const attributes = await Superwall.shared.getUserAttributes()
+console.log("User attributes:", attributes)
+// Example output: { name: "John", email: "john@example.com", plan: "premium" }
+```
+
+## Related
+
+- [`setUserAttributes()`](/react-native/sdk-reference/setUserAttributes) - Set user attributes
+- [`identify()`](/react-native/sdk-reference/identify) - Identify a user
+
+

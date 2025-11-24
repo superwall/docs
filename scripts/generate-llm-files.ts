@@ -42,12 +42,15 @@ async function walk(dir: string): Promise<string[]> {
 
 // 3) Filters to mirror your assembleLLM.ts logic
 const filters = [
-  { name: 'all',      suffix: '' },
-  { name: 'ios',      suffix: '-ios'      },
-  { name: 'expo',     suffix: '-expo'     },
-  { name: 'android',  suffix: '-android'  },
-  { name: 'flutter',  suffix: '-flutter'  },
-  { name: 'dashboard',suffix: '-dashboard'}
+  { name: 'all',      suffix: '', readableName: 'Superwall' },
+  { name: 'ios',      suffix: '-ios', readableName: 'Superwall iOS SDK' },
+  { name: 'expo',     suffix: '-expo', readableName: 'Superwall Expo SDK' },
+  { name: 'android',  suffix: '-android', readableName: 'Superwall Android SDK' },
+  { name: 'flutter',  suffix: '-flutter', readableName: 'Superwall Flutter SDK' },
+  { name: 'react-native', suffix: '-react-native', readableName: 'Superwall React Native SDK (Deprecated)' },
+  { name: 'integrations', suffix: '-integrations', readableName: 'Superwall Integrations' },
+  { name: 'web-checkout', suffix: '-web-checkout', readableName: 'Superwall Web Checkout' },
+  { name: 'dashboard', suffix: '-dashboard', readableName: 'Superwall Dashboard' }
 ]
 
 // 4) Main script
@@ -55,7 +58,7 @@ async function main() {
   await fs.mkdir(OUT, { recursive: true })
   const allFiles = await walk(CONTENT)
 
-  for (const { name, suffix } of filters) {
+  for (const { name, suffix, readableName } of filters) {
     // apply your folder logic; e.g. filePath.includes('/ios/')
     const subset = name === 'all'
       ? allFiles
@@ -65,8 +68,8 @@ async function main() {
         })
 
     // build full and index
-    const fullDocs  = []
-    const indexDocs = [`# ${name === 'all' ? 'Superwall' : `Superwall ${name.toUpperCase()}`} SDK\n\n## Docs\n`]
+    const fullDocs: string[]  = []
+    const indexDocs: string[] = [`# ${readableName}\n\n## Docs\n`]
 
     for (const filePath of subset) {
       const raw    = await fs.readFile(filePath, 'utf8')

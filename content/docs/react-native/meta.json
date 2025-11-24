@@ -1,0 +1,30 @@
+{
+    "title": "React Native SDK (Deprecated)",
+    "icon": "AlertTriangle",
+    "root": true,
+    "pages": [
+        "[Dashboard Docs](https://superwall.com/docs/dashboard)",
+        "index",
+
+        "---SDK Reference---",
+        "sdk-reference/index",
+        "sdk-reference/configure",
+        "sdk-reference/Superwall",
+        "sdk-reference/register",
+        "sdk-reference/identify",
+        "sdk-reference/getUserAttributes",
+        "sdk-reference/setUserAttributes",
+        "sdk-reference/subscriptionStatus",
+        "sdk-reference/handleDeepLink",
+        "sdk-reference/SuperwallDelegate",
+        "sdk-reference/PaywallPresentationHandler",
+        "sdk-reference/PurchaseController",
+        "sdk-reference/SuperwallOptions",
+        "sdk-reference/PaywallOptions",
+        "sdk-reference/types",
+
+        "---Migration---",
+        "[Migrate to Expo SDK](https://superwall.com/docs/expo/guides/migrating-react-native)",
+        "[Expo SDK Documentation](https://superwall.com/docs/expo)"
+    ]
+}
