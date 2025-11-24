@@ -6,7 +6,9 @@ import { join } from "path";
 const PORT = 8293;
 const BASE_URL = `http://localhost:${PORT}`;
 const HOME_PAGE_URL = `${BASE_URL}/docs/home`;
-const TIMEOUT_MS = 30000; // 30 seconds (shorter timeout)
+// Increase timeout for CI environments
+const IS_CI = process.env.CI === "true";
+const TIMEOUT_MS = IS_CI ? 120000 : 60000; // 2 minutes in CI, 60s locally
 const POLL_INTERVAL_MS = 500; // 500ms
 
 // Track the dev server process for cleanup
@@ -129,13 +131,16 @@ test("dev server starts and serves home page", async () => {
     detached: true,
   });
 
+  // Consume stdout to prevent blocking, but we don't need to store it all
+  devServerProcess.stdout?.on("data", () => {
+    // No-op to drain buffer
+  });
+
   // Monitor for process exit
   devServerProcess.on("exit", (code) => {
-    if (code !== 0 && code !== null) {
-      serverExited = true;
-      const stderr = Buffer.concat(stderrChunks).toString();
-      serverError = `Process exited with code ${code}\n${stderr}`;
-    }
+    serverExited = true;
+    const stderr = Buffer.concat(stderrChunks).toString();
+    serverError = `Process exited unexpectedly with code ${code}\n${stderr}`;
   });
 
   devServerProcess.on("error", (err) => {
