@@ -4,7 +4,7 @@ description: "A function that retrieves a PaywallViewController for custom prese
 ---
 
 <Warning>
-You're responsible for the deallocation of the returned PaywallViewController. Do not present the same PaywallViewController in multiple places simultaneously.
+You're responsible for ensuring the returned `PaywallViewController` is no longer presented or embedded in a view after the user has moved past the paywall. The app may crash if you or the SDK attempts to present the same `PaywallViewController` instance again from elsewhere. Be especially careful when mixing `register()` and `getPaywall()`, which is not recommended.
 </Warning>
 
 <Note>
