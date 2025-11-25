@@ -8,6 +8,7 @@ export const fileRedirectsMap = {
   "sdk-installation/installation-via-rn-expo": "expo/quickstart/install",
   
   // SDK / home
+  "home": "dashboard",
   "ios/home": "ios",
   "android/home": "android",
   "flutter/home": "flutter",

@@ -1,5 +1,6 @@
 {
-    "title": "React Native SDK (Deprecated)",
+    "title": "React Native SDK",
+    "description": "Deprecated",
     "icon": "AlertTriangle",
     "root": true,
     "pages": [
