@@ -3,7 +3,6 @@
     "icon": "PanelsTopLeft",
     "root": true,
     "pages": [
-        "[SDK Docs](https://superwall.com/docs/sdk/home)",
         "index",
 
         "---Dashboard---",
