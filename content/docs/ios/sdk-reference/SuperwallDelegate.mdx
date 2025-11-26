@@ -55,6 +55,12 @@ public protocol SuperwallDelegate: AnyObject {
     info: [String: Any]?,
     error: Error?
   )
+  
+  @MainActor
+  func customerInfoDidChange(
+    from oldValue: CustomerInfo,
+    to newValue: CustomerInfo
+  )
 }
 ```
 
@@ -71,6 +77,7 @@ All methods are optional to implement. Key methods include:
 | `didPresentPaywall` | `paywallInfo` | Called after paywall presentation. |
 | `willDismissPaywall` | `paywallInfo` | Called before paywall dismissal. |
 | `didDismissPaywall` | `paywallInfo` | Called after paywall dismissal. |
+| `customerInfoDidChange` | `oldValue`, `newValue` | Called when customer info changes. Available in version 4.10.0+. |
 </ParamTable>
 
 ## Returns / State
@@ -144,5 +151,24 @@ func willPresentPaywall(withInfo paywallInfo: PaywallInfo) {
 func didDismissPaywall(withInfo paywallInfo: PaywallInfo) {
   // Resume video, show UI, etc.
   resumeBackgroundTasks()
+}
+```
+
+Handle customer info changes:
+```swift
+func customerInfoDidChange(
+  from oldValue: CustomerInfo,
+  to newValue: CustomerInfo
+) {
+  // Check if user gained or lost subscriptions
+  let oldSubscriptionCount = oldValue.subscriptions.count
+  let newSubscriptionCount = newValue.subscriptions.count
+  
+  if newSubscriptionCount > oldSubscriptionCount {
+    print("User gained a new subscription")
+  }
+  
+  // Update purchase history UI
+  updatePurchaseHistoryUI(with: newValue)
 }
 ```

@@ -1,0 +1,52 @@
+---
+title: "integrationAttributes"
+description: "Gets the current integration attributes that have been set."
+---
+
+<Info>
+This property was introduced in version 4.8.1. It provides read-only access to integration attributes.
+</Info>
+
+## Purpose
+Returns a dictionary of all integration attributes that have been set using [`setIntegrationAttributes(_:)`](/ios/sdk-reference/setIntegrationAttributes).
+
+## Signature
+```swift
+public var integrationAttributes: [String: String] { get }
+```
+
+## Parameters
+This is a computed property with no parameters.
+
+## Returns / State
+Returns a dictionary mapping attribute keys (as strings) to their values.
+
+## Usage
+
+Get current integration attributes:
+```swift
+let attributes = Superwall.shared.integrationAttributes
+
+// Access specific attributes
+if let amplitudeUserId = attributes["amplitudeUserId"] {
+  print("Amplitude User ID: \(amplitudeUserId)")
+}
+
+// Iterate over all attributes
+for (key, value) in attributes {
+  print("\(key): \(value)")
+}
+```
+
+Check if an attribute exists:
+```swift
+let attributes = Superwall.shared.integrationAttributes
+
+if attributes["mixpanelDistinctId"] != nil {
+  print("Mixpanel distinct ID is set")
+}
+```
+
+## Related
+
+- [`setIntegrationAttributes(_:)`](/ios/sdk-reference/setIntegrationAttributes) - Set integration attributes
