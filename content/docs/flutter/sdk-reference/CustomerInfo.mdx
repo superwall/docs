@@ -1,0 +1,83 @@
+---
+title: "CustomerInfo"
+description: "Contains the latest subscription and entitlement information about the customer."
+---
+
+## Purpose
+Represents the complete customer information including all subscription transactions, non-subscription transactions, entitlements, and user identification.
+
+## Signature
+```dart
+class CustomerInfo {
+  final List<SubscriptionTransaction> subscriptions;
+  final List<NonSubscriptionTransaction> nonSubscriptions;
+  final List<Entitlement> entitlements;
+  final String userId;
+}
+```
+
+## Properties
+
+<ParamTable>
+| Property | Type | Description |
+|----------|------|-------------|
+| `subscriptions` | `List<SubscriptionTransaction>` | All subscription transactions the user has made. |
+| `nonSubscriptions` | `List<NonSubscriptionTransaction>` | All non-subscription transactions (consumables and non-consumables) the user has made. |
+| `entitlements` | `List<Entitlement>` | All entitlements available to the user. |
+| `userId` | `String` | The ID of the user. |
+</ParamTable>
+
+## Usage
+
+Getting customer info:
+```dart
+final customerInfo = await Superwall.shared.getCustomerInfo();
+
+// Access user ID
+print('User ID: ${customerInfo.userId}');
+
+// Check entitlements
+final activeEntitlements = customerInfo.entitlements
+    .where((e) => e.isActive)
+    .toList();
+
+// Access subscriptions
+for (final subscription in customerInfo.subscriptions) {
+  if (subscription.isActive) {
+    print('Active subscription: ${subscription.productId}');
+  }
+}
+```
+
+Checking for specific entitlements:
+```dart
+final customerInfo = await Superwall.shared.getCustomerInfo();
+
+final hasPremium = customerInfo.entitlements.any(
+  (entitlement) => 
+    entitlement.id == 'premium' && 
+    entitlement.isActive,
+);
+
+if (hasPremium) {
+  // User has premium access
+  showPremiumContent();
+}
+```
+
+Filtering active subscriptions:
+```dart
+final customerInfo = await Superwall.shared.getCustomerInfo();
+
+final activeSubscriptions = customerInfo.subscriptions
+    .where((sub) => sub.isActive && !sub.isRevoked)
+    .toList();
+
+print('User has ${activeSubscriptions.length} active subscriptions');
+```
+
+## Related
+- [`getCustomerInfo()`](/flutter/sdk-reference/getCustomerInfo) - Method to retrieve customer info
+- [`SubscriptionTransaction`](/flutter/sdk-reference/SubscriptionTransaction) - Subscription transaction details
+- [`NonSubscriptionTransaction`](/flutter/sdk-reference/NonSubscriptionTransaction) - Non-subscription transaction details
+- [`Entitlement`](/flutter/sdk-reference/Entitlement) - Entitlement information

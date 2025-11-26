@@ -1,0 +1,69 @@
+---
+title: "setIntegrationAttribute()"
+description: "Sets a single attribute for third-party integrations."
+---
+
+## Purpose
+Syncs a user identifier from an analytics or attribution provider with Superwall. This enables better user tracking and attribution across platforms.
+
+## Signature
+```dart
+Future<void> setIntegrationAttribute(
+  IntegrationAttribute attribute,
+  String? value,
+)
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `attribute` | `IntegrationAttribute` | The integration attribute key specifying the integration provider. |
+| `value` | `String?` | The value to associate with the attribute. Pass `null` to remove the attribute. |
+</ParamTable>
+
+## Returns / State
+Returns a `Future<void>` that completes when the attribute is set.
+
+## Usage
+
+Setting an integration attribute:
+```dart
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.mixpanelDistinctId,
+  'user_123',
+);
+```
+
+Removing an integration attribute:
+```dart
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.mixpanelDistinctId,
+  null,
+);
+```
+
+Syncing with multiple providers:
+```dart
+// Mixpanel
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.mixpanelDistinctId,
+  mixpanelUserId,
+);
+
+// Amplitude
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.amplitudeUserId,
+  amplitudeUserId,
+);
+
+// Adjust
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.adjustId,
+  adjustId,
+);
+```
+
+## Related
+- [`setIntegrationAttributes()`](/flutter/sdk-reference/setIntegrationAttributes) - Set multiple attributes at once
+- [`IntegrationAttribute`](/flutter/sdk-reference/IntegrationAttribute) - Available integration attribute types

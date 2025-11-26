@@ -1,0 +1,64 @@
+---
+title: "setIntegrationAttributes()"
+description: "Sets multiple attributes for third-party integrations at once."
+---
+
+## Purpose
+Syncs multiple user identifiers from analytics and attribution providers with Superwall in a single call. This is more efficient than calling `setIntegrationAttribute()` multiple times.
+
+## Signature
+```dart
+Future<void> setIntegrationAttributes(
+  Map<IntegrationAttribute, String?> attributes,
+)
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `attributes` | `Map<IntegrationAttribute, String?>` | A map of integration attribute keys to their values. Pass `null` as a value to remove that attribute. |
+</ParamTable>
+
+## Returns / State
+Returns a `Future<void>` that completes when all attributes are set.
+
+## Usage
+
+Setting multiple integration attributes:
+```dart
+await Superwall.shared.setIntegrationAttributes({
+  IntegrationAttribute.mixpanelDistinctId: 'user_123',
+  IntegrationAttribute.amplitudeUserId: 'amp_456',
+  IntegrationAttribute.adjustId: 'adjust_789',
+});
+```
+
+Setting and removing attributes in one call:
+```dart
+await Superwall.shared.setIntegrationAttributes({
+  IntegrationAttribute.mixpanelDistinctId: 'user_123',
+  IntegrationAttribute.amplitudeUserId: 'amp_456',
+  IntegrationAttribute.adjustId: null, // Remove this attribute
+});
+```
+
+Syncing with all analytics providers:
+```dart
+void _syncAllAnalyticsIds() async {
+  // Collect IDs from all analytics SDKs
+  final analyticsIds = {
+    IntegrationAttribute.mixpanelDistinctId: await _getMixpanelId(),
+    IntegrationAttribute.amplitudeUserId: await _getAmplitudeId(),
+    IntegrationAttribute.adjustId: await _getAdjustId(),
+    IntegrationAttribute.appsflyerId: await _getAppsflyerId(),
+  };
+  
+  // Sync all at once
+  await Superwall.shared.setIntegrationAttributes(analyticsIds);
+}
+```
+
+## Related
+- [`setIntegrationAttribute()`](/flutter/sdk-reference/setIntegrationAttribute) - Set a single integration attribute
+- [`IntegrationAttribute`](/flutter/sdk-reference/IntegrationAttribute) - Available integration attribute types

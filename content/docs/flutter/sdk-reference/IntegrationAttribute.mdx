@@ -1,0 +1,107 @@
+---
+title: "IntegrationAttribute"
+description: "Attributes for third-party integrations with Superwall."
+---
+
+## Purpose
+Enumeration of integration attributes that allow you to sync user identifiers from your analytics and attribution providers with Superwall. This enables better user tracking and attribution across platforms.
+
+## Signature
+```dart
+enum IntegrationAttribute {
+  adjustId,
+  amplitudeDeviceId,
+  amplitudeUserId,
+  appsflyerId,
+  brazeAliasName,
+  brazeAliasLabel,
+  onesignalId,
+  fbAnonId,
+  firebaseAppInstanceId,
+  iterableUserId,
+  iterableCampaignId,
+  iterableTemplateId,
+  mixpanelDistinctId,
+  mparticleId,
+  clevertapId,
+  airshipChannelId,
+  kochavaDeviceId,
+  tenjinId,
+  posthogUserId,
+  customerioId;
+}
+```
+
+## Values
+
+<ParamTable>
+| Value | Description |
+|-------|-------------|
+| `adjustId` | The unique Adjust identifier for the user. |
+| `amplitudeDeviceId` | The Amplitude device identifier. |
+| `amplitudeUserId` | The Amplitude user identifier. |
+| `appsflyerId` | The unique Appsflyer identifier for the user. |
+| `brazeAliasName` | The Braze `alias_name` in User Alias Object. |
+| `brazeAliasLabel` | The Braze `alias_label` in User Alias Object. |
+| `onesignalId` | The OneSignal Player identifier for the user. |
+| `fbAnonId` | The Facebook Anonymous identifier for the user. |
+| `firebaseAppInstanceId` | The Firebase instance identifier. |
+| `iterableUserId` | The Iterable identifier for the user. |
+| `iterableCampaignId` | The Iterable campaign identifier. |
+| `iterableTemplateId` | The Iterable template identifier. |
+| `mixpanelDistinctId` | The Mixpanel user identifier. |
+| `mparticleId` | The unique mParticle user identifier (mpid). |
+| `clevertapId` | The CleverTap user identifier. |
+| `airshipChannelId` | The Airship channel identifier for the user. |
+| `kochavaDeviceId` | The unique Kochava device identifier. |
+| `tenjinId` | The Tenjin identifier. |
+| `posthogUserId` | The PostHog User identifier. |
+| `customerioId` | The Customer.io person's identifier (`id`). |
+</ParamTable>
+
+## Usage
+
+Setting a single integration attribute:
+```dart
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.mixpanelDistinctId,
+  'user_123',
+);
+```
+
+Setting multiple integration attributes:
+```dart
+await Superwall.shared.setIntegrationAttributes({
+  IntegrationAttribute.mixpanelDistinctId: 'user_123',
+  IntegrationAttribute.amplitudeUserId: 'amp_456',
+  IntegrationAttribute.adjustId: 'adjust_789',
+});
+```
+
+Removing an integration attribute:
+```dart
+// Set to null to remove
+await Superwall.shared.setIntegrationAttribute(
+  IntegrationAttribute.mixpanelDistinctId,
+  null,
+);
+```
+
+Syncing with analytics providers:
+```dart
+void _syncAnalyticsIds() async {
+  // Get IDs from your analytics SDKs
+  final mixpanelId = await MixpanelSDK.getDistinctId();
+  final amplitudeId = await AmplitudeSDK.getUserId();
+  
+  // Sync with Superwall
+  await Superwall.shared.setIntegrationAttributes({
+    IntegrationAttribute.mixpanelDistinctId: mixpanelId,
+    IntegrationAttribute.amplitudeUserId: amplitudeId,
+  });
+}
+```
+
+## Related
+- [`setIntegrationAttribute()`](/flutter/sdk-reference/setIntegrationAttribute) - Set a single integration attribute
+- [`setIntegrationAttributes()`](/flutter/sdk-reference/setIntegrationAttributes) - Set multiple integration attributes at once

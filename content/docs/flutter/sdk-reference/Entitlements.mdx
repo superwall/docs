@@ -1,0 +1,100 @@
+---
+title: "Entitlements"
+description: "Container for all entitlements available to the user, organized by status."
+---
+
+## Purpose
+Provides organized access to user entitlements with methods to filter and query them. Returned by [`getEntitlements()`](/flutter/sdk-reference/getEntitlements).
+
+## Signature
+```dart
+class Entitlements {
+  final Set<Entitlement> active;
+  final Set<Entitlement> inactive;
+  final Set<Entitlement> all;
+  final Set<Entitlement> web;
+  
+  Future<Set<Entitlement>> byProductIds(Set<String> productIds);
+}
+```
+
+## Properties
+
+<ParamTable>
+| Property | Type | Description |
+|----------|------|-------------|
+| `active` | `Set<Entitlement>` | All active entitlements available to the user. |
+| `inactive` | `Set<Entitlement>` | All inactive entitlements. |
+| `all` | `Set<Entitlement>` | All entitlements (both active and inactive). |
+| `web` | `Set<Entitlement>` | Entitlements from web checkout. |
+</ParamTable>
+
+## Methods
+
+### byProductIds()
+
+Filters entitlements by product IDs. Returns all entitlements that contain any of the specified product IDs.
+
+**Signature:**
+```dart
+Future<Set<Entitlement>> byProductIds(Set<String> productIds)
+```
+
+**Parameters:**
+- `productIds` - A set of product identifiers to search for
+
+**Returns:** A future that resolves to a set of entitlements that contain any of the specified product IDs.
+
+## Usage
+
+Accessing different entitlement sets:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+// Check active entitlements
+if (entitlements.active.isNotEmpty) {
+  print('User has ${entitlements.active.length} active entitlements');
+}
+
+// Check web checkout entitlements
+if (entitlements.web.isNotEmpty) {
+  print('User has web checkout entitlements');
+}
+```
+
+Filtering by product IDs:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+// Find entitlements for specific products
+final premiumEntitlements = await entitlements.byProductIds({
+  'premium_monthly',
+  'premium_yearly',
+  'premium_lifetime',
+});
+
+if (premiumEntitlements.isNotEmpty) {
+  print('User has premium access');
+  for (final entitlement in premiumEntitlements) {
+    print('Premium entitlement: ${entitlement.id}');
+  }
+}
+```
+
+Checking for specific entitlement:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+final hasPro = entitlements.all.any(
+  (entitlement) => entitlement.id == 'pro' && entitlement.isActive,
+);
+
+if (hasPro) {
+  // User has pro access
+  showProFeatures();
+}
+```
+
+## Related
+- [`getEntitlements()`](/flutter/sdk-reference/getEntitlements) - Method to retrieve entitlements
+- [`Entitlement`](/flutter/sdk-reference/Entitlement) - Individual entitlement information

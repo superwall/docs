@@ -22,6 +22,8 @@ abstract class SuperwallDelegate {
   void didPresentPaywall(PaywallInfo paywallInfo);
   void paywallWillOpenURL(Uri url);
   void paywallWillOpenDeepLink(Uri url);
+  void handleSuperwallDeepLink(Uri fullURL, List<String> pathComponents, Map<String, String> queryParameters);
+  void customerInfoDidChange(CustomerInfo from, CustomerInfo to);
 }
 ```
 
@@ -67,6 +69,20 @@ class MySuperwallDelegate extends SuperwallDelegate {
         _shareApp();
         break;
     }
+  }
+  
+  @override
+  void handleSuperwallDeepLink(Uri fullURL, List<String> pathComponents, Map<String, String> queryParameters) {
+    print('Superwall deep link: $fullURL');
+    print('Path: $pathComponents');
+    print('Query: $queryParameters');
+    // Handle deep link navigation
+  }
+  
+  @override
+  void customerInfoDidChange(CustomerInfo from, CustomerInfo to) {
+    print('Customer info changed');
+    // Sync with your backend, update UI, etc.
   }
 }
 ```
