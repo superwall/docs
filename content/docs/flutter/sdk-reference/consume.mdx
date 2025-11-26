@@ -1,0 +1,59 @@
+---
+title: "consume()"
+description: "Consumes an in-app purchase by its purchase token."
+---
+
+## Purpose
+Consumes a consumable in-app purchase using its purchase token. This is typically used for Google Play Store purchases that need to be consumed before they can be purchased again.
+
+## Signature
+```dart
+Future<String> consume(String purchaseToken)
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `purchaseToken` | `String` | The purchase token of the in-app purchase to consume. |
+</ParamTable>
+
+## Returns / State
+Returns a `Future<String>` that resolves to the purchase token of the consumed purchase.
+
+## Usage
+
+Consuming a purchase after successful purchase:
+```dart
+try {
+  final purchaseToken = await Superwall.shared.consume('purchase_token_123');
+  print('Purchase consumed: $purchaseToken');
+} catch (e) {
+  print('Failed to consume purchase: $e');
+}
+```
+
+Using with a PurchaseController:
+```dart
+class MyPurchaseController extends PurchaseController {
+  @override
+  Future<void> purchase(Product product) async {
+    // Handle purchase
+    final transaction = await _processPurchase(product);
+    
+    // If this is a consumable product, consume it
+    if (product.type == ProductType.consumable) {
+      try {
+        await Superwall.shared.consume(transaction.purchaseToken);
+        print('Consumable purchase consumed');
+      } catch (e) {
+        print('Failed to consume purchase: $e');
+      }
+    }
+  }
+}
+```
+
+## Related
+- [`PurchaseController`](/flutter/sdk-reference/PurchaseController) - Handles purchase logic
+- [`Product`](/flutter/sdk-reference/Product) - Product information

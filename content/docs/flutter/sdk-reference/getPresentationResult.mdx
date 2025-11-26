@@ -1,0 +1,78 @@
+---
+title: "getPresentationResult()"
+description: "Gets the result of a paywall presentation without actually showing the paywall."
+---
+
+## Purpose
+Retrieves the presentation result for a placement without presenting the paywall. This is useful for checking whether a paywall would be shown, determining if the user is in a holdout group, or getting experiment information without triggering a paywall presentation.
+
+## Signature
+```dart
+Future<PresentationResult> getPresentationResult(
+  String placement, {
+  Map<String, Object>? params,
+})
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `placement` | `String` | The name of the placement to check. |
+| `params` | `Map<String, Object>?` | Optional parameters to pass with the placement. These can be referenced within campaign rules. Keys beginning with `$` are reserved for Superwall and will be dropped. Nested maps and lists are currently unsupported and will be ignored. Defaults to `null`. |
+</ParamTable>
+
+## Returns / State
+Returns a `Future<PresentationResult>` that resolves to one of the following:
+- `PlacementNotFoundPresentationResult` - The placement was not found
+- `NoAudienceMatchPresentationResult` - No audience match for the placement
+- `PaywallPresentationResult` - A paywall would be presented (contains experiment information)
+- `HoldoutPresentationResult` - User is in a holdout group (contains experiment information)
+- `PaywallNotAvailablePresentationResult` - Paywall is not available
+
+## Usage
+
+Checking if a paywall would be shown:
+```dart
+final result = await Superwall.shared.getPresentationResult(
+  'premium_feature',
+  params: {'source': 'onboarding'},
+);
+
+if (result is PaywallPresentationResult) {
+  print('Paywall would be shown');
+  print('Experiment ID: ${result.experiment.id}');
+  print('Group ID: ${result.experiment.groupId}');
+} else if (result is HoldoutPresentationResult) {
+  print('User is in holdout group');
+  print('Experiment ID: ${result.experiment.id}');
+} else if (result is NoAudienceMatchPresentationResult) {
+  print('No audience match');
+} else if (result is PlacementNotFoundPresentationResult) {
+  print('Placement not found');
+} else if (result is PaywallNotAvailablePresentationResult) {
+  print('Paywall not available');
+}
+```
+
+Using with switch expressions:
+```dart
+final result = await Superwall.shared.getPresentationResult('premium_feature');
+
+switch (result) {
+  case PaywallPresentationResult(experiment: final exp):
+    print('Paywall would show for experiment ${exp.id}');
+  case HoldoutPresentationResult(experiment: final exp):
+    print('User in holdout for experiment ${exp.id}');
+  case NoAudienceMatchPresentationResult():
+    print('No audience match');
+  case PlacementNotFoundPresentationResult():
+    print('Placement not found');
+  case PaywallNotAvailablePresentationResult():
+    print('Paywall not available');
+}
+```
+
+## Related
+- [`registerPlacement()`](/flutter/sdk-reference/register) - Registers and presents a paywall
+- [`PresentationResult`](/flutter/sdk-reference/PresentationResult) - The result type returned by this method
