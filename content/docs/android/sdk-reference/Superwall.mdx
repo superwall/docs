@@ -65,6 +65,65 @@ Set delegate:
 Superwall.instance.delegate = this
 ```
 
+Consume a purchase (2.6.2+):
+```kotlin
+// Using coroutines
+lifecycleScope.launch {
+    val result = Superwall.instance.consume(purchaseToken)
+    result.fold(
+        onSuccess = { token ->
+            println("Purchase consumed: $token")
+        },
+        onFailure = { error ->
+            println("Failed to consume: ${error.message}")
+        }
+    )
+}
+
+// Using callback
+Superwall.instance.consume(purchaseToken) { result ->
+    result.fold(
+        onSuccess = { token ->
+            println("Purchase consumed: $token")
+        },
+        onFailure = { error ->
+            println("Failed to consume: ${error.message}")
+        }
+    )
+}
+```
+
+Show an alert over the current paywall (2.5.3+):
+```kotlin
+Superwall.instance.showAlert(
+    title = "Important Notice",
+    message = "Your subscription will renew soon",
+    actionTitle = "View Details",
+    closeActionTitle = "Dismiss",
+    action = {
+        // Handle action button tap
+        navigateToSubscriptionSettings()
+    },
+    onClose = {
+        // Handle close/dismiss
+        println("Alert dismissed")
+    }
+)
+```
+
+Set integration attributes for analytics (2.5.3+):
+```kotlin
+import com.superwall.sdk.models.attribution.AttributionProvider
+
+Superwall.instance.setIntegrationAttributes(
+    mapOf(
+        AttributionProvider.ADJUST to "adjust_user_id_123",
+        AttributionProvider.MIXPANEL to "mixpanel_distinct_id_456",
+        AttributionProvider.META to "meta_user_id_789"
+    )
+)
+```
+
 Java usage:
 ```java
 // Access the instance

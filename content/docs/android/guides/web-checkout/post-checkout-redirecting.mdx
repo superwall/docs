@@ -117,11 +117,18 @@ class SWDelegate : SuperwallDelegate {
       }
       is RedemptionResult.Success -> {
         val email = result.redemptionInfo.purchaserInfo.email
+        val productIdentifier = result.redemptionInfo.paywallInfo?.productIdentifier
+        
         if (email != null) {
           Superwall.instance.setUserAttributes(mapOf("email" to email))
           showToast("Welcome, $email!")
         } else {
           showToast("Welcome!")
+        }
+        
+        // Access the product identifier if available (2.6.3+)
+        productIdentifier?.let {
+          Log.d("Superwall", "Redeemed product: $it")
         }
       }
     }
