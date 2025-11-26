@@ -50,6 +50,7 @@ public enum SuperwallEvent {
   
   // System events
   case deviceAttributes(attributes: [String: Any])
+  case reviewRequested(count: Int)
   
   // And more...
 }
@@ -61,6 +62,7 @@ Each event case contains associated values with relevant information for that ev
 - `product: StoreProduct` - The product involved in transactions
 - `url: URL` - Deep link URLs
 - `attributes: [String: Any]` - Device or user attributes
+- `count: Int` - For `reviewRequested`, the number of times a review has been requested (available in version 4.8.1+)
 
 ## Returns / State
 This is an enum that represents different event types. Events are received via [`SuperwallDelegate.handleSuperwallEvent(withInfo:)`](/ios/sdk-reference/SuperwallDelegate).

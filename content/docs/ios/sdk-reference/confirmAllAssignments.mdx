@@ -1,0 +1,58 @@
+---
+title: "confirmAllAssignments"
+description: "Confirms all experiment assignments and returns them in an array."
+---
+
+<Info>
+This method was mentioned in version 4.10.3 changelog. It tracks a `confirmAllAssignments` event in the delegate.
+</Info>
+
+<Note>
+The assignments may be different when a placement is registered due to changes in user, placement, or device parameters used in audience filters.
+</Note>
+
+## Purpose
+Confirms all experiment assignments for the current user and returns them. This is useful for debugging experiment assignments or tracking which experiments a user is enrolled in.
+
+## Signature
+```swift
+public func confirmAllAssignments() async -> [Assignment]
+
+public func confirmAllAssignments(completion: (([Assignment]) -> Void)? = nil)
+```
+
+## Parameters
+The completion handler version takes an optional completion closure that receives an array of `Assignment` objects.
+
+## Returns / State
+Returns an array of `Assignment` objects representing all confirmed experiment assignments. If config hasn't been retrieved yet, this will return an empty array (this was fixed in version 4.10.3).
+
+## Usage
+
+Using async/await:
+```swift
+let assignments = await Superwall.shared.confirmAllAssignments()
+
+print("User has \(assignments.count) experiment assignments")
+
+for assignment in assignments {
+  print("Experiment: \(assignment.experimentId), Variant: \(assignment.variant)")
+}
+```
+
+Using completion handler:
+```swift
+Superwall.shared.confirmAllAssignments { assignments in
+  print("Confirmed \(assignments.count) assignments")
+  
+  // Process assignments
+  for assignment in assignments {
+    // Handle assignment
+  }
+}
+```
+
+## Related
+
+- This method tracks a `confirmAllAssignments` event that can be received via [`SuperwallDelegate.handleSuperwallEvent(withInfo:)`](/ios/sdk-reference/SuperwallDelegate)
+- In version 4.10.3, a fix was applied to ensure this method doesn't return an empty `Set` if config hadn't been retrieved

@@ -19,6 +19,7 @@ Provides callbacks for paywall lifecycle events when using [`register()`](/ios/s
 @objcMembers
 public final class PaywallPresentationHandler: NSObject {
   public func onPresent(_ handler: @escaping (PaywallInfo) -> Void)
+  public func onWillDismiss(_ handler: @escaping (PaywallInfo, PaywallResult) -> Void)
   public func onDismiss(_ handler: @escaping (PaywallInfo, PaywallResult) -> Void)
   public func onSkip(_ handler: @escaping (PaywallSkippedReason) -> Void)
   public func onError(_ handler: @escaping (Error) -> Void)
@@ -30,6 +31,7 @@ public final class PaywallPresentationHandler: NSObject {
 | Method | Parameters | Description |
 |--------|------------|-------------|
 | `onPresent` | `handler: (PaywallInfo) -> Void` | Sets a handler called when the paywall is presented. |
+| `onWillDismiss` | `handler: (PaywallInfo, PaywallResult) -> Void` | Sets a handler called when the paywall will be dismissed. Available in version 4.9.0+. |
 | `onDismiss` | `handler: (PaywallInfo, PaywallResult) -> Void` | Sets a handler called when the paywall is dismissed. |
 | `onSkip` | `handler: (PaywallSkippedReason) -> Void` | Sets a handler called when paywall presentation is skipped. |
 | `onError` | `handler: (Error) -> Void` | Sets a handler called when an error occurs during presentation. |
@@ -48,6 +50,11 @@ func registerFeatureWithHandler() {
   handler.onPresent { paywallInfo in
     print("Paywall presented: \(paywallInfo.id)")
     // Pause background tasks, analytics, etc.
+  }
+  
+  handler.onWillDismiss { paywallInfo, result in
+    print("Paywall will dismiss: \(paywallInfo.id)")
+    // Prepare for dismissal, save state, etc.
   }
   
   handler.onDismiss { paywallInfo, result in

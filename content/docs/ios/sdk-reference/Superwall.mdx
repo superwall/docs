@@ -80,3 +80,17 @@ Superwall.shared.setIntegrationAttributes([
   .mixpanelDistinctId: "distinct456"
 ])
 ```
+
+Get device attributes:
+```swift
+let deviceAttributes = await Superwall.shared.getDeviceAttributes()
+// Use in audience filters or for debugging
+print("Device attributes: \(deviceAttributes)")
+```
+
+Confirm all experiment assignments:
+```swift
+// Get all experiment assignments
+let assignments = await Superwall.shared.confirmAllAssignments()
+print("Confirmed \(assignments.count) assignments")
+```
