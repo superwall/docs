@@ -20,7 +20,7 @@
     "clear:cache": "tsx scripts/clear-cache.ts",
     "start": "next start",
     "download:references": "bun scripts/download-references.ts",
-    "test:dev-server": "bun test test/dev-server.test.ts"
+    "generate:test-wrangler": "bun scripts/generate-test-wrangler.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.11",

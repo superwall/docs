@@ -1,6 +1,7 @@
 // test/cf-preview.test.ts
 import { test, expect } from "bun:test";
 import { spawn } from "child_process";
+import { generateTestWranglerConfig } from "../scripts/generate-test-wrangler";
 
 const PORT = 8790;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
@@ -27,6 +28,9 @@ function waitForServer(url: string, timeoutMs = 60000) {
 }
 
 test("Cloudflare preview runs and serves /docs/home", async () => {
+  // Ensure wrangler.jsonc exists (auto-generate if missing)
+  generateTestWranglerConfig();
+  
   // Assumes `bun run build:cf` has already run in CI
   const server = spawn(
     "bunx",
