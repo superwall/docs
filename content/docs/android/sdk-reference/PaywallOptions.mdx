@@ -35,6 +35,7 @@ class PaywallOptions {
     var overrideProductsByName: Map<String, String> = emptyMap()
     var optimisticLoading: Boolean = false
     var timeoutAfter: Duration? = null
+    var onBackPressed: ((PaywallInfo?) -> Boolean)? = null
 }
 ```
 
@@ -72,6 +73,11 @@ val paywallOptions = PaywallOptions().apply {
     )
     optimisticLoading = false
     timeoutAfter = null
+    onBackPressed = { paywallInfo ->
+        // Custom back button handling
+        // Return true to consume the back press, false to use SDK default
+        false
+    }
 }
 
 val options = SuperwallOptions().apply {
