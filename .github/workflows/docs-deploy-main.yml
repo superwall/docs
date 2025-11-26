@@ -102,8 +102,8 @@ jobs:
       - name: Build OpenNext (no deployment)
         run: |
           set -e
-          bun run build:prep
-          bunx opennextjs-cloudflare build --config wrangler.jsonc
+          bun run build
+          bunx opennextjs-cloudflare build --config wrangler.jsonc --skipNextBuild
 
       - name: Create GitHub Deployment
         id: create_deployment

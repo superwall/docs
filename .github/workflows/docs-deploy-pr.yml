@@ -423,8 +423,8 @@ jobs:
           PR: ${{ env.PR_NUMBER }}
         run: |
           set -e
-          bun run build:prep
-          bunx opennextjs-cloudflare build --config wrangler.jsonc
+          bun run build
+          bunx opennextjs-cloudflare build --config wrangler.jsonc --skipNextBuild
           OUTPUT=$(npx wrangler@4.34.0 --config wrangler.jsonc versions upload --name ${CF_STAGING_WORKER_NAME} --preview-alias pr-$PR)
           echo "$OUTPUT"
           # Extract deployment URL
