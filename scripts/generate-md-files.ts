@@ -12,6 +12,7 @@ import remarkFollowExport from "../plugins/remark-follow-export"
 import remarkDirective from "remark-directive"
 import { remarkInclude } from 'fumadocs-mdx/config';
 import remarkSdkFilter from "../plugins/remark-sdk-filter"
+import { createProgressBar } from './utils/progress'
 
 // Configure the processor with all plugins
 const processor = remark()
@@ -49,6 +50,8 @@ function getRelativePath(filePath: string): string {
 async function main() {
   await fs.mkdir(OUT, { recursive: true })
   const allFiles = await walk(CONTENT)
+  const interactive = Boolean(process.stdout.isTTY)
+  const progress = createProgressBar('MD export', allFiles.length)
 
   for (const filePath of allFiles) {
     try {
@@ -76,19 +79,23 @@ ${data.description ? data.description + '\n\n' : ''}${cleanedContent}`
       // Write the .md file
       await fs.writeFile(outputPath, text, 'utf8')
       
-      console.log(`✓ Generated ${relativePath}.md`)
+      progress?.increment()
+      if (!interactive) {
+        console.log(`✓ Generated ${relativePath}.md`)
+      }
     } catch (error) {
       console.error(`❌ Error processing ${filePath}:`, error)
     }
   }
+
+  progress?.stop()
+
+  if (interactive) {
+    console.log(`✓ Exported ${allFiles.length} Markdown files`)
+  }
 }
 
-console.log('Starting MD file generation...')
-
 main()
-  .then(() => {
-    console.log('✨ Successfully generated all MD files')
-  })
   .catch(err => {
     console.error('❌ Error generating MD files:')
     console.error(err.stack || err)
