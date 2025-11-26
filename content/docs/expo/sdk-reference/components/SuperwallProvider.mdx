@@ -10,6 +10,26 @@ title: "SuperwallProvider"
 
 The `apiKeys` prop is an object that contains the API keys for the Superwall SDK.
 
+### `options`
+
+Optional configuration options to pass to the native Superwall SDK. See [SuperwallOptions](/expo/guides/configuring) for available options.
+
+### `onConfigurationError`
+
+Optional callback invoked when SDK configuration fails. Use this to track errors, show custom UI, or implement retry logic.
+
+```tsx
+<SuperwallProvider
+  apiKeys={{ ios: "YOUR_SUPERWALL_API_KEY" }}
+  onConfigurationError={(error) => {
+    console.error("Superwall configuration failed:", error);
+    // Handle error, show UI, or retry
+  }}
+>
+  {/* Your app content */}
+</SuperwallProvider>
+```
+
 ## Example
 
 ```tsx

@@ -17,7 +17,10 @@ An object containing:
     -   `attributes`: Either an object of attributes to set/update, or a function that takes the old attributes and returns the new attributes.
 -   `signOut: () => void`: Resets the user's identity, effectively signing them out from Superwall's perspective.
 -   `refresh: () => Promise<Record<string, any>>`: Manually refreshes the user's attributes and subscription status from the Superwall servers. Returns the refreshed user attributes.
--   `setSubscriptionStatus: (status: SubscriptionStatus) => void`: Manually sets the subscription status for the user. Useful when integrating with RevenueCat or other subscription providers.
+-   `setIntegrationAttributes: (attributes: IntegrationAttributes) => Promise<void>`: Sets attributes for third-party integrations (e.g., attribution providers, analytics platforms). Used to link user IDs from services like Adjust, Amplitude, AppsFlyer, etc.
+-   `getIntegrationAttributes: () => Promise<Record<string, string>>`: Gets the currently set integration attributes.
+-   `getEntitlements: () => Promise<EntitlementsInfo>`: Retrieves the user's entitlements from Superwall's servers. Returns both active and inactive entitlements.
+-   `setSubscriptionStatus: (status: SubscriptionStatus) => Promise<void>`: Manually sets the subscription status for the user. Useful when integrating with RevenueCat or other subscription providers.
 -   `subscriptionStatus?: SubscriptionStatus`: The current subscription status of the user.
     -   `SubscriptionStatus`: (As defined in `useSuperwall` and `SuperwallExpoModule.types.ts`)
         -   `status: "UNKNOWN" | "INACTIVE" | "ACTIVE"`
