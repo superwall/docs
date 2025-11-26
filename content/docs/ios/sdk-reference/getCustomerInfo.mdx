@@ -1,0 +1,64 @@
+---
+title: "getCustomerInfo"
+description: "Gets the latest CustomerInfo asynchronously."
+---
+
+<Info>
+This method was introduced in version 4.10.0. It provides an async way to get the latest customer information.
+</Info>
+
+## Purpose
+Retrieves the latest `CustomerInfo` asynchronously. If customer info is already available, it returns immediately. Otherwise, it waits for the first non-placeholder customer info to be loaded.
+
+## Signature
+```swift
+public func getCustomerInfo() async -> CustomerInfo
+
+public func getCustomerInfo(completion: @escaping (CustomerInfo) -> Void)
+```
+
+## Parameters
+No parameters for the async version. The completion handler version takes a completion closure.
+
+## Returns / State
+Returns a `CustomerInfo` object containing the latest customer purchase and subscription data.
+
+## Usage
+
+Using async/await:
+```swift
+let customerInfo = await Superwall.shared.getCustomerInfo()
+
+// Use the customer info
+print("User has \(customerInfo.subscriptions.count) subscriptions")
+print("Active product IDs: \(customerInfo.activeSubscriptionProductIds)")
+```
+
+Using completion handler:
+```swift
+Superwall.shared.getCustomerInfo { customerInfo in
+  // Handle customer info
+  print("User has \(customerInfo.subscriptions.count) subscriptions")
+  
+  // Update UI on main thread
+  DispatchQueue.main.async {
+    self.updatePurchaseHistory(customerInfo)
+  }
+}
+```
+
+In a Task:
+```swift
+Task {
+  let customerInfo = await Superwall.shared.getCustomerInfo()
+  
+  // Process customer info
+  await processCustomerInfo(customerInfo)
+}
+```
+
+## Related
+
+- [`customerInfo`](/ios/sdk-reference/customerInfo) - Published property for customer info
+- [`customerInfoStream`](/ios/sdk-reference/Superwall#customerinfostream) - AsyncStream of customer info changes
+- [`customerInfoDidChange(from:to:)`](/ios/sdk-reference/SuperwallDelegate#customerinfodidchange) - Delegate method for customer info changes

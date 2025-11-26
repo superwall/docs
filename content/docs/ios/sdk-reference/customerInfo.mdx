@@ -1,0 +1,146 @@
+---
+title: "customerInfo"
+description: "Contains the latest information about all of the customer's purchase and subscription data."
+---
+
+<Info>
+`CustomerInfo` was introduced in version 4.10.0. It provides comprehensive information about the customer's purchase history, subscriptions, and entitlements.
+</Info>
+
+<Note>
+`CustomerInfo` is a published property, so you can subscribe to it using Combine or SwiftUI. You can also use the delegate method [`customerInfoDidChange(from:to:)`](/ios/sdk-reference/SuperwallDelegate#customerinfodidchange) or the `AsyncStream` [`customerInfoStream`](/ios/sdk-reference/Superwall#customerinfostream).
+</Note>
+
+## Purpose
+Provides access to the customer's complete purchase and subscription history, including all transactions and entitlements. This is useful for displaying purchase history, understanding subscription status, and implementing features that depend on transaction data.
+
+## Signature
+```swift
+@Published
+public var customerInfo: CustomerInfo { get }
+```
+
+## Properties
+
+<ParamTable>
+| Property | Type | Description |
+|----------|------|-------------|
+| `subscriptions` | `[SubscriptionTransaction]` | All subscription transactions, ordered by purchase date (ascending). |
+| `nonSubscriptions` | `[NonSubscriptionTransaction]` | All non-subscription transactions (consumables and non-consumables), ordered by purchase date (ascending). |
+| `entitlements` | `[Entitlement]` | All entitlements available to the user. |
+| `activeSubscriptionProductIds` | `Set<String>` | Product identifiers for active subscriptions. |
+| `userId` | `String` | The ID of the user. Equivalent to [`Superwall.userId`](/ios/sdk-reference/userId). |
+</ParamTable>
+
+## Returns / State
+Returns a `CustomerInfo` object containing the latest customer purchase and subscription data. This object is immutable and does not update automatically—you must access the property again to get the latest data.
+
+## Usage
+
+Access customer info:
+```swift
+let customerInfo = Superwall.shared.customerInfo
+
+// Get all subscriptions
+let subscriptions = customerInfo.subscriptions
+
+// Get all non-subscription purchases
+let nonSubscriptions = customerInfo.nonSubscriptions
+
+// Get all entitlements
+let entitlements = customerInfo.entitlements
+
+// Get active subscription product IDs
+let activeProductIds = customerInfo.activeSubscriptionProductIds
+```
+
+Observe changes with Combine:
+```swift
+import Combine
+
+class ViewController: UIViewController {
+  private var cancellables = Set<AnyCancellable>()
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    Superwall.shared.$customerInfo
+      .sink { [weak self] customerInfo in
+        self?.updatePurchaseHistory(customerInfo)
+      }
+      .store(in: &cancellables)
+  }
+  
+  func updatePurchaseHistory(_ customerInfo: CustomerInfo) {
+    // Update UI with purchase history
+    print("User has \(customerInfo.subscriptions.count) subscriptions")
+    print("User has \(customerInfo.nonSubscriptions.count) non-subscription purchases")
+  }
+}
+```
+
+Use with AsyncStream (iOS 15+):
+```swift
+Task {
+  for await customerInfo in Superwall.shared.customerInfoStream {
+    // Handle customer info updates
+    print("Customer info updated: \(customerInfo.subscriptions.count) subscriptions")
+  }
+}
+```
+
+Get customer info asynchronously:
+```swift
+// Using async/await
+let customerInfo = await Superwall.shared.getCustomerInfo()
+
+// Using completion handler
+Superwall.shared.getCustomerInfo { customerInfo in
+  // Handle customer info
+}
+```
+
+Display purchase history:
+```swift
+func displayPurchaseHistory() {
+  let customerInfo = Superwall.shared.customerInfo
+  
+  // Display subscriptions
+  for subscription in customerInfo.subscriptions {
+    print("Product: \(subscription.productId)")
+    print("Purchase Date: \(subscription.purchaseDate)")
+    print("Active: \(subscription.isActive)")
+    if let expirationDate = subscription.expirationDate {
+      print("Expires: \(expirationDate)")
+    }
+  }
+  
+  // Display non-subscription purchases
+  for purchase in customerInfo.nonSubscriptions {
+    print("Product: \(purchase.productId)")
+    print("Purchase Date: \(purchase.purchaseDate)")
+    print("Consumable: \(purchase.isConsumable)")
+  }
+}
+```
+
+Check active subscriptions:
+```swift
+func hasActiveSubscription() -> Bool {
+  let customerInfo = Superwall.shared.customerInfo
+  return !customerInfo.activeSubscriptionProductIds.isEmpty
+}
+
+func getActiveSubscriptionProductIds() -> Set<String> {
+  return Superwall.shared.customerInfo.activeSubscriptionProductIds
+}
+```
+
+## Related
+
+- [`getCustomerInfo()`](/ios/sdk-reference/getCustomerInfo) - Get customer info asynchronously
+- [`customerInfoStream`](/ios/sdk-reference/Superwall#customerinfostream) - AsyncStream of customer info changes
+- [`customerInfoDidChange(from:to:)`](/ios/sdk-reference/SuperwallDelegate#customerinfodidchange) - Delegate method for customer info changes
+- [`SubscriptionTransaction`](/ios/sdk-reference/SubscriptionTransaction) - Represents a subscription transaction
+- [`NonSubscriptionTransaction`](/ios/sdk-reference/NonSubscriptionTransaction) - Represents a non-subscription transaction
+- [`Entitlement`](/ios/sdk-reference/Entitlement) - Represents an entitlement

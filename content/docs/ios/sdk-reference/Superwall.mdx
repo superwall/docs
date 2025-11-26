@@ -56,3 +56,41 @@ Superwall.shared.overrideProductsByName = [
   "primary": "produceID_to_replace_primary_product"
 ]
 ```
+
+Access customer info:
+```swift
+// Get current customer info
+let customerInfo = Superwall.shared.customerInfo
+
+// Get customer info asynchronously
+let customerInfo = await Superwall.shared.getCustomerInfo()
+
+// Observe customer info changes
+Superwall.shared.$customerInfo
+  .sink { customerInfo in
+    print("Customer has \(customerInfo.subscriptions.count) subscriptions")
+  }
+  .store(in: &cancellables)
+```
+
+Set integration attributes:
+```swift
+Superwall.shared.setIntegrationAttributes([
+  .amplitudeUserId: "user123",
+  .mixpanelDistinctId: "distinct456"
+])
+```
+
+Get device attributes:
+```swift
+let deviceAttributes = await Superwall.shared.getDeviceAttributes()
+// Use in audience filters or for debugging
+print("Device attributes: \(deviceAttributes)")
+```
+
+Confirm all experiment assignments:
+```swift
+// Get all experiment assignments
+let assignments = await Superwall.shared.confirmAllAssignments()
+print("Confirmed \(assignments.count) assignments")
+```

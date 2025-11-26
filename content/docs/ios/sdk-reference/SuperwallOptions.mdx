@@ -27,6 +27,7 @@ public final class SuperwallOptions: NSObject {
   public var networkEnvironment: NetworkEnvironment
   public var logging: LoggingOptions
   public var localeIdentifier: String?
+  public var shouldBypassAppTransactionCheck: Bool
 }
 ```
 
@@ -39,6 +40,7 @@ public final class SuperwallOptions: NSObject {
 | `networkEnvironment` | `NetworkEnvironment` | Network environment (`.release`, `.releaseCandidate`, `.developer`, `.custom(String)`). **Use only if instructed by Superwall team.** |
 | `logging` | `LoggingOptions` | Logging configuration including level and scopes. |
 | `localeIdentifier` | `String?` | Override locale for paywall localization (e.g., "en_GB"). |
+| `shouldBypassAppTransactionCheck` | `Bool` | Disables the app transaction check on SDK launch. Useful in testing environments to avoid triggering the Apple ID sign-in prompt. Defaults to `false`. Available in version 4.9.0+. |
 </ParamTable>
 
 ## Returns / State
@@ -64,6 +66,9 @@ options.logging.scopes = [.superwallCore, .paywallViewController]
 
 // Set locale for testing
 options.localeIdentifier = "en_GB"
+
+// Bypass app transaction check (useful for testing)
+options.shouldBypassAppTransactionCheck = true
 
 // Use with configure
 Superwall.configure(

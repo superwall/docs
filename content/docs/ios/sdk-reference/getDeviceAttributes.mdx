@@ -1,0 +1,62 @@
+---
+title: "getDeviceAttributes"
+description: "Gets properties stored about the device that are used in audience filters."
+---
+
+<Info>
+This method returns all device attributes that can be used in audience filters in the Superwall dashboard.
+</Info>
+
+## Purpose
+Retrieves a dictionary of device properties that are used when evaluating audience filters. This is useful for debugging audience filter behavior or understanding what device attributes are available.
+
+## Signature
+```swift
+public func getDeviceAttributes() async -> [String: Any]
+```
+
+## Parameters
+No parameters.
+
+## Returns / State
+Returns a dictionary mapping attribute names to their values. Common attributes include:
+- `isApplePayAvailable` - Whether Apple Pay is available and the user has added a card (available in version 4.9.0+)
+- `swiftVersion` - The Swift version (available in version 4.7.0+)
+- `compilerVersion` - The compiler version (available in version 4.7.0+)
+- `localeIdentifier` - The device locale
+- `osVersion` - The iOS version
+- `model` - The device model
+- And many more device-specific attributes
+
+## Usage
+
+Get device attributes:
+```swift
+let deviceAttributes = await Superwall.shared.getDeviceAttributes()
+
+// Check specific attributes
+if let isApplePayAvailable = deviceAttributes["isApplePayAvailable"] as? Bool {
+  print("Apple Pay available: \(isApplePayAvailable)")
+}
+
+// Print all attributes for debugging
+print("Device attributes: \(deviceAttributes)")
+```
+
+Use in audience filter debugging:
+```swift
+Task {
+  let attributes = await Superwall.shared.getDeviceAttributes()
+  
+  // Check if user matches an audience filter condition
+  if let swiftVersion = attributes["swiftVersion"] as? String {
+    print("Swift version: \(swiftVersion)")
+  }
+}
+```
+
+## Related
+
+- Device attributes are automatically used in audience filters
+- `isApplePayAvailable` was added in version 4.9.0 and updated in 4.10.5 for more accurate filtering
+- `swiftVersion` and `compilerVersion` were added in version 4.7.0

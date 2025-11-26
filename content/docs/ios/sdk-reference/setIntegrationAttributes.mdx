@@ -1,0 +1,63 @@
+---
+title: "setIntegrationAttributes"
+description: "Sets integration attributes for third-party analytics and attribution providers."
+---
+
+<Info>
+This method was introduced in version 4.8.1. It allows you to set attributes for third-party integrations like Amplitude, Mixpanel, and other analytics platforms.
+</Info>
+
+## Purpose
+Sets integration attributes that are sent to Superwall's servers and can be used for analytics and attribution tracking with third-party providers.
+
+## Signature
+```swift
+public func setIntegrationAttributes(_ props: [IntegrationAttribute: String?])
+```
+
+## Parameters
+
+<ParamTable>
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `props` | `[IntegrationAttribute: String?]` | A dictionary mapping integration attribute keys to their values. Use `nil` to remove an attribute. |
+</ParamTable>
+
+## Returns / State
+This method returns `Void`. The attributes are stored and sent to Superwall's servers.
+
+## Usage
+
+Set integration attributes:
+```swift
+Superwall.shared.setIntegrationAttributes([
+  .amplitudeUserId: "user123",
+  .mixpanelDistinctId: "distinct456",
+  .custom("myCustomKey"): "customValue"
+])
+```
+
+Remove an attribute by setting it to `nil`:
+```swift
+Superwall.shared.setIntegrationAttributes([
+  .amplitudeUserId: nil  // Removes the amplitudeUserId attribute
+])
+```
+
+Access current integration attributes:
+```swift
+let attributes = Superwall.shared.integrationAttributes
+print("Current attributes: \(attributes)")
+```
+
+## IntegrationAttribute Types
+
+Common integration attributes include:
+- `.amplitudeUserId` - Amplitude user ID
+- `.mixpanelDistinctId` - Mixpanel distinct ID
+- `.custom(String)` - Custom attribute key
+
+## Related
+
+- [`integrationAttributes`](/ios/sdk-reference/integrationAttributes) - Get current integration attributes
+- [`Superwall.shared.integrationAttributes`](/ios/sdk-reference/Superwall#integrationattributes) - Published property for integration attributes

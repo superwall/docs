@@ -1,0 +1,89 @@
+---
+title: "entitlements"
+description: "The entitlements tied to the device, accessible via Superwall.shared.entitlements."
+---
+
+<Info>
+The `entitlements` property provides access to all entitlements, both active and inactive, as well as methods to query entitlements by product IDs.
+</Info>
+
+## Purpose
+Provides access to the user's entitlements and methods to query them. Entitlements represent subscription tiers or features that a user has access to.
+
+## Signature
+```swift
+public var entitlements: EntitlementsInfo { get }
+```
+
+## Properties and Methods
+
+<ParamTable>
+| Property/Method | Type | Description |
+|----------------|------|-------------|
+| `active` | `Set<Entitlement>` | The active entitlements. |
+| `inactive` | `Set<Entitlement>` | The inactive entitlements. |
+| `all` | `Set<Entitlement>` | All entitlements, regardless of whether they're active or not. |
+| `web` | `Set<Entitlement>` | Active entitlements redeemed via the web. |
+| `byProductId(_:)` | `(String) -> Set<Entitlement>` | Returns entitlements for a given product ID. |
+| `byProductIds(_:)` | `(Set<String>) -> Set<Entitlement>` | Returns entitlements for a given set of product IDs. Available in version 4.10.0+. |
+</ParamTable>
+
+## Returns / State
+Returns an `EntitlementsInfo` object that provides access to entitlements and methods to query them.
+
+## Usage
+
+Get all active entitlements:
+```swift
+let activeEntitlements = Superwall.shared.entitlements.active
+
+for entitlement in activeEntitlements {
+  print("Active entitlement: \(entitlement.id)")
+}
+```
+
+Get entitlements by product ID:
+```swift
+let productId = "com.example.premium_monthly"
+let entitlements = Superwall.shared.entitlements.byProductId(productId)
+
+print("Product \(productId) unlocks \(entitlements.count) entitlements")
+```
+
+Get entitlements by multiple product IDs (4.10.0+):
+```swift
+let productIds: Set<String> = [
+  "com.example.premium_monthly",
+  "com.example.premium_annual"
+]
+
+let entitlements = Superwall.shared.entitlements.byProductIds(productIds)
+
+print("Products unlock \(entitlements.count) entitlements")
+```
+
+Check if user has specific entitlement:
+```swift
+let hasPremium = Superwall.shared.entitlements.active.contains { 
+  $0.id == "premium" 
+}
+
+if hasPremium {
+  showPremiumFeatures()
+}
+```
+
+Get web entitlements:
+```swift
+let webEntitlements = Superwall.shared.entitlements.web
+
+if !webEntitlements.isEmpty {
+  print("User has \(webEntitlements.count) web entitlements")
+}
+```
+
+## Related
+
+- [`Entitlement`](/ios/sdk-reference/Entitlement) - Represents an individual entitlement
+- [`subscriptionStatus`](/ios/sdk-reference/subscriptionStatus) - Subscription status which includes active entitlements
+- [`customerInfo`](/ios/sdk-reference/customerInfo) - Customer info which includes all entitlements
