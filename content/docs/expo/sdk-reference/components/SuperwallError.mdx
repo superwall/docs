@@ -1,0 +1,114 @@
+---
+title: "SuperwallError"
+---
+
+`<SuperwallError />` is a component that renders its children only when Superwall configuration has failed. This component was added in v0.7.0 to help handle SDK initialization errors gracefully.
+
+The component can accept either static React nodes or a render function that receives the error message string.
+
+## Props
+
+### `children`
+
+The content to render when Superwall has an error. Can be:
+- Static React nodes (e.g., `<Text>Error message</Text>`)
+- A function that receives the error message string and returns React nodes
+
+## Example
+
+### Static Error UI
+
+```tsx
+import {
+  SuperwallProvider,
+  SuperwallError,
+  SuperwallLoading,
+  SuperwallLoaded,
+} from "expo-superwall";
+import { View, Text, Button } from "react-native";
+
+export default function App() {
+  return (
+    <SuperwallProvider apiKeys={{ ios: "YOUR_SUPERWALL_API_KEY" }}>
+      <SuperwallLoading>
+        <ActivityIndicator style={{ flex: 1 }} />
+      </SuperwallLoading>
+      <SuperwallError>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text>Failed to load Superwall</Text>
+          <Text>Please check your internet connection and try again.</Text>
+        </View>
+      </SuperwallError>
+      <SuperwallLoaded>
+        {/* Your main app content */}
+      </SuperwallLoaded>
+    </SuperwallProvider>
+  );
+}
+```
+
+### Dynamic Error UI with Error Message
+
+```tsx
+import {
+  SuperwallProvider,
+  SuperwallError,
+  SuperwallLoading,
+  SuperwallLoaded,
+} from "expo-superwall";
+import { View, Text, Button } from "react-native";
+
+export default function App() {
+  const handleRetry = () => {
+    // Implement retry logic
+  };
+
+  return (
+    <SuperwallProvider apiKeys={{ ios: "YOUR_SUPERWALL_API_KEY" }}>
+      <SuperwallLoading>
+        <ActivityIndicator style={{ flex: 1 }} />
+      </SuperwallLoading>
+      <SuperwallError>
+        {(error) => (
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <Text>Failed to initialize Superwall</Text>
+            <Text>{error}</Text>
+            <Button title="Retry" onPress={handleRetry} />
+          </View>
+        )}
+      </SuperwallError>
+      <SuperwallLoaded>
+        {/* Your main app content */}
+      </SuperwallLoaded>
+    </SuperwallProvider>
+  );
+}
+```
+
+### Using with onConfigurationError Callback
+
+You can also use the `onConfigurationError` prop on `SuperwallProvider` to handle errors programmatically:
+
+```tsx
+import { SuperwallProvider } from "expo-superwall";
+
+export default function App() {
+  return (
+    <SuperwallProvider
+      apiKeys={{ ios: "YOUR_SUPERWALL_API_KEY" }}
+      onConfigurationError={(error) => {
+        console.error("Superwall configuration failed:", error);
+        // Track error in analytics, show toast, etc.
+      }}
+    >
+      {/* Your app content */}
+    </SuperwallProvider>
+  );
+}
+```
+
+## Notes
+
+- This component only renders when there's a configuration error. It will render `null` if Superwall is loading or has successfully configured.
+- Use this component alongside `<SuperwallLoading />` and `<SuperwallLoaded />` to provide a complete loading/error/success UI flow.
+- The error state is automatically cleared when the SDK successfully configures on retry.

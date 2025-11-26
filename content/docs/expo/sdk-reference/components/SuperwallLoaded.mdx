@@ -1,13 +1,16 @@
 ---
-title: "SuperwallLoading"
+title: "SuperwallLoaded"
 ---
 
-`<SuperwallLoading />` is a component that renders its children only when Superwall is loading or not yet configured. This component can be used to display a loading indicator or a placeholder while the Superwall SDK is initializing.
+`<SuperwallLoaded />` is a component that renders its children only when Superwall has finished loading and is configured. This component is useful for conditionally rendering parts of your UI that depend on Superwall being ready.
 
-Once Superwall is configured and no longer in a loading state, this component will render `null`.
+If Superwall is still loading, has not been configured, or has a configuration error, this component will render `null`.
 
-**Note:** This component will not render if there's a configuration error. Use `<SuperwallError />` to handle error states.
+## Props
 
+### `children`
+
+The content to render once Superwall is loaded and configured.
 
 ## Example
 
@@ -51,7 +54,8 @@ function MainAppScreen() {
 }
 ```
 
-## Related Components
+## Notes
 
-- [`<SuperwallLoaded />`](/expo/sdk-reference/components/SuperwallLoaded) - Renders children when Superwall is ready
-- [`<SuperwallError />`](/expo/sdk-reference/components/SuperwallError) - Renders children when Superwall configuration fails
+- This component will not render if there's a configuration error. Use `<SuperwallError />` to handle error states.
+- This component will not render while Superwall is loading. Use `<SuperwallLoading />` to show loading states.
+- Use this component alongside `<SuperwallLoading />` and `<SuperwallError />` to provide a complete loading/error/success UI flow.

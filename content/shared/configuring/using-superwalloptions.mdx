@@ -778,6 +778,90 @@ Superwall.configure(
 
 :::
 
+### Web Purchase Confirmation Alert
+
+When a user completes a purchase via web checkout (app2web flow), you can control whether to show a confirmation alert. By default, this is set to `false` to prevent duplicate alerts. Set `shouldShowWebPurchaseConfirmationAlert` to `true` if you want to show the native confirmation alert:
+
+:::ios
+
+<CodeGroup>
+
+```swift Swift
+let options = SuperwallOptions()
+options.paywalls.shouldShowWebPurchaseConfirmationAlert = true
+
+Superwall.configure(apiKey: "MY_API_KEY", options: options)
+```
+
+```swift Objective-C
+SWKSuperwallOptions *options = [[SWKSuperwallOptions alloc] init];
+options.paywalls.shouldShowWebPurchaseConfirmationAlert = true;
+
+[Superwall
+  configureWithApiKey:@"MY_API_KEY"
+  purchaseController:nil
+  options:options
+  completion:nil
+];
+```
+
+</CodeGroup>
+
+:::
+
+:::android
+
+```kotlin
+val options = SuperwallOptions()
+options.paywalls.shouldShowWebPurchaseConfirmationAlert = true
+
+Superwall.configure(
+  this,
+  apiKey = "MY_API_KEY",
+  options = options
+)
+
+// Or using the configuration DSL
+configureSuperwall("MY_API_KEY") {
+    options {
+        paywalls {
+            shouldShowWebPurchaseConfirmationAlert = true
+        }
+    }
+}
+```
+
+:::
+
+:::flutter
+
+```dart
+SuperwallOptions options = SuperwallOptions();
+options.paywalls.shouldShowWebPurchaseConfirmationAlert = true;
+
+Superwall.configure(
+  "MY_API_KEY",
+  options: options
+);
+```
+
+:::
+
+:::expo
+
+```typescript
+const options = new SuperwallOptions()
+options.paywalls.shouldShowWebPurchaseConfirmationAlert = true
+
+Superwall.configure(
+  "MY_API_KEY",
+  null,
+  options: options
+);
+```
+
+:::
+
 ### Locale Identifier
 
 When evaluating rules, the device locale identifier is set to `autoupdatingCurrent`. However, you can override this if you want to test a specific locale:

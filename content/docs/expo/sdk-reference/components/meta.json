@@ -2,7 +2,9 @@
     "defaultOpen": true,
     "pages": [
         "SuperwallProvider",
-        "CustomPurchaseControllerProvider",
-        "..."
+        "SuperwallLoading",
+        "SuperwallLoaded",
+        "SuperwallError",
+        "CustomPurchaseControllerProvider"
     ]
 }
