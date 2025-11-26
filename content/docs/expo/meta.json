@@ -26,6 +26,7 @@
         "sdk-reference/hooks",
 
         "---Guides---",
+        "guides/debugging",
         "guides/vibe-coding",
         "guides/using-revenuecat",
         "guides/using-expo-sdk-in-bare-react-native",

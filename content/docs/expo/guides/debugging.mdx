@@ -1,0 +1,113 @@
+---
+title: "Debugging"
+description: "Common issues and solutions when integrating the Superwall Expo SDK."
+---
+
+## Cannot find native module 'SuperwallExpo'
+
+This error occurs when the native Superwall module isn't properly linked in your app. There are several common causes.
+
+### Cause 1: Using Expo Go
+
+**Expo Go does not support custom native modules.** Superwall requires native code that isn't included in Expo Go.
+
+**Solution:** Use an [Expo Development Build](https://docs.expo.dev/develop/development-builds/introduction/) instead.
+
+```bash
+# For iOS
+npx expo run:ios
+
+# For Android
+npx expo run:android
+```
+
+<Note>
+You can tell you're running Expo Go if the app icon is the Expo logo. Your development build will show your own app icon.
+</Note>
+
+### Cause 2: Outdated Native Folders
+
+If you added `expo-superwall` to an existing project, your `ios` and `android` folders may be outdated and missing the native module configuration.
+
+**Solution:** Regenerate your native folders:
+
+```bash
+# Clean and regenerate native folders
+npx expo prebuild --clean
+```
+
+This will delete your existing `ios` and `android` folders and regenerate them with the correct native module configuration.
+
+<Warning>
+If you've made manual changes to your native folders, back them up first. The `--clean` flag will remove all custom native code.
+</Warning>
+
+### Cause 3: EAS Build Not Updated
+
+If you're using EAS Build, you need to create a new development build after adding `expo-superwall`.
+
+**Solution:** Build a new development client:
+
+```bash
+eas build --profile development --platform ios
+# or
+eas build --profile development --platform android
+```
+
+### Cause 4: Stale Caches
+
+Cached build artifacts can cause issues after updating dependencies.
+
+**Solution:** Clear all caches and rebuild:
+
+```bash
+# Clear watchman (if installed)
+watchman watch-del-all
+
+# Clear Expo cache
+npx expo start --clear
+
+# Remove and reinstall dependencies
+rm -rf node_modules
+npm install  # or yarn/pnpm/bun
+
+# For iOS: reinstall pods
+cd ios && pod install --repo-update && cd ..
+
+# Rebuild
+npx expo run:ios
+```
+
+### Cause 5: Version Incompatibility
+
+Your Expo SDK version may not be compatible with `expo-superwall`.
+
+**Solution:** Run the Expo doctor to check for issues:
+
+```bash
+npx expo-doctor
+npx expo install --check
+```
+
+<Warning>
+Superwall requires **Expo SDK 53 or higher**. If you're on an older version, upgrade your Expo SDK first.
+</Warning>
+
+### Still Having Issues?
+
+If none of the above solutions work:
+
+1. **Completely clean rebuild:**
+   ```bash
+   rm -rf node_modules ios android .expo
+   npm install
+   npx expo prebuild --clean
+   npx expo run:ios
+   ```
+
+2. **Verify the package is installed:**
+   ```bash
+   npm ls expo-superwall
+   ```
+
+3. **Check for conflicting packages** that might interfere with native module resolution
