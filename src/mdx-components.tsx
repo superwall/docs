@@ -9,6 +9,7 @@ import React from "react"
 import { Accordion, Accordions as AccordionGroup } from 'fumadocs-ui/components/accordion';
 import { ImageZoom as Frame } from 'fumadocs-ui/components/image-zoom'
 import { SDKContent } from './components/SDKContent'
+import { SdkLatestVersion } from './components/SdkLatestVersion'
 import { GithubInfo as GithubInfoComponent } from 'fumadocs-ui/components/github-info';
 import { WhenLoggedIn, WhenLoggedOut, LoginStatusProvider, BasedOnAuth, LoggedIn, LoggedOut } from './components/LoginStatusContext';
 
@@ -277,6 +278,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Check,
     Warning,
     SDKContent,
+    SdkLatestVersion,
     GithubInfo,
     ParamTable,
     WhenLoggedIn,
