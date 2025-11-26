@@ -1,0 +1,75 @@
+---
+title: "getEntitlements()"
+description: "Gets all entitlements available to the user, organized by status."
+---
+
+## Purpose
+Retrieves all entitlements available to the user, organized into active, inactive, all, and web entitlements. Also provides a method to filter entitlements by product IDs.
+
+## Signature
+```dart
+Future<Entitlements> getEntitlements()
+```
+
+## Returns / State
+Returns a `Future<Entitlements>` containing:
+- `active` - Set of active entitlements
+- `inactive` - Set of inactive entitlements
+- `all` - Set of all entitlements (active and inactive)
+- `web` - Set of entitlements from web checkout
+- `byProductIds(productIds)` - Method to filter entitlements by product IDs
+
+## Usage
+
+Getting all entitlements:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+print('Active: ${entitlements.active.length}');
+print('Inactive: ${entitlements.inactive.length}');
+print('Total: ${entitlements.all.length}');
+print('Web: ${entitlements.web.length}');
+```
+
+Checking for specific entitlements:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+final hasPremium = entitlements.active.any(
+  (entitlement) => entitlement.id == 'premium',
+);
+
+if (hasPremium) {
+  print('User has premium access');
+}
+```
+
+Filtering entitlements by product IDs:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+// Get entitlements that contain any of these product IDs
+final filtered = await entitlements.byProductIds({
+  'premium_monthly',
+  'premium_yearly',
+});
+
+print('Found ${filtered.length} entitlements for those products');
+```
+
+Checking web checkout entitlements:
+```dart
+final entitlements = await Superwall.shared.getEntitlements();
+
+if (entitlements.web.isNotEmpty) {
+  print('User has ${entitlements.web.length} web checkout entitlements');
+  for (final entitlement in entitlements.web) {
+    print('Web entitlement: ${entitlement.id}');
+  }
+}
+```
+
+## Related
+- [`Entitlements`](/flutter/sdk-reference/Entitlements) - The entitlements container class
+- [`Entitlement`](/flutter/sdk-reference/Entitlement) - Individual entitlement information
+- [`getCustomerInfo()`](/flutter/sdk-reference/getCustomerInfo) - Get customer info including entitlements

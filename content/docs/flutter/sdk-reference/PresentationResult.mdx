@@ -1,0 +1,108 @@
+---
+title: "PresentationResult"
+description: "The result of a paywall presentation attempt."
+---
+
+## Purpose
+Represents the possible outcomes when checking or presenting a paywall. Used by [`getPresentationResult()`](/flutter/sdk-reference/getPresentationResult) and paywall presentation handlers.
+
+## Signature
+```dart
+sealed class PresentationResult {
+  factory PresentationResult.placementNotFound() = PlacementNotFoundPresentationResult;
+  factory PresentationResult.noAudienceMatch() = NoAudienceMatchPresentationResult;
+  factory PresentationResult.paywall(Experiment experiment) = PaywallPresentationResult;
+  factory PresentationResult.holdout(Experiment experiment) = HoldoutPresentationResult;
+  factory PresentationResult.paywallNotAvailable() = PaywallNotAvailablePresentationResult;
+}
+
+class PlacementNotFoundPresentationResult extends PresentationResult;
+class NoAudienceMatchPresentationResult extends PresentationResult;
+class PaywallPresentationResult extends PresentationResult {
+  final Experiment experiment;
+}
+class HoldoutPresentationResult extends PresentationResult {
+  final Experiment experiment;
+}
+class PaywallNotAvailablePresentationResult extends PresentationResult;
+```
+
+## Cases
+
+<ParamTable>
+| Case | Description |
+|------|-------------|
+| `PlacementNotFoundPresentationResult` | The placement was not found or doesn't exist. |
+| `NoAudienceMatchPresentationResult` | No audience match for the placement based on the current user attributes. |
+| `PaywallPresentationResult` | A paywall would be or was presented. Contains experiment information. |
+| `HoldoutPresentationResult` | The user is in a holdout group. Contains experiment information. |
+| `PaywallNotAvailablePresentationResult` | The paywall is not available (e.g., network error, configuration issue). |
+</ParamTable>
+
+## Experiment Information
+
+When a paywall is presented or the user is in a holdout group, the result includes an `Experiment` object:
+
+```dart
+class Experiment {
+  final String id;
+  final String groupId;
+}
+```
+
+- `id` - The unique identifier for the experiment
+- `groupId` - The identifier for the experiment group the user is in
+
+## Usage
+
+Handling different presentation results:
+```dart
+final result = await Superwall.shared.getPresentationResult('premium_feature');
+
+if (result is PaywallPresentationResult) {
+  // Paywall would be shown
+  final experimentId = result.experiment.id;
+  final groupId = result.experiment.groupId;
+  print('Experiment: $experimentId, Group: $groupId');
+} else if (result is HoldoutPresentationResult) {
+  // User is in holdout
+  print('User in holdout for experiment ${result.experiment.id}');
+} else if (result is NoAudienceMatchPresentationResult) {
+  // No audience match
+  print('No audience match for placement');
+} else if (result is PlacementNotFoundPresentationResult) {
+  // Placement not found
+  print('Placement not found');
+} else if (result is PaywallNotAvailablePresentationResult) {
+  // Paywall not available
+  print('Paywall not available');
+}
+```
+
+Using pattern matching:
+```dart
+final result = await Superwall.shared.getPresentationResult('premium_feature');
+
+switch (result) {
+  case PaywallPresentationResult(experiment: final exp):
+    // Handle paywall presentation
+    print('Paywall for experiment ${exp.id}');
+  case HoldoutPresentationResult(experiment: final exp):
+    // Handle holdout
+    print('Holdout for experiment ${exp.id}');
+  case NoAudienceMatchPresentationResult():
+    // Handle no match
+    print('No audience match');
+  case PlacementNotFoundPresentationResult():
+    // Handle not found
+    print('Placement not found');
+  case PaywallNotAvailablePresentationResult():
+    // Handle not available
+    print('Paywall not available');
+}
+```
+
+## Related
+- [`getPresentationResult()`](/flutter/sdk-reference/getPresentationResult) - Gets presentation result without showing paywall
+- [`registerPlacement()`](/flutter/sdk-reference/register) - Registers and presents a paywall
+- [`PaywallPresentationHandler`](/flutter/sdk-reference/PaywallPresentationHandler) - Handles paywall presentation lifecycle

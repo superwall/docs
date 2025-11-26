@@ -1,0 +1,62 @@
+---
+title: "getCustomerInfo()"
+description: "Gets the latest customer information including subscriptions, transactions, and entitlements."
+---
+
+## Purpose
+Retrieves the most up-to-date customer information including subscription transactions, non-subscription transactions, entitlements, and user ID. This is useful for displaying subscription status, checking entitlements, or syncing with other services.
+
+## Signature
+```dart
+Future<CustomerInfo> getCustomerInfo()
+```
+
+## Returns / State
+Returns a `Future<CustomerInfo>` containing:
+- `subscriptions` - List of subscription transactions
+- `nonSubscriptions` - List of non-subscription transactions (consumables, non-consumables)
+- `entitlements` - List of all entitlements available to the user
+- `userId` - The ID of the user
+
+## Usage
+
+Getting customer info:
+```dart
+final customerInfo = await Superwall.shared.getCustomerInfo();
+
+print('User ID: ${customerInfo.userId}');
+print('Active subscriptions: ${customerInfo.subscriptions.length}');
+print('Entitlements: ${customerInfo.entitlements.length}');
+```
+
+Checking for specific entitlements:
+```dart
+final customerInfo = await Superwall.shared.getCustomerInfo();
+
+final hasPremium = customerInfo.entitlements.any(
+  (entitlement) => entitlement.id == 'premium' && entitlement.isActive,
+);
+
+if (hasPremium) {
+  print('User has premium access');
+}
+```
+
+Accessing subscription transactions:
+```dart
+final customerInfo = await Superwall.shared.getCustomerInfo();
+
+for (final subscription in customerInfo.subscriptions) {
+  print('Product: ${subscription.productId}');
+  print('Active: ${subscription.isActive}');
+  print('Will renew: ${subscription.willRenew}');
+  if (subscription.expirationDate != null) {
+    print('Expires: ${subscription.expirationDate}');
+  }
+}
+```
+
+## Related
+- [`CustomerInfo`](/flutter/sdk-reference/CustomerInfo) - The customer information class
+- [`getEntitlements()`](/flutter/sdk-reference/getEntitlements) - Gets entitlements directly
+- [`subscriptionStatus`](/flutter/sdk-reference/subscriptionStatus) - Stream of subscription status changes

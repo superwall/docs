@@ -1,0 +1,104 @@
+---
+title: "overrideProductsByName"
+description: "Globally override products on any paywall by product name."
+---
+
+## Purpose
+Allows you to globally override products on any paywall that have a given name. The key is the product name in the paywall, and the value is the product identifier to replace it with. This is useful for A/B testing different products or dynamically changing products based on user segments.
+
+## Signature
+```dart
+// Setter
+set overrideProductsByName(Map<String, String>? overrideProducts)
+
+// Getter
+Future<Map<String, String>?> getOverrideProductsByName()
+```
+
+## Parameters
+<ParamTable>
+| Name | Type | Description |
+|------|------|-------------|
+| `overrideProducts` | `Map<String, String>?` | A map where keys are product names in paywalls (e.g., `"primary"`, `"secondary"`) and values are the product identifiers to replace them with (e.g., `"com.example.premium_monthly"`). Pass `null` to clear all overrides. |
+</ParamTable>
+
+## Returns / State
+- **Setter**: Sets the global product overrides. Changes take effect immediately for all future paywall presentations.
+- **Getter**: Returns a `Future<Map<String, String>?>` containing the current override mapping, or `null` if no overrides are set.
+
+## Usage
+
+Setting product overrides:
+```dart
+// Override products globally
+Superwall.shared.overrideProductsByName = {
+  'primary': 'com.example.premium_monthly',
+  'secondary': 'com.example.premium_annual',
+  'tertiary': 'com.example.premium_lifetime',
+};
+
+// All paywalls will now use these product identifiers
+// instead of the ones configured in the dashboard
+```
+
+Clearing overrides:
+```dart
+// Clear all overrides
+Superwall.shared.overrideProductsByName = null;
+```
+
+Getting current overrides:
+```dart
+final overrides = await Superwall.shared.getOverrideProductsByName();
+if (overrides != null) {
+  print('Current overrides: $overrides');
+} else {
+  print('No overrides set');
+}
+```
+
+Dynamic overrides based on user segment:
+```dart
+void _setProductOverridesForUser(User user) {
+  if (user.isPremium) {
+    // Premium users get annual products
+    Superwall.shared.overrideProductsByName = {
+      'primary': 'com.example.premium_annual',
+    };
+  } else {
+    // Regular users get monthly products
+    Superwall.shared.overrideProductsByName = {
+      'primary': 'com.example.premium_monthly',
+    };
+  }
+}
+```
+
+A/B testing different products:
+```dart
+void _setupProductABTest() {
+  final random = Random();
+  if (random.nextBool()) {
+    // Variant A: Monthly product
+    Superwall.shared.overrideProductsByName = {
+      'primary': 'com.example.premium_monthly',
+    };
+  } else {
+    // Variant B: Annual product
+    Superwall.shared.overrideProductsByName = {
+      'primary': 'com.example.premium_annual',
+    };
+  }
+}
+```
+
+## Notes
+
+- Overrides apply globally to all paywalls that use the specified product names
+- Overrides take effect immediately for all future paywall presentations
+- You can also set overrides per-paywall using [`PaywallOptions.overrideProductsByName`](/flutter/sdk-reference/PaywallOptions#overrideproductsbyname)
+- Per-paywall overrides take precedence over global overrides
+
+## Related
+- [`PaywallOptions.overrideProductsByName`](/flutter/sdk-reference/PaywallOptions) - Override products for a specific paywall
+- [`PaywallOptions`](/flutter/sdk-reference/PaywallOptions) - Paywall configuration options
