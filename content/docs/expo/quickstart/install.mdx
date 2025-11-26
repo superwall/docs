@@ -20,6 +20,23 @@ This SDK is exclusively compatible with Expo SDK version 53 and newer. For proje
 
 </Warning>
 
+<Warning>
+
+**Expo Go is Not Supported**
+
+The Superwall SDK uses native modules that are not available in Expo Go. You must use an [Expo Development Build](https://docs.expo.dev/develop/development-builds/introduction/) to run your app with Superwall.
+
+To create a development build:
+```bash
+npx expo run:ios
+# or
+npx expo run:android
+```
+
+If you see the error `Cannot find native module 'SuperwallExpo'`, see our [Debugging guide](/expo/guides/debugging) for solutions.
+
+</Warning>
+
 To see the latest release, check out the [Superwall Expo SDK repo](https://github.com/superwall/expo-superwall).
 
 
