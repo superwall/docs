@@ -3,7 +3,6 @@
     "icon": "Flutter",
     "root": true,
     "pages": [
-        "[Dashboard Docs](https://superwall.com/docs/dashboard)",
         "index",
 
         "---Quickstart---",

@@ -3,7 +3,6 @@
     "icon": "Expo",
     "root": true,
     "pages": [
-        "[Dashboard Docs](https://superwall.com/docs/dashboard)",
         "index",
 
         "---Quickstart---",

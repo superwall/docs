@@ -1,5 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import { Activity, Book, BookOpen, Github, Twitter, HelpCircle, Sparkles } from 'lucide-react';
+import { Activity, Book, BookOpen, Github, Twitter, HelpCircle, Sparkles, PanelsTopLeft, HammerIcon } from 'lucide-react';
 import { DiscordIcon } from '@/components/DiscordIcon';
 
 /**
@@ -47,6 +47,18 @@ export const baseOptions: BaseLayoutProps = {
       active: 'none',
       icon: <HelpCircle />,
     },
+    // {
+    //   text: 'Dashboard Docs',
+    //   url: '/dashboard',
+    //   active: 'none',
+    //   icon: <PanelsTopLeft />,
+    // },
+    // {
+    //   text: 'SDK Docs',
+    //   url: '/sdk/home',
+    //   active: 'none',
+    //   icon: <HammerIcon />,
+    // }
     // {
     //   text: 'Status',
     //   url: 'https://status.superwall.com',

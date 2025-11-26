@@ -3,7 +3,6 @@
     "icon": "ShoppingBag",
     "root": true,
     "pages": [
-        "[Dashboard Docs](https://superwall.com/docs/dashboard)",
         "web-checkout-overview",
 
         "---Getting Started---",
