@@ -1,5 +1,5 @@
 import { $ } from 'bun';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
 
 const repositories = [
@@ -52,6 +52,19 @@ for (const repo of repositories) {
       console.log(`✓ Cloned ${repo.name}`);
     } catch (error) {
       console.error(`✗ Failed to clone ${repo.name}:`, error);
+    }
+  }
+
+  // Remove test file from react-native repository
+  if (repo.name === 'react-native') {
+    const testFilePath = join(repoPath, 'src', '__tests__', 'index.test.tsx');
+    if (existsSync(testFilePath)) {
+      try {
+        unlinkSync(testFilePath);
+        console.log(`✓ Removed ${testFilePath}`);
+      } catch (error) {
+        console.error(`✗ Failed to remove ${testFilePath}:`, error);
+      }
     }
   }
 }
